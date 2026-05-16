@@ -1,0 +1,271 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Biolabs Design System: Dark Industrial Scientific Workstation */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  /* Biolabs: Dark monochrome palette */
+  --primary: #7C8A99;
+  --primary-foreground: #F2F2F2;
+  --sidebar-primary: #7C8A99;
+  --sidebar-primary-foreground: #F2F2F2;
+  --chart-1: #7C8A99;
+  --chart-2: #9A9A9A;
+  --chart-3: #7C8A99;
+  --chart-4: #5A5A5A;
+  --chart-5: #3A3A3A;
+  --radius: 0;
+  --background: #0A0A0A;
+  --foreground: #F2F2F2;
+  --card: #1B1B1B;
+  --card-foreground: #F2F2F2;
+  --popover: #202020;
+  --popover-foreground: #F2F2F2;
+  --secondary: #2A2A2A;
+  --secondary-foreground: #9A9A9A;
+  --muted: #3A3A3A;
+  --muted-foreground: #7C8A99;
+  --accent: #7C8A99;
+  --accent-foreground: #F2F2F2;
+  --destructive: #FF4444;
+  --destructive-foreground: #F2F2F2;
+  --border: #2A2A2A;
+  --input: #161616;
+  --ring: #7C8A99;
+  --sidebar: #0A0A0A;
+  --sidebar-foreground: #F2F2F2;
+  --sidebar-accent: #7C8A99;
+  --sidebar-accent-foreground: #F2F2F2;
+  --sidebar-border: #2A2A2A;
+  --sidebar-ring: #7C8A99;
+}
+
+.dark {
+  /* Biolabs is dark-only, so these values are the same as :root */
+  --primary: #7C8A99;
+  --primary-foreground: #F2F2F2;
+  --sidebar-primary: #7C8A99;
+  --sidebar-primary-foreground: #F2F2F2;
+  --background: #0A0A0A;
+  --foreground: #F2F2F2;
+  --card: #1B1B1B;
+  --card-foreground: #F2F2F2;
+  --popover: #202020;
+  --popover-foreground: #F2F2F2;
+  --secondary: #2A2A2A;
+  --secondary-foreground: #9A9A9A;
+  --muted: #3A3A3A;
+  --muted-foreground: #7C8A99;
+  --accent: #7C8A99;
+  --accent-foreground: #F2F2F2;
+  --destructive: #FF4444;
+  --destructive-foreground: #F2F2F2;
+  --border: #2A2A2A;
+  --input: #161616;
+  --ring: #7C8A99;
+  --chart-1: #7C8A99;
+  --chart-2: #9A9A9A;
+  --chart-3: #7C8A99;
+  --chart-4: #5A5A5A;
+  --chart-5: #3A3A3A;
+  --sidebar: #0A0A0A;
+  --sidebar-foreground: #F2F2F2;
+  --sidebar-accent: #7C8A99;
+  --sidebar-accent-foreground: #F2F2F2;
+  --sidebar-border: #2A2A2A;
+  --sidebar-ring: #7C8A99;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
+  html {
+    /* Force dark mode for Biolabs */
+    color-scheme: dark;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'Geist', 'IBM Plex Sans', system-ui, sans-serif;
+  }
+  
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
+  }
+  
+  /* Biolabs: Sharp corners everywhere */
+  input,
+  textarea,
+  select,
+  button {
+    @apply rounded-none;
+  }
+  
+  /* Biolabs: Minimal focus ring */
+  *:focus-visible {
+    @apply outline-2 outline-offset-1;
+  }
+}
+
+@layer components {
+  /* Biolabs: Docking panel system */
+  .workstation {
+    @apply flex h-screen w-screen bg-background text-foreground;
+  }
+  
+  .panel {
+    @apply border-border bg-card text-card-foreground;
+    border: 1px solid #2A2A2A;
+  }
+  
+  .panel-left {
+    @apply border-border bg-card text-card-foreground w-[280px] border-r flex flex-col overflow-hidden;
+    border: 1px solid #2A2A2A;
+  }
+  
+  .panel-right {
+    @apply border-border bg-card text-card-foreground w-[320px] border-l flex flex-col overflow-hidden;
+    border: 1px solid #2A2A2A;
+  }
+  
+  .panel-center {
+    @apply flex-1 flex flex-col overflow-hidden;
+  }
+  
+  .panel-bottom {
+    @apply border-border bg-card text-card-foreground h-[200px] border-t flex flex-col overflow-hidden;
+    border: 1px solid #2A2A2A;
+  }
+  
+  /* Biolabs: Panel header */
+  .panel-header {
+    @apply flex items-center justify-between px-3 py-2 border-b border-border;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #9A9A9A;
+  }
+  
+  /* Biolabs: Panel content */
+  .panel-content {
+    @apply flex-1 overflow-y-auto px-3 py-2;
+  }
+  
+  /* Biolabs: Scrollbar styling */
+  .panel-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .panel-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .panel-content::-webkit-scrollbar-thumb {
+    background: #3A3A3A;
+    border-radius: 0;
+  }
+  
+  .panel-content::-webkit-scrollbar-thumb:hover {
+    background: #5A5A5A;
+  }
+  
+  /* Biolabs: Section divider */
+  .section-divider {
+    @apply my-2 border-t border-border;
+  }
+  
+  /* Biolabs: Scientific label */
+  .sci-label {
+    @apply text-xs font-medium uppercase tracking-wider text-muted-foreground;
+  }
+  
+  /* Biolabs: Compact button */
+  .btn-compact {
+    @apply px-2 py-1 text-xs font-medium border border-border rounded-none bg-secondary hover:bg-muted text-foreground transition-colors duration-150;
+  }
+  
+  /* Biolabs: HUD text */
+  .hud-text {
+    @apply text-xs font-mono text-muted-foreground;
+  }
+  
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1280px;
+    }
+  }
+}

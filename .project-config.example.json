@@ -1,0 +1,20 @@
+{
+  "build_command": "pnpm run build",
+  "capabilities": [],
+  "dev_command": "pnpm run dev",
+  "env_vars": {},
+  "experiments": null,
+  "git_remote": {
+    "repo_url": "",
+    "access_key_id": "",
+    "secret_access_key": "",
+    "session_token": "",
+    "expiration": ""
+  },
+  "name": "biolabs",
+  "path": "",
+  "port": 3000,
+  "secrets": {},
+  "template_id": "web-static",
+  "test_command": "pnpm test"
+}
