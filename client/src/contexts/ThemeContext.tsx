@@ -1,64 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-
-type Theme = "light" | "dark";
-
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme?: () => void;
-  switchable: boolean;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+import {
+  ThemeProvider as NextThemesProvider,
+  useTheme as useNextThemes,
+} from "next-themes";
+import type { ReactNode } from "react";
 
 interface ThemeProviderProps {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-  switchable?: boolean;
+  children: ReactNode;
 }
 
-export function ThemeProvider({
-  children,
-  defaultTheme = "light",
-  switchable = false,
-}: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (switchable) {
-      const stored = localStorage.getItem("theme");
-      return (stored as Theme) || defaultTheme;
-    }
-    return defaultTheme;
-  });
-
-  useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-
-    if (switchable) {
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme, switchable]);
-
-  const toggleTheme = switchable
-    ? () => {
-        setTheme(prev => (prev === "light" ? "dark" : "light"));
-      }
-    : undefined;
-
+/** Follows OS light/dark via `prefers-color-scheme` (defaultTheme: system). */
+export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, switchable }}>
+    <NextThemesProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       {children}
-    </ThemeContext.Provider>
+    </NextThemesProvider>
   );
 }
 
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useTheme must be used within ThemeProvider");
+/** Resolved appearance for UI that cannot use CSS variables alone (e.g. NGL canvas). */
+export function useResolvedTheme(): "light" | "dark" {
+  const { resolvedTheme } = useNextThemes();
+  if (resolvedTheme === "light" || resolvedTheme === "dark") return resolvedTheme;
+  if (typeof document !== "undefined" && document.documentElement.classList.contains("dark")) {
+    return "dark";
   }
-  return context;
+  if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "light";
+}
+
+export function useTheme() {
+  const { theme, setTheme, resolvedTheme } = useNextThemes();
+  const resolved = resolvedTheme === "light" ? "light" : "dark";
+  return {
+    theme: resolved,
+    systemTheme: theme,
+    setTheme,
+    toggleTheme: () => setTheme(resolved === "dark" ? "light" : "dark"),
+    switchable: true,
+  };
 }

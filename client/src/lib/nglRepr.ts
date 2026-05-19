@@ -1,5 +1,4 @@
 import { StructureComponent } from "ngl";
-import { ensureMsaNglSchemes } from "@/lib/nglMsaColor";
 
 export type VizRepresentationId =
   | "cartoon"
@@ -17,9 +16,7 @@ export type VizColorSchemeId =
   | "hydrophobicity"
   | "bfactor"
   | "electrostatic"
-  | "bfactor_gray"
-  | "msa_entropy"
-  | "msa_gap";
+  | "bfactor_gray";
 
 /** Map UI alias IDs to NGL representation names. */
 export function nglReprType(id: VizRepresentationId): string {
@@ -31,8 +28,6 @@ export function nglReprType(id: VizRepresentationId): string {
 export function nglColorScheme(id: VizColorSchemeId): string {
   if (id === "electrostatic") return "electrostatic";
   if (id === "bfactor_gray") return "bfactor";
-  if (id === "msa_entropy") return ensureMsaNglSchemes().entropy;
-  if (id === "msa_gap") return ensureMsaNglSchemes().gap;
   return id;
 }
 
@@ -56,9 +51,8 @@ export function applyMainRepresentation(
   clearStructureRepresentations(sc);
 
   const sele = options.isolateChainId ? `:${options.isolateChainId}` : "";
-  const cs = nglColorScheme(colorScheme);
   const base: Record<string, unknown> = {
-    colorScheme: cs,
+    colorScheme: nglColorScheme(colorScheme),
     opacity: options.transparent ? options.opacity ?? 0.85 : 1,
   };
   if (colorScheme === "bfactor_gray") {

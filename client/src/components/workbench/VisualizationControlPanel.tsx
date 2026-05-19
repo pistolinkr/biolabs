@@ -18,8 +18,6 @@ const COLORS: { id: VizColorSchemeId; label: string }[] = [
   { id: "bfactor", label: "B-factor / pLDDT" },
   { id: "bfactor_gray", label: "Confidence (grey ramp)" },
   { id: "electrostatic", label: "Electrostatic" },
-  { id: "msa_entropy", label: "MSA conservation (entropy)" },
-  { id: "msa_gap", label: "MSA gap fraction" },
 ];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -61,8 +59,6 @@ export default function VisualizationControlPanel() {
     setSpinEnabled,
     measurementMode,
     setMeasurementMode,
-    showContactsOverlay,
-    runViewerCommand,
   } = useViewer();
 
   return (
@@ -116,21 +112,6 @@ export default function VisualizationControlPanel() {
             />
           </label>
         ))}
-      </Section>
-
-      <Section title="Analysis overlays">
-        <label className="flex cursor-pointer items-center justify-between font-mono text-[10px] text-[#B0B0B0]">
-          <span>Contact pairs (NGL)</span>
-          <input
-            type="checkbox"
-            checked={showContactsOverlay}
-            onChange={() => runViewerCommand("overlay.contacts.toggle")}
-            className="accent-[#7C8A99]"
-          />
-        </label>
-        <p className="font-mono text-[9px] leading-tight text-[#6A6A6A]">
-          RMSD / clash scoring still server-local (stub).
-        </p>
       </Section>
 
       <Section title="Simulation">

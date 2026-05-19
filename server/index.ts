@@ -1,11 +1,10 @@
-import "dotenv/config";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import express, { type Request, type Response } from "express";
 import { createServer } from "http";
 import path from "path";
+import { getWorkflowJobsSnapshot } from "./core/workflow/jobQueue.ts";
 import { fileURLToPath } from "url";
-import { createAiRouter } from "./core/ai/router.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,9 +92,26 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  app.use(express.json({ limit: "2mb" }));
+  app.use(express.json({ limit: "512kb" }));
 
-  app.use("/api/ai", createAiRouter());
+  app.get("/api/workflow/status", (_req, res) => {
+    try {
+      const snap = getWorkflowJobsSnapshot();
+      res.json({
+        connected: true,
+        jobs: snap.jobs,
+        queueDepth: snap.queueDepth,
+        lastPipelineError: snap.lastPipelineError,
+      });
+    } catch (e) {
+      res.status(500).json({
+        connected: false,
+        jobs: [],
+        queueDepth: 0,
+        lastPipelineError: e instanceof Error ? e.message : "workflow status error",
+      });
+    }
+  });
 
   app.use("/api/uniprot", (req, res) =>
     forwardToOrigin("https://rest.uniprot.org", req, res, "/api/uniprot"),
@@ -111,10 +127,6 @@ async function startServer() {
 
   app.use("/api/alphafold", (req, res) =>
     forwardToOrigin("https://alphafold.ebi.ac.uk", req, res, "/api/alphafold"),
-  );
-
-  app.use("/api/rcsb-data", (req, res) =>
-    forwardToOrigin("https://data.rcsb.org", req, res, "/api/rcsb-data"),
   );
 
   const staticPath =

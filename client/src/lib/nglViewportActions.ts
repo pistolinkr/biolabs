@@ -29,30 +29,42 @@ export function nglFitStructure(stage: Stage | null, sc: StructureComponent | nu
   }
 }
 
-/** Fit isolate chain, residue key (NGL sele), contextual focus, or full structure. */
+/** App residue key from sequence strip / picks: `CHAIN:resno` → NGL-style attempts. */
+function nglSeleCandidatesFromAppResidueKey(key: string): string[] {
+  const raw = key.trim();
+  const m = /^([^:]+):(\d+)$/.exec(raw);
+  if (!m) return [raw];
+  const [, chain, resno] = m;
+  return [`${resno}:${chain}`, `${resno} and :${chain}`, `/${resno}:${chain}`, raw];
+}
+
+/** Fit isolate chain, residue key (NGL sele), or full structure. */
 export function nglFitSelection(
   stage: Stage | null,
   sc: StructureComponent | null,
   isolateChainId: string | null,
   selectedResidueKey: string | null,
-  molecularFocusPrimarySele?: string | null,
-  durationMs = 350,
 ): void {
   if (!stage || !sc) return;
   try {
-    if (molecularFocusPrimarySele?.trim()) {
-      sc.autoView(molecularFocusPrimarySele.trim(), durationMs);
-      return;
-    }
     if (selectedResidueKey?.trim()) {
-      sc.autoView(selectedResidueKey.trim(), durationMs);
+      const tries = nglSeleCandidatesFromAppResidueKey(selectedResidueKey);
+      for (const sele of tries) {
+        try {
+          sc.autoView(sele, 0);
+          return;
+        } catch {
+          /* try next */
+        }
+      }
+      sc.autoView();
       return;
     }
     if (isolateChainId) {
-      sc.autoView(`:${isolateChainId}`, durationMs);
+      sc.autoView(`:${isolateChainId}`, 0);
       return;
     }
-    sc.autoView(durationMs);
+    sc.autoView();
   } catch {
     try {
       stage.autoView();
@@ -62,32 +74,31 @@ export function nglFitSelection(
   }
 }
 
-export function nglSmoothFocusOnSele(sc: StructureComponent | null, sele: string, durationMs = 450): void {
-  if (!sc || !sele.trim()) return;
-  try {
-    sc.autoView(sele.trim(), durationMs);
-  } catch {
-    /* ignore */
-  }
-}
-
-export function nglScreenshotToFile(stage: Stage | null, filename = "biolabs-viewport.png"): boolean {
+export async function nglScreenshotToFile(
+  stage: Stage | null,
+  filename = "biolabs-viewport.png",
+): Promise<boolean> {
   if (!stage) return false;
   try {
-    const viewer = (stage as unknown as { viewer: { render: () => void; canvas: HTMLCanvasElement } }).viewer;
-    viewer.render();
-    const { canvas } = viewer;
-    canvas.toBlob((blob) => {
-      if (!blob) return;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    }, "image/png");
+    const blob = await stage.makeImage({
+      factor: 1,
+      antialias: true,
+      trim: false,
+      transparent: false,
+    });
+    if (!blob || blob.size === 0) return false;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.rel = "noopener";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
     return true;
   } catch {
+    /* NGL 2.x: viewer.canvas is not exposed; makeImage is the supported path. */
     return false;
   }
 }

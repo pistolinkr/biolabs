@@ -5,7 +5,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
-import { createAiDevExpressApp } from "./server/ai-dev-middleware";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -151,6 +150,33 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+/** Dev-only: same shape as production GET /api/workflow/status when queue is empty. */
+function vitePluginWorkflowStatusDev(): Plugin {
+  return {
+    name: "biolabs-workflow-status-dev",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split("?")[0] ?? "";
+        if (req.method === "GET" && url === "/api/workflow/status") {
+          const body = JSON.stringify({
+            connected: true,
+            jobs: [],
+            queueDepth: 0,
+            lastPipelineError: null,
+          });
+          res.writeHead(200, {
+            "Content-Type": "application/json; charset=utf-8",
+            "Cache-Control": "no-store",
+          });
+          res.end(body);
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 function vitePluginStorageProxy(): Plugin {
   return {
     name: "manus-storage-proxy",
@@ -204,85 +230,14 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-/** Same upstream proxy rules for `server` and `preview` (RCSB / UniProt / AF DB). */
-const SHARED_API_PROXY: NonNullable<typeof import("vite").UserConfig["server"]>["proxy"] = {
-  "/api/uniprot": {
-    target: "https://rest.uniprot.org",
-    changeOrigin: true,
-    rewrite: (p) => p.replace(/^\/api\/uniprot/, ""),
-  },
-  "/api/rcsb-search": {
-    target: "https://search.rcsb.org",
-    changeOrigin: true,
-    rewrite: (p) => p.replace(/^\/api\/rcsb-search/, ""),
-  },
-  "/api/rcsb-files": {
-    target: "https://files.rcsb.org",
-    changeOrigin: true,
-    rewrite: (p) => p.replace(/^\/api\/rcsb-files/, ""),
-  },
-  "/api/alphafold": {
-    target: "https://alphafold.ebi.ac.uk",
-    changeOrigin: true,
-    rewrite: (p) => p.replace(/^\/api\/alphafold/, ""),
-  },
-  "/api/rcsb-data": {
-    target: "https://data.rcsb.org",
-    changeOrigin: true,
-    rewrite: (p) => p.replace(/^\/api\/rcsb-data/, ""),
-  },
-};
-
-/** In-process Express BFF so dev/preview can serve `/api/ai/*` without `pnpm start`. */
-function vitePluginBiolabsAiBffDev(): Plugin {
-  return {
-    name: "biolabs-ai-bff-dev",
-    configureServer(server: ViteDevServer) {
-      server.middlewares.use("/api/ai", createAiDevExpressApp());
-    },
-    configurePreviewServer(server) {
-      server.middlewares.use("/api/ai", createAiDevExpressApp());
-    },
-  };
-}
-
-/**
- * Optional Umami — only when both `VITE_ANALYTICS_ENDPOINT` and `VITE_ANALYTICS_WEBSITE_ID` are set.
- */
-function vitePluginAnalyticsHtml(): Plugin {
-  return {
-    name: "biolabs-analytics-html",
-    transformIndexHtml(html) {
-      const endpoint = process.env.VITE_ANALYTICS_ENDPOINT?.trim();
-      const websiteId = process.env.VITE_ANALYTICS_WEBSITE_ID?.trim();
-      if (!endpoint || !websiteId) return html;
-      return {
-        html,
-        tags: [
-          {
-            tag: "script",
-            attrs: {
-              defer: true,
-              src: `${endpoint.replace(/\/+$/, "")}/umami`,
-              "data-website-id": websiteId,
-            },
-            injectTo: "body",
-          },
-        ],
-      };
-    },
-  };
-}
-
 const plugins = [
   react(),
   tailwindcss(),
   jsxLocPlugin(),
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
+  vitePluginWorkflowStatusDev(),
   vitePluginStorageProxy(),
-  vitePluginBiolabsAiBffDev(),
-  vitePluginAnalyticsHtml(),
 ];
 
 export default defineConfig({
@@ -307,7 +262,28 @@ export default defineConfig({
     port: 3000,
     strictPort: false, // Will find next available port if 3000 is busy
     host: true,
-    proxy: { ...SHARED_API_PROXY },
+    proxy: {
+      "/api/uniprot": {
+        target: "https://rest.uniprot.org",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/uniprot/, ""),
+      },
+      "/api/rcsb-search": {
+        target: "https://search.rcsb.org",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/rcsb-search/, ""),
+      },
+      "/api/rcsb-files": {
+        target: "https://files.rcsb.org",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/rcsb-files/, ""),
+      },
+      "/api/alphafold": {
+        target: "https://alphafold.ebi.ac.uk",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api\/alphafold/, ""),
+      },
+    },
     allowedHosts: [
       ".manuspre.computer",
       ".manus.computer",
@@ -321,9 +297,5 @@ export default defineConfig({
       strict: true,
       deny: ["**/.*"],
     },
-  },
-  preview: {
-    host: true,
-    proxy: { ...SHARED_API_PROXY },
   },
 });

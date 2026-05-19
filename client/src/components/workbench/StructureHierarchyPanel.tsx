@@ -87,12 +87,11 @@ export default function StructureHierarchyPanel() {
                     <span className="ml-auto text-[#5A5A5A]">{list.length}</span>
                   </button>
                   {go
-                    ? list.map((c: ChainModel, idx: number) => {
-                        const rowKey = `${gk}:${idx}`;
-                        const co = chainOpen[rowKey] ?? false;
+                    ? list.map((c: ChainModel) => {
+                        const co = chainOpen[c.id] ?? false;
                         return (
                           <div
-                            key={rowKey}
+                            key={c.id}
                             className="border-t border-[#2A2A2A]/50 py-1 pl-1"
                             onMouseEnter={() => setHoverChainId(c.id)}
                             onMouseLeave={() => setHoverChainId(null)}
@@ -101,7 +100,7 @@ export default function StructureHierarchyPanel() {
                               <button
                                 type="button"
                                 className="text-[#8A8A8A] hover:text-[#F2F2F2]"
-                                onClick={() => setChainOpen((s) => ({ ...s, [rowKey]: !co }))}
+                                onClick={() => setChainOpen((s) => ({ ...s, [c.id]: !co }))}
                               >
                                 {co ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                               </button>

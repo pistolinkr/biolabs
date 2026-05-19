@@ -32,7 +32,7 @@ export default function AppHeader({
   }, [onCommandPaletteOpen]);
 
   return (
-    <header className="border-b border-border bg-[#0F0F0F] h-12 flex items-center justify-between px-4">
+    <header className="border-b border-border bg-card h-12 flex items-center justify-between px-4">
       {/* Left: Branding */}
       <div className="flex items-center gap-3">
         <div className="w-6 h-6 border border-accent flex items-center justify-center">

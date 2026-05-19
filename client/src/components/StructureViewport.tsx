@@ -1,15 +1,15 @@
-import { Stage, StructureComponent, type PickingProxy } from "ngl";
+import { Stage, StructureComponent } from "ngl";
 import { startTransition, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useViewer } from "@/contexts/ViewerContext";
+import { useViewer, type ContextContactRadiusAngstrom, type SequencePolymerKind, type ViewportPickDetail } from "@/contexts/ViewerContext";
 import { resolveStructure } from "@/lib/structureSources";
 import { buildHierarchyFromStructure } from "@/lib/structureModelFromNgl";
 import { applyMainRepresentation } from "@/lib/nglRepr";
-import { ensureMsaNglSchemes } from "@/lib/nglMsaColor";
-import { msaVizHasResidueMaps } from "@/lib/msa/msaVizBinding";
-import { molecularFocusFromPickingProxy, FOCUS_MAX_ATOMS_NEIGHBOR_REPR } from "@/lib/nglContextFromPick";
-import { nglSmoothFocusOnSele } from "@/lib/nglViewportActions";
-import type { MolecularFocusContext } from "@/lib/molecularContext";
+import { applyRelativeDepthFog } from "@/lib/nglViewportTune";
+import { applyPolymerContextHighlight } from "@/lib/nglSequenceNeighborhood";
+import { nglFitSelection } from "@/lib/nglViewportActions";
+import { viewportBackgroundColor } from "@/lib/themeColors";
+import { useResolvedTheme } from "@/contexts/ThemeContext";
 
 /** Softer key + fill for dark background — avoids blown-out, neon-like chain colors. */
 const VIEWPORT_LIGHTING = {
@@ -17,54 +17,28 @@ const VIEWPORT_LIGHTING = {
   ambientIntensity: 0.3,
 } as const;
 
-/** Contextual highlight after viewport pick — appended after main repr refresh. */
-function applyMolecularFocusRepr(sc: StructureComponent, focus: MolecularFocusContext, atomCount: number): void {
-  if (focus.primary.type === "surface") return;
-
-  const addShell = atomCount <= FOCUS_MAX_ATOMS_NEIGHBOR_REPR;
-
-  try {
-    sc.addRepresentation("ball+stick", {
-      sele: focus.primary.nglSele,
-      color: "#e8b86d",
-      scale: 0.42,
-      multipleBond: "symmetric",
-    } as never);
-  } catch {
-    /* */
-  }
-
-  if (!addShell) return;
-
-  const shellSele = `(${focus.neighborhoodSele}) and not (${focus.primarySele})`;
-  try {
-    sc.addRepresentation("line", {
-      sele: shellSele,
-      color: "#8090a0",
-      opacity: 0.28,
-    } as never);
-  } catch {
-    /* */
-  }
-
-  const lig = focus.ligandSele?.trim();
-  if (lig && lig !== focus.primary.nglSele && !lig.toLowerCase().includes("none")) {
-    try {
-      sc.addRepresentation("ball+stick", {
-        sele: lig,
-        color: "#6dccaa",
-        scale: 0.34,
-        opacity: 0.92,
-        multipleBond: "symmetric",
-      } as never);
-    } catch {
-      /* */
-    }
-  }
-}
-
 /** Delay before showing repr overlay — avoids flash on fast updates. */
 const REPR_LOADING_DELAY_MS = 200;
+
+function pickAtomFromProxy(pickingProxy: unknown): Record<string, unknown> | null {
+  if (!pickingProxy || typeof pickingProxy !== "object") return null;
+  const p = pickingProxy as { atom?: unknown; closestBondAtom?: unknown };
+  const raw = p.atom ?? p.closestBondAtom;
+  if (!raw || typeof raw !== "object") return null;
+  return raw as Record<string, unknown>;
+}
+
+function detailFromAtomProxy(atom: Record<string, unknown>): ViewportPickDetail | null {
+  const chain = String(atom.chainname ?? atom.chainid ?? "?");
+  const resno = Number(atom.resno);
+  const resname = String(atom.resname ?? "???");
+  if (!Number.isFinite(resno)) return null;
+  const x = Number(atom.x);
+  const y = Number(atom.y);
+  const z = Number(atom.z);
+  const hasXYZ = Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z);
+  return { chain, resno, resname, ...(hasXYZ ? { x, y, z } : {}) };
+}
 
 /**
  * NGL WebGL viewport — loads mmCIF/PDB; viewer state from ViewerContext.
@@ -82,20 +56,44 @@ export default function StructureViewport({ className = "" }: { className?: stri
     renderOptions,
     reprGeneration,
     requestReprRefresh,
-    showContactsOverlay,
-    measurementMode,
-    setMolecularFocus,
-    clearMolecularFocus,
-    molecularFocus,
-    msaVizBinding,
+    nglQuality,
+    setSelectedResidueKey,
+    setViewportPickDetail,
+    selectedResidueKey,
+    selectedSequencePolymerKind,
+    viewportPickDetail,
+    contextContactRadiusAngstrom,
+    setPolymerContextSnapshot,
+    structureModel,
+    polymerInteractionOverlayEnabled,
+    nucleicBackboneAccentEnabled,
   } = useViewer();
-
-  const measurementModeRef = useRef(measurementMode);
-  measurementModeRef.current = measurementMode;
+  const resolvedTheme = useResolvedTheme();
 
   const hostRef = useRef<HTMLDivElement>(null);
   const localStageRef = useRef<Stage | null>(null);
   const fileObjectUrlRef = useRef<string | null>(null);
+  /** Avoid re-framing on context-radius / overlay changes; refocus only on new sequence-strip clicks. */
+  const lastSequenceCameraFocusRef = useRef<string | null>(null);
+  const structureTitle = structureModel?.title ?? "";
+  const polymerCtxRef = useRef({
+    viewportPickDetail: null as ViewportPickDetail | null,
+    selectedResidueKey: null as string | null,
+    selectedSequencePolymerKind: null as SequencePolymerKind | null,
+    contextContactRadiusAngstrom: 6 as ContextContactRadiusAngstrom,
+    showInteractionOverlay: true,
+    nucleicBackboneAccent: false,
+    structureTitle: "",
+  });
+  polymerCtxRef.current = {
+    viewportPickDetail,
+    selectedResidueKey,
+    selectedSequencePolymerKind,
+    contextContactRadiusAngstrom,
+    showInteractionOverlay: polymerInteractionOverlayEnabled,
+    nucleicBackboneAccent: nucleicBackboneAccentEnabled,
+    structureTitle,
+  };
   const [overlay, setOverlay] = useState<{ kind: "idle" | "loading" | "error"; text?: string }>({
     kind: "idle",
     text: undefined,
@@ -108,18 +106,15 @@ export default function StructureViewport({ className = "" }: { className?: stri
     if (!el) return;
 
     const stage = new Stage(el, {
-      backgroundColor: "#0a0a0a",
+      backgroundColor: viewportBackgroundColor(),
       quality: "medium",
       workerDefault: true,
       ...VIEWPORT_LIGHTING,
     });
-    ensureMsaNglSchemes();
     localStageRef.current = stage;
     registerStage(stage);
     try {
       stage.setParameters({
-        fogNear: 88,
-        fogFar: 100,
         ...VIEWPORT_LIGHTING,
       });
     } catch {
@@ -145,6 +140,74 @@ export default function StructureViewport({ className = "" }: { className?: stri
       localStageRef.current = null;
     };
   }, [registerStage, registerStructureComponent, setStructureModel]);
+
+  useEffect(() => {
+    const stage = localStageRef.current;
+    if (!stage) return;
+    const onPick = (pickingProxy: unknown) => {
+      try {
+        if (!pickingProxy) {
+          setViewportPickDetail(null);
+          setSelectedResidueKey(null);
+          return;
+        }
+        const atom = pickAtomFromProxy(pickingProxy);
+        if (!atom) {
+          setViewportPickDetail(null);
+          setSelectedResidueKey(null);
+          return;
+        }
+        const d = detailFromAtomProxy(atom);
+        if (!d) {
+          setViewportPickDetail(null);
+          setSelectedResidueKey(null);
+          return;
+        }
+        setViewportPickDetail(d);
+        setSelectedResidueKey(`${d.chain}:${d.resno}`);
+      } catch {
+        setViewportPickDetail(null);
+        setSelectedResidueKey(null);
+      }
+    };
+    stage.signals.clicked.add(onPick);
+    return () => {
+      try {
+        stage.signals.clicked.remove(onPick);
+      } catch {
+        /* */
+      }
+    };
+  }, [setSelectedResidueKey, setViewportPickDetail]);
+
+  useEffect(() => {
+    const stage = localStageRef.current;
+    if (!stage) return;
+    try {
+      stage.setParameters({ quality: nglQuality } as never);
+    } catch {
+      /* */
+    }
+  }, [nglQuality]);
+
+  useEffect(() => {
+    const stage = localStageRef.current;
+    if (!stage) return;
+    try {
+      stage.setParameters({ backgroundColor: viewportBackgroundColor() } as never);
+    } catch {
+      /* */
+    }
+  }, [resolvedTheme]);
+
+  useEffect(() => {
+    lastSequenceCameraFocusRef.current = null;
+  }, [selection, structureModel?.title]);
+
+  useEffect(() => {
+    const st = localStageRef.current;
+    applyRelativeDepthFog(st, renderOptions.depthCue);
+  }, [renderOptions.depthCue, reprGeneration, selection]);
 
   useEffect(() => {
     const next =
@@ -206,6 +269,15 @@ export default function StructureViewport({ className = "" }: { className?: stri
 
         if (component instanceof StructureComponent) {
           registerStructureComponent(component);
+          try {
+            applyMainRepresentation(component, representation, colorScheme, {
+              isolateChainId,
+              transparent: renderOptions.transparency,
+            });
+            applyRelativeDepthFog(stage, renderOptions.depthCue);
+          } catch {
+            /* repr will retry via requestReprRefresh */
+          }
           const label = selection.label.split("—")[0]?.trim() ?? selection.id;
           queueMicrotask(() => {
             if (cancelled) return;
@@ -278,32 +350,10 @@ export default function StructureViewport({ className = "" }: { className?: stri
     const raf0 = requestAnimationFrame(() => {
       if (cancelled) return;
       try {
-        let effectiveColor = colorScheme;
-        if (
-          (colorScheme === "msa_entropy" || colorScheme === "msa_gap") &&
-          !msaVizHasResidueMaps(msaVizBinding)
-        ) {
-          effectiveColor = "chainid";
-        }
-        applyMainRepresentation(sc, representation, effectiveColor, {
+        applyMainRepresentation(sc, representation, colorScheme, {
           isolateChainId,
           transparent: renderOptions.transparency,
         });
-        if (showContactsOverlay) {
-          try {
-            const sele = isolateChainId ? `:${isolateChainId} and polymer` : "polymer";
-            sc.addRepresentation("contact", {
-              sele,
-              labelVisible: false,
-            } as never);
-          } catch {
-            /* NGL version may omit contact */
-          }
-        }
-        if (molecularFocus) {
-          const ac = sc.structure?.atomCount ?? 0;
-          applyMolecularFocusRepr(sc, molecularFocus, ac);
-        }
         stage.handleResize();
       } catch {
         clearReprLoading();
@@ -316,7 +366,20 @@ export default function StructureViewport({ className = "" }: { className?: stri
         } catch {
           /* */
         } finally {
+          applyRelativeDepthFog(stage, renderOptions.depthCue);
           clearReprLoading();
+          const r = polymerCtxRef.current;
+          applyPolymerContextHighlight(sc, stage, {
+            viewportPick: r.viewportPickDetail,
+            selectedResidueKey: r.selectedResidueKey,
+            selectedSequencePolymerKind: r.selectedSequencePolymerKind,
+            contactRadius: r.contextContactRadiusAngstrom,
+            contactPreset: r.contextContactRadiusAngstrom,
+            moveCamera: false,
+            showInteractionOverlay: r.showInteractionOverlay,
+            nucleicBackboneAccent: r.nucleicBackboneAccent,
+            structureTitle: r.structureTitle,
+          });
         }
       });
     });
@@ -333,46 +396,59 @@ export default function StructureViewport({ className = "" }: { className?: stri
     colorScheme,
     isolateChainId,
     renderOptions.transparency,
+    renderOptions.depthCue,
     structureComponentRef,
-    showContactsOverlay,
-    molecularFocus,
-    msaVizBinding,
+    polymerInteractionOverlayEnabled,
+    nucleicBackboneAccentEnabled,
+    structureTitle,
+    structureModel?.atomCount,
   ]);
 
   useEffect(() => {
+    const sc = structureComponentRef.current;
     const stage = localStageRef.current;
-    if (!stage || !selection) return;
+    if (!sc || !stage) {
+      setPolymerContextSnapshot(null);
+      return;
+    }
 
-    const onPick = (pp: PickingProxy | undefined) => {
-      if (measurementModeRef.current !== "none") return;
-      const sc = structureComponentRef.current;
-      const structure = sc?.structure;
-      if (!structure) return;
-      if (!pp) return;
-
-      const t = pp.type;
-      if (t === "background" || t === "stage") {
-        clearMolecularFocus();
-        return;
+    let moveCamera = false;
+    if (selectedSequencePolymerKind && selectedResidueKey) {
+      const focusKey = `${selectedSequencePolymerKind}:${selectedResidueKey}`;
+      if (focusKey !== lastSequenceCameraFocusRef.current) {
+        moveCamera = true;
+        lastSequenceCameraFocusRef.current = focusKey;
       }
+    } else {
+      lastSequenceCameraFocusRef.current = null;
+    }
 
-      const ctx = molecularFocusFromPickingProxy(pp, structure);
-      if (!ctx) {
-        clearMolecularFocus();
-        return;
-      }
-      setMolecularFocus(ctx);
-      if (ctx.primary.type !== "surface") {
-        nglSmoothFocusOnSele(sc, ctx.primarySele, 420);
-      }
-    };
-
-    const cid = stage.signals.clicked.add(onPick as never);
-    return () => {
-      const binding = cid as { detach?: () => void };
-      binding.detach?.();
-    };
-  }, [selection, setMolecularFocus, clearMolecularFocus, structureComponentRef]);
+    const snap = applyPolymerContextHighlight(sc, stage, {
+      viewportPick: viewportPickDetail,
+      selectedResidueKey,
+      selectedSequencePolymerKind,
+      contactRadius: contextContactRadiusAngstrom,
+      contactPreset: contextContactRadiusAngstrom,
+      moveCamera,
+      showInteractionOverlay: polymerInteractionOverlayEnabled,
+      nucleicBackboneAccent: nucleicBackboneAccentEnabled,
+      structureTitle,
+    });
+    if (moveCamera && !snap && selectedResidueKey) {
+      nglFitSelection(stage, sc, null, selectedResidueKey);
+    }
+    setPolymerContextSnapshot(snap);
+  }, [
+    selectedResidueKey,
+    selectedSequencePolymerKind,
+    viewportPickDetail,
+    contextContactRadiusAngstrom,
+    structureComponentRef,
+    setPolymerContextSnapshot,
+    polymerInteractionOverlayEnabled,
+    nucleicBackboneAccentEnabled,
+    structureTitle,
+  ]);
 
   return (
     <div className={`relative h-full w-full min-h-0 min-w-0 overflow-hidden ${className}`}>
@@ -386,8 +462,8 @@ export default function StructureViewport({ className = "" }: { className?: stri
       ) : null}
 
       {overlay.kind === "loading" || reprLoading ? (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[#0A0A0A]/60">
-          <span className="border border-[#2A2A2A] bg-[#111111] px-3 py-2 font-mono text-[10px] uppercase tracking-wide text-[#F2F2F2]">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/60">
+          <span className="border border-border bg-card px-3 py-2 font-mono text-[10px] uppercase tracking-wide text-foreground">
             {overlay.kind === "loading"
               ? overlay.text
               : "Updating structure display…"}
@@ -396,7 +472,7 @@ export default function StructureViewport({ className = "" }: { className?: stri
       ) : null}
 
       {overlay.kind === "error" && overlay.text ? (
-        <div className="absolute inset-x-0 bottom-0 border-t border-[#2A2A2A] bg-[#111111]/95 px-3 py-2 font-mono text-[10px] text-[#FF6666]">
+        <div className="absolute inset-x-0 bottom-0 border-t border-border bg-card/95 px-3 py-2 font-mono text-[10px] text-destructive">
           {overlay.text}
         </div>
       ) : null}

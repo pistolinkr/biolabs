@@ -18,16 +18,8 @@ import {
   nglResetView,
   nglScreenshotToFile,
 } from "@/lib/nglViewportActions";
-import type { MolecularFocusContext } from "@/lib/molecularContext";
-import { residueKeyFromPick } from "@/lib/molecularContext";
-import type { RcsbEntryHint } from "@/lib/rcsbEntryHint";
-import { fetchRcsbEntryHint } from "@/lib/rcsbEntryHint";
 import type { BiomolecularEntityKind } from "@/lib/biomolecularEntities";
 import type { VizColorSchemeId, VizRepresentationId } from "@/lib/nglRepr";
-import { setMsaNglBindingRef } from "@/lib/nglMsaColor";
-import { msaVizHasResidueMaps, type MsaVizBinding } from "@/lib/msa/msaVizBinding";
-
-export type { MsaVizBinding };
 
 export interface ChainModel {
   id: string;
@@ -40,9 +32,10 @@ export interface ChainModel {
 export interface StructureHierarchyModel {
   title: string;
   chains: ChainModel[];
+  /** Standard amino-acid 1-letter sequences per chain (protein polymer only). */
   sequenceByChain: Record<string, string>;
-  /** mmCIF `seq_id` order: residue numbers aligned with `sequenceByChain` (standard AA only). */
-  residueResnosByChain: Record<string, number[]>;
+  /** DNA/RNA 1-letter sequences per chain (nucleic polymer only). */
+  nucleicSequenceByChain: Record<string, string>;
   atomCount: number;
   residueCount: number;
   /** RCSB bioassembly — UI placeholder until metadata is loaded. */
@@ -58,6 +51,67 @@ export interface ViewerRenderOptions {
 }
 
 export type MeasurementMode = "none" | "distance" | "angle" | "dihedral";
+
+export type NglQualityPreset = "medium" | "high";
+
+export type SequencePolymerKind = "protein" | "nucleic";
+
+export type ContextContactRadiusAngstrom = 4 | 6 | 10;
+
+/** Protein–nucleic residue pair for minimal proximity graph (distance-heuristic). */
+export interface PolymerProximityGraphEdge {
+  proteinChain: string;
+  proteinResno: number;
+  nucleicChain: string;
+  nucleicResno: number;
+  minHeavyDistanceAngstrom: number;
+}
+
+/** Distance-based polymer neighborhood (no codon / H-bond semantics). */
+export interface PolymerContextSnapshot {
+  center: { x: number; y: number; z: number };
+  radiusAngstrom: number;
+  sele: string;
+  chainsTouched: string[];
+  nucleicChains: string[];
+  proteinResidueCount: number;
+  nucleicResidueCount: number;
+  otherResidueCount: number;
+  /** Short 1-letter previews keyed by chain (best-effort). */
+  proteinSnippets: Record<string, string>;
+  nucleicSnippets: Record<string, string>;
+  /**
+   * For sequence dock sync: closest nucleic residue to pick center among context.
+   * `baseLetter` is 1-letter when inferable from coordinates alone.
+   */
+  nearestNucleic: {
+    chainId: string;
+    pdbResno: number;
+    stripOrdinal: number;
+    baseLetter?: string;
+  } | null;
+  /** Heavy protein–nucleic atom pairs within heuristic cutoffs (not validated H-bonds). */
+  candidateHeavyContactCount: number;
+  /** Subset: polar heavy (N,O) pairs &lt;= 3.5 Å — H-bond *candidates* only. */
+  candidatePolarContactCount: number;
+  /** Pairs where at least one heavy atom is phosphorus (candidate backbone contact). */
+  candidatePhosphateContactCount: number;
+  /** Short descriptions of closest candidate pairs for inspector. */
+  candidatePairSummaries: string[];
+  /** Residue-residue edges for chain-level graph (capped). */
+  proximityGraphEdges: PolymerProximityGraphEdge[];
+  /** Stable key for memoizing derived UI (structure title + selection fingerprint). */
+  contextFingerprint: string;
+}
+
+export interface ViewportPickDetail {
+  chain: string;
+  resno: number;
+  resname: string;
+  x?: number;
+  y?: number;
+  z?: number;
+}
 
 interface ViewerContextValue {
   proteinSelection: ProteinSelection | null;
@@ -92,13 +146,30 @@ interface ViewerContextValue {
   selectedResidueKey: string | null;
   setSelectedResidueKey: (k: string | null) => void;
 
-  /** Viewport pick → neighborhood context (not used in measurement picking modes). */
-  molecularFocus: MolecularFocusContext | null;
-  setMolecularFocus: (ctx: MolecularFocusContext | null) => void;
-  clearMolecularFocus: () => void;
+  /** When non-null, selectedResidueKey is CHAIN:stripOrdinal from sequence dock (not necessarily PDB resno). */
+  selectedSequencePolymerKind: SequencePolymerKind | null;
+  setSelectedResidueFromSequence: (key: string | null, kind: SequencePolymerKind | null) => void;
 
-  /** RCSB core entry title/deposit (when PDB id known). */
-  entryHint: RcsbEntryHint | null;
+  /** Contact radius for contextual polymer expansion (viewport pick + sequence). */
+  contextContactRadiusAngstrom: ContextContactRadiusAngstrom;
+  setContextContactRadiusAngstrom: (r: ContextContactRadiusAngstrom) => void;
+
+  polymerContextSnapshot: PolymerContextSnapshot | null;
+  setPolymerContextSnapshot: (s: PolymerContextSnapshot | null) => void;
+
+  /** Thin-line NGL distance overlay for cross-polymer contacts (heuristic). */
+  polymerInteractionOverlayEnabled: boolean;
+  setPolymerInteractionOverlayEnabled: (v: boolean) => void;
+
+  /** Extra thin line emphasis on nucleic backbone (additive; reapplied after main repr). */
+  nucleicBackboneAccentEnabled: boolean;
+  setNucleicBackboneAccentEnabled: (v: boolean) => void;
+
+  viewportPickDetail: ViewportPickDetail | null;
+  setViewportPickDetail: (p: ViewportPickDetail | null) => void;
+
+  nglQuality: NglQualityPreset;
+  setNglQuality: (q: NglQualityPreset) => void;
 
   /** Highlight chain from hierarchy hover (sequence strip / HUD sync). */
   hoverChainId: string | null;
@@ -114,13 +185,6 @@ interface ViewerContextValue {
 
   requestReprRefresh: () => void;
   reprGeneration: number;
-
-  /** NGL contact representation layered on main repr (distance pairs). */
-  showContactsOverlay: boolean;
-
-  /** MSA column stats mapped onto loaded structure (for custom NGL colormakers). */
-  msaVizBinding: MsaVizBinding | null;
-  setMsaVizBinding: (b: MsaVizBinding | null) => void;
 
   runViewerCommand: (cmdId: string) => void;
 }
@@ -146,12 +210,17 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   const [measurementMode, setMeasurementModeState] = useState<MeasurementMode>("none");
   const [focusResidueQuery, setFocusResidueQueryState] = useState("");
   const [selectedResidueKey, setSelectedResidueKeyState] = useState<string | null>(null);
+  const [selectedSequencePolymerKind, setSelectedSequencePolymerKindState] =
+    useState<SequencePolymerKind | null>(null);
   const [hoverChainId, setHoverChainIdState] = useState<string | null>(null);
   const [reprGeneration, setReprGeneration] = useState(0);
-  const [showContactsOverlay, setShowContactsOverlayState] = useState(false);
-  const [msaVizBinding, setMsaVizBindingState] = useState<MsaVizBinding | null>(null);
-  const [molecularFocus, setMolecularFocusState] = useState<MolecularFocusContext | null>(null);
-  const [entryHint, setEntryHint] = useState<RcsbEntryHint | null>(null);
+  const [viewportPickDetail, setViewportPickDetailState] = useState<ViewportPickDetail | null>(null);
+  const [nglQuality, setNglQualityState] = useState<NglQualityPreset>("medium");
+  const [contextContactRadiusAngstrom, setContextContactRadiusAngstromState] =
+    useState<ContextContactRadiusAngstrom>(6);
+  const [polymerContextSnapshot, setPolymerContextSnapshotState] = useState<PolymerContextSnapshot | null>(null);
+  const [polymerInteractionOverlayEnabled, setPolymerInteractionOverlayEnabledState] = useState(true);
+  const [nucleicBackboneAccentEnabled, setNucleicBackboneAccentEnabledState] = useState(false);
 
   const stageRef = useRef<Stage | null>(null);
   const structureComponentRef = useRef<StructureComponent | null>(null);
@@ -170,22 +239,37 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     viewportShellRef.current = el;
   }, []);
 
+  const setContextContactRadiusAngstrom = useCallback((r: ContextContactRadiusAngstrom) => {
+    setContextContactRadiusAngstromState(r);
+  }, []);
+
+  const setPolymerContextSnapshot = useCallback((s: PolymerContextSnapshot | null) => {
+    setPolymerContextSnapshotState(s);
+  }, []);
+
+  const setPolymerInteractionOverlayEnabled = useCallback((v: boolean) => {
+    setPolymerInteractionOverlayEnabledState(v);
+  }, []);
+
+  const setNucleicBackboneAccentEnabled = useCallback((v: boolean) => {
+    setNucleicBackboneAccentEnabledState(v);
+  }, []);
+
   const setHoverChainId = useCallback((id: string | null) => {
     setHoverChainIdState(id);
+  }, []);
+
+  const setViewportPickDetail = useCallback((p: ViewportPickDetail | null) => {
+    setViewportPickDetailState(p);
+  }, []);
+
+  const setNglQuality = useCallback((q: NglQualityPreset) => {
+    setNglQualityState(q);
   }, []);
 
   const requestReprRefresh = useCallback(() => {
     setReprGeneration((g) => g + 1);
   }, []);
-
-  const setMsaVizBinding = useCallback(
-    (b: MsaVizBinding | null) => {
-      setMsaVizBindingState(b);
-      setMsaNglBindingRef(b);
-      requestReprRefresh();
-    },
-    [requestReprRefresh],
-  );
 
   const setRepresentation = useCallback(
     (r: VizRepresentationId) => {
@@ -197,18 +281,10 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
 
   const setColorScheme = useCallback(
     (c: VizColorSchemeId) => {
-      if (
-        (c === "msa_entropy" || c === "msa_gap") &&
-        !msaVizHasResidueMaps(msaVizBinding)
-      ) {
-        toast.message("MSA coloring", {
-          description: "Run MSA Search, then load a matching structure (same query chain).",
-        });
-      }
       setColorSchemeState(c);
       requestReprRefresh();
     },
-    [requestReprRefresh, msaVizBinding],
+    [requestReprRefresh],
   );
 
   const setIsolateChainId = useCallback(
@@ -256,22 +332,7 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setRenderOptions = useCallback((p: Partial<ViewerRenderOptions>) => {
-    setRenderOptionsState((o) => {
-      const n = { ...o, ...p };
-      const st = stageRef.current;
-      if (st && p.depthCue !== undefined) {
-        try {
-          st.setParameters({
-            // Relative to scene bbox: keep fog only near the far edge so large assemblies stay visible.
-            fogNear: n.depthCue ? 88 : 100,
-            fogFar: 100,
-          } as never);
-        } catch {
-          /* ignore */
-        }
-      }
-      return n;
-    });
+    setRenderOptionsState((o) => ({ ...o, ...p }));
   }, []);
 
   const setMeasurementMode = useCallback((m: MeasurementMode) => {
@@ -281,34 +342,15 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  /** New entry — clear isolate so a stale :chain from a prior structure does not hide everything. */
+  /** New structure — clear isolate, pick, and residue selection so nothing stale leaks across loads. */
   React.useEffect(() => {
     setIsolateChainIdState(null);
-    setShowContactsOverlayState(false);
-    setMolecularFocusState(null);
-  }, [proteinSelection ? proteinSelectionKey(proteinSelection) : null]);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    const sel = proteinSelection;
-    if (!sel || sel.source === "file") {
-      setEntryHint(null);
-      return;
-    }
-    const pdbRaw =
-      sel.source === "rcsb"
-        ? sel.id
-        : sel.pdbIds?.find((id) => /^[0-9][A-Z0-9]{3}$/i.test(id.trim()));
-    if (!pdbRaw) {
-      setEntryHint(null);
-      return;
-    }
-    void fetchRcsbEntryHint(pdbRaw).then((h) => {
-      if (!cancelled) setEntryHint(h);
-    });
-    return () => {
-      cancelled = true;
-    };
+    setViewportPickDetailState(null);
+    setSelectedResidueKeyState(null);
+    setSelectedSequencePolymerKindState(null);
+    setPolymerContextSnapshotState(null);
+    setPolymerInteractionOverlayEnabledState(true);
+    setNucleicBackboneAccentEnabledState(false);
   }, [proteinSelection ? proteinSelectionKey(proteinSelection) : null]);
 
   const setFocusResidueQuery = useCallback((q: string) => {
@@ -317,23 +359,16 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
 
   const setSelectedResidueKey = useCallback((k: string | null) => {
     setSelectedResidueKeyState(k);
+    setSelectedSequencePolymerKindState(null);
+    if (k === null) {
+      setPolymerContextSnapshotState(null);
+    }
   }, []);
 
-  const setMolecularFocus = useCallback(
-    (ctx: MolecularFocusContext | null) => {
-      setMolecularFocusState(ctx);
-      if (ctx?.primary && (ctx.primary.type === "atom" || ctx.primary.type === "ligand")) {
-        setSelectedResidueKeyState(residueKeyFromPick(ctx.primary.chainId, ctx.primary.resno));
-      }
-      requestReprRefresh();
-    },
-    [requestReprRefresh],
-  );
-
-  const clearMolecularFocus = useCallback(() => {
-    setMolecularFocusState(null);
-    requestReprRefresh();
-  }, [requestReprRefresh]);
+  const setSelectedResidueFromSequence = useCallback((key: string | null, kind: SequencePolymerKind | null) => {
+    setSelectedResidueKeyState(key);
+    setSelectedSequencePolymerKindState(kind);
+  }, []);
 
   const runViewerCommand = useCallback(
     (cmdId: string) => {
@@ -391,12 +426,6 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
         case "color.electrostatic":
           setColorScheme("electrostatic");
           break;
-        case "color.msa.entropy":
-          setColorScheme("msa_entropy");
-          break;
-        case "color.msa.gap":
-          setColorScheme("msa_gap");
-          break;
         case "overlay.confidence.toggle": {
           setColorSchemeState((prev) => {
             const isConf = prev === "bfactor" || prev === "bfactor_gray";
@@ -430,7 +459,15 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
           nglResetView(st);
           break;
         case "view.fit.selection":
-          nglFitSelection(st, sc, isolateChainId, selectedResidueKey, molecularFocus?.primarySele);
+          nglFitSelection(st, sc, isolateChainId, selectedResidueKey);
+          break;
+        case "view.preset.readable":
+          setIsolateChainId(null);
+          setRepresentation("cartoon");
+          setColorScheme("chainid");
+          break;
+        case "view.quality.toggle":
+          setNglQualityState((q) => (q === "medium" ? "high" : "medium"));
           break;
         case "view.fullscreen.toggle": {
           const el = viewportShellRef.current;
@@ -473,18 +510,27 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
           })();
           break;
         case "screenshot": {
-          const ok = nglScreenshotToFile(st);
-          if (ok) toast.success("Viewport PNG");
-          else toast.error("Screenshot failed");
+          void nglScreenshotToFile(st).then((ok) => {
+            if (ok) toast.success("Viewport PNG");
+            else toast.error("Screenshot failed");
+          });
           break;
         }
-        case "overlay.contacts.enable":
-          setShowContactsOverlayState(true);
+        case "analysis.interactions":
+          setPolymerInteractionOverlayEnabledState((o) => {
+            const n = !o;
+            toast.message("Context contacts overlay", { description: n ? "On (heuristic pairs)" : "Off" });
+            return n;
+          });
           requestReprRefresh();
           break;
-        case "analysis.interactions":
-        case "overlay.contacts.toggle":
-          setShowContactsOverlayState((v) => !v);
+        case "view.preset.nucleic.accent":
+          setNucleicBackboneAccentEnabledState((a) => {
+            const n = !a;
+            toast.message("Nucleic backbone accent", { description: n ? "Thin line on nucleic" : "Off" });
+            return n;
+          });
+          requestReprRefresh();
           break;
         default:
           break;
@@ -510,7 +556,6 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       setColorScheme,
       isolateChainId,
       selectedResidueKey,
-      molecularFocus,
       proteinSelection,
       requestReprRefresh,
     ],
@@ -582,10 +627,20 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       setFocusResidueQuery,
       selectedResidueKey,
       setSelectedResidueKey,
-      molecularFocus,
-      setMolecularFocus,
-      clearMolecularFocus,
-      entryHint,
+      selectedSequencePolymerKind,
+      setSelectedResidueFromSequence,
+      viewportPickDetail,
+      setViewportPickDetail,
+      contextContactRadiusAngstrom,
+      setContextContactRadiusAngstrom,
+      polymerContextSnapshot,
+      setPolymerContextSnapshot,
+      polymerInteractionOverlayEnabled,
+      setPolymerInteractionOverlayEnabled,
+      nucleicBackboneAccentEnabled,
+      setNucleicBackboneAccentEnabled,
+      nglQuality,
+      setNglQuality,
       hoverChainId,
       setHoverChainId,
       viewportShellRef,
@@ -596,9 +651,6 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       registerStructureComponent,
       requestReprRefresh,
       reprGeneration,
-      showContactsOverlay,
-      msaVizBinding,
-      setMsaVizBinding,
       runViewerCommand,
     }),
     [
@@ -612,15 +664,18 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       measurementMode,
       focusResidueQuery,
       selectedResidueKey,
-      molecularFocus,
-      entryHint,
+      selectedSequencePolymerKind,
+      viewportPickDetail,
+      contextContactRadiusAngstrom,
+      polymerContextSnapshot,
+      polymerInteractionOverlayEnabled,
+      nucleicBackboneAccentEnabled,
+      nglQuality,
       hoverChainId,
       registerStage,
       registerStructureComponent,
       requestReprRefresh,
       reprGeneration,
-      showContactsOverlay,
-      msaVizBinding,
       setRepresentation,
       setColorScheme,
       setIsolateChainId,
@@ -630,11 +685,15 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       setMeasurementMode,
       setFocusResidueQuery,
       setSelectedResidueKey,
-      setMolecularFocus,
-      clearMolecularFocus,
+      setSelectedResidueFromSequence,
+      setViewportPickDetail,
+      setContextContactRadiusAngstrom,
+      setPolymerContextSnapshot,
+      setPolymerInteractionOverlayEnabled,
+      setNucleicBackboneAccentEnabled,
+      setNglQuality,
       setHoverChainId,
       setViewportShell,
-      setMsaVizBinding,
       runViewerCommand,
     ],
   );

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Eye, Layers, Maximize2, Microscope, Monitor, Download, Orbit, Palette, Sparkles } from "lucide-react";
 import { useViewerOptional } from "@/contexts/ViewerContext";
-import { useAiJobsOptional } from "@/contexts/AiJobsContext";
-import type { CreateAiJobBody } from "@/lib/aiApi";
 import { cn } from "@/lib/utils";
 
 interface Command {
@@ -11,10 +9,7 @@ interface Command {
   description: string;
   icon: React.ReactNode;
   category: string;
-  /** Viewer command when `aiJob` is absent, or ignored when `aiJob` runs first. */
   cmdId: string;
-  /** When set, Cmd+K submits this body via Express BFF (`/api/ai/jobs`). */
-  aiJob?: CreateAiJobBody;
 }
 
 interface CommandPaletteProps {
@@ -24,25 +19,20 @@ interface CommandPaletteProps {
 
 export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const viewer = useViewerOptional();
-  const ai = useAiJobsOptional();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const runCmd = useCallback(
-    (cmd: Command) => {
-      if (cmd.aiJob && ai) {
-        void ai.submitJob(cmd.aiJob);
-        return;
-      }
+  const run = useCallback(
+    (cmdId: string) => {
       if (viewer) {
-        viewer.runViewerCommand(cmd.cmdId);
+        viewer.runViewerCommand(cmdId);
       } else {
         // eslint-disable-next-line no-console
-        console.warn("Command palette: viewer or AI context unavailable for this command.");
+        console.warn("Command palette: viewer commands require an open workspace session.");
       }
     },
-    [viewer, ai],
+    [viewer],
   );
 
   const commands: Command[] = useMemo(
@@ -152,22 +142,6 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         cmdId: "color.electrostatic",
       },
       {
-        id: "color-msa-ent",
-        title: "Color: MSA entropy (conservation)",
-        description: "Requires MSA job + structure on query chain",
-        icon: <Palette size={14} />,
-        category: "Display",
-        cmdId: "color.msa.entropy",
-      },
-      {
-        id: "color-msa-gap",
-        title: "Color: MSA gap fraction",
-        description: "Requires MSA job + structure",
-        icon: <Palette size={14} />,
-        category: "Display",
-        cmdId: "color.msa.gap",
-      },
-      {
         id: "isolate-a",
         title: "Isolate chain A",
         description: "Restrict to chain A",
@@ -216,12 +190,20 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         cmdId: "view.center",
       },
       {
-        id: "view-reset",
-        title: "Reset camera",
-        description: "Viewer controls reset + autoView",
-        icon: <Maximize2 size={14} />,
+        id: "view-readable",
+        title: "Readable preset",
+        description: "Cartoon, chain colors, clear isolate",
+        icon: <Sparkles size={14} />,
         category: "View",
-        cmdId: "view.reset",
+        cmdId: "view.preset.readable",
+      },
+      {
+        id: "quality-toggle",
+        title: "Toggle renderer quality",
+        description: "Medium ↔ high NGL quality preset",
+        icon: <Monitor size={14} />,
+        category: "View",
+        cmdId: "view.quality.toggle",
       },
       {
         id: "fullscreen",
@@ -249,11 +231,11 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       },
       {
         id: "analysis-ixn",
-        title: "Toggle contact overlay (NGL)",
-        description: "Non-covalent contact representation (distance-based)",
+        title: "Calculate interactions (stub)",
+        description: "Interface graph / contacts worker",
         icon: <Microscope size={14} />,
         category: "Analysis",
-        cmdId: "overlay.contacts.toggle",
+        cmdId: "analysis.interactions",
       },
       {
         id: "export-cif",
@@ -271,60 +253,6 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         category: "I/O",
         cmdId: "screenshot",
       },
-      {
-        id: "run-af3",
-        title: "run.af3 — AlphaFold3 (dry)",
-        description: "POST /api/ai/jobs · stub input; requires server API key for live",
-        icon: <Sparkles size={14} />,
-        category: "AI",
-        cmdId: "ai.stub",
-        aiJob: { service: "alphafold3", input: { cmdPalette: true, entities: [] }, dryRun: true },
-      },
-      {
-        id: "fetch-msa",
-        title: "fetch.msa — MSA search (dry)",
-        description: "POST /api/ai/jobs · pipeline step placeholder",
-        icon: <Sparkles size={14} />,
-        category: "AI",
-        cmdId: "ai.stub",
-        aiJob: { service: "msa_search", input: { cmdPalette: true, query: "MKFL" }, dryRun: true },
-      },
-      {
-        id: "analyze-evo2",
-        title: "analyze.evo2 — Evo2 40B (dry)",
-        description: "POST /api/ai/jobs · structured annotation panel",
-        icon: <Sparkles size={14} />,
-        category: "AI",
-        cmdId: "ai.stub",
-        aiJob: { service: "evo2_40b", input: { cmdPalette: true, sequence: "ATCGATCGATCGATCG", num_tokens: 48 }, dryRun: true },
-      },
-      {
-        id: "gen-boltz",
-        title: "gen.boltz — Boltz-2 (dry)",
-        description: "POST /api/ai/jobs · PV / generative panels",
-        icon: <Sparkles size={14} />,
-        category: "AI",
-        cmdId: "ai.stub",
-        aiJob: { service: "boltz2", input: { cmdPalette: true }, dryRun: true },
-      },
-      {
-        id: "gen-ligand",
-        title: "gen.ligand — GenMol (dry)",
-        description: "POST /api/ai/jobs · molecule shelf",
-        icon: <Sparkles size={14} />,
-        category: "AI",
-        cmdId: "ai.stub",
-        aiJob: { service: "genmol", input: { cmdPalette: true }, dryRun: true },
-      },
-      {
-        id: "ai-local-echo",
-        title: "AI: local echo (dry)",
-        description: "BFF local_echo — verifies orchestrator without NVIDIA",
-        icon: <Sparkles size={14} />,
-        category: "AI",
-        cmdId: "ai.stub",
-        aiJob: { service: "local_echo", input: { from: "palette" }, dryRun: true },
-      },
     ],
     [],
   );
@@ -332,16 +260,12 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
   const filteredCommands = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return commands;
-    return commands.filter((cmd) => {
-      const svc = cmd.aiJob?.service?.toLowerCase() ?? "";
-      return (
+    return commands.filter(
+      (cmd) =>
         cmd.title.toLowerCase().includes(q) ||
         cmd.description.toLowerCase().includes(q) ||
-        cmd.cmdId.toLowerCase().includes(q) ||
-        cmd.id.toLowerCase().includes(q) ||
-        svc.includes(q)
-      );
-    });
+        cmd.cmdId.toLowerCase().includes(q),
+    );
   }, [commands, query]);
 
   const len = filteredCommands.length;
@@ -371,7 +295,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         e.preventDefault();
         const cmd = filteredCommands[selectedIndex];
         if (cmd) {
-          runCmd(cmd);
+          run(cmd.cmdId);
           onClose();
         }
       }
@@ -379,7 +303,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, selectedIndex, filteredCommands, len, onClose, runCmd]);
+  }, [isOpen, selectedIndex, filteredCommands, len, onClose, run]);
 
   useEffect(() => {
     setSelectedIndex((i) => (len === 0 ? 0 : Math.min(i, len - 1)));
@@ -427,7 +351,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                   key={cmd.id}
                   type="button"
                   onClick={() => {
-                    runCmd(cmd);
+                    run(cmd.cmdId);
                     onClose();
                   }}
                   className={`flex w-full items-start gap-2 px-2 py-1.5 text-left transition-colors ${

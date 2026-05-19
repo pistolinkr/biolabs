@@ -47,7 +47,6 @@ pids
 *.pid
 *.seed
 *.pid.lock
-data/jobs/
 
 # Coverage directory used by tools like istanbul
 coverage/

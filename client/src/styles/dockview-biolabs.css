@@ -1,0 +1,115 @@
+/* Dockview base (package ships side-effect CSS; keep import next to theme overrides) */
+@import "dockview/dist/styles/dockview.css";
+
+/**
+ * Biolabs workstation — dockview chrome follows light/dark via class on .workstation-dock-root.
+ */
+.workstation-dock-root.dockview-theme-dark {
+  --dv-group-view-background-color: #0a0a0a;
+  --dv-tabs-and-actions-container-background-color: #0a0a0a;
+  --dv-tabs-and-actions-container-height: 28px;
+  --dv-tabs-and-actions-container-font-size: 9px;
+  --dv-paneview-active-outline-color: #5a6a6a;
+  --dv-sash-color: #2a2a2a;
+  --dv-active-sash-color: #4a5a5a;
+  --dv-drag-over-background-color: rgba(42, 42, 42, 0.55);
+  --dv-tabs-container-scrollbar-color: #5a5a5a;
+  --dv-icon-hover-background-color: rgba(60, 60, 60, 0.45);
+  --dv-tab-group-chip-border-radius: 0px;
+  --dv-floating-box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px #2a2a2a;
+}
+
+.workstation-dock-root.dockview-theme-light {
+  --dv-group-view-background-color: #f0f0f0;
+  --dv-tabs-and-actions-container-background-color: #f0f0f0;
+  --dv-tabs-and-actions-container-height: 28px;
+  --dv-tabs-and-actions-container-font-size: 9px;
+  --dv-paneview-active-outline-color: #8a9aaa;
+  --dv-sash-color: #c8c8c8;
+  --dv-active-sash-color: #9aa8b8;
+  --dv-drag-over-background-color: rgba(90, 104, 120, 0.12);
+  --dv-tabs-container-scrollbar-color: #a0a0a0;
+  --dv-icon-hover-background-color: rgba(0, 0, 0, 0.06);
+  --dv-tab-group-chip-border-radius: 0px;
+  --dv-floating-box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px #c8c8c8;
+}
+
+.workstation-dock-root.dockview-theme-dark .dv-default-tab,
+.workstation-dock-root.dockview-theme-light .dv-default-tab {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  cursor: grab;
+  box-sizing: border-box;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.workstation-dock-root.dockview-theme-dark .dv-default-tab:active,
+.workstation-dock-root.dockview-theme-light .dv-default-tab:active {
+  cursor: grabbing;
+}
+
+.workstation-dock-root.dockview-theme-dark .dv-default-tab-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #9a9a9a;
+}
+
+.workstation-dock-root.dockview-theme-light .dv-default-tab-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: #5a6878;
+}
+
+.workstation-dock-root.dockview-theme-dark .dv-default-tab::after {
+  content: "";
+  flex-shrink: 0;
+  width: 14px;
+  height: 9px;
+  margin-left: auto;
+  opacity: 0.8;
+  background: repeating-linear-gradient(
+    to bottom,
+    #6a6a6a 0,
+    #6a6a6a 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.workstation-dock-root.dockview-theme-light .dv-default-tab::after {
+  content: "";
+  flex-shrink: 0;
+  width: 14px;
+  height: 9px;
+  margin-left: auto;
+  opacity: 0.85;
+  background: repeating-linear-gradient(
+    to bottom,
+    #8a8a8a 0,
+    #8a8a8a 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+.workstation-dock-root .dv-floating-overlay-host {
+  z-index: 1000;
+}

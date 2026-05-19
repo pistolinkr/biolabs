@@ -6,10 +6,6 @@ interface HUDMetrics {
   fps: number;
   atomCount: number;
   chainCount: number;
-  mode: string;
-  color: string;
-  temperature: number;
-  selectedResidue: string;
 }
 
 interface ScientificHUDProps {
@@ -26,14 +22,7 @@ interface ScientificHUDProps {
 }
 
 /**
- * Biolabs Scientific HUD
- * 
- * Minimal terminal-like overlay for real-time metrics
- * - FPS counter
- * - Atom/chain count
- * - Simulation state
- * - Temperature and energy
- * - Selected residue info
+ * Biolabs Scientific HUD — lightweight render stats (display context is on the viewport chrome).
  */
 const HUD_CLAIM_PADDING = 8;
 
@@ -67,8 +56,7 @@ export default function ScientificHUD({
   canvasRef,
   dockInsidePanel = false,
 }: ScientificHUDProps) {
-  const { structureModel, representation, colorScheme, selectedResidueKey, molecularFocus, msaVizBinding } =
-    useViewer();
+  const { structureModel } = useViewer();
   const [fps, setFps] = useState(60);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const dragActive = useRef(false);
@@ -123,10 +111,6 @@ export default function ScientificHUD({
     fps,
     atomCount: structureModel?.atomCount ?? 0,
     chainCount: structureModel?.chains.length ?? 0,
-    mode: representation.toUpperCase(),
-    color: colorScheme.toUpperCase(),
-    temperature: 310,
-    selectedResidue: molecularFocus?.primary.label ?? selectedResidueKey ?? "—",
   };
 
   const displayMetrics = { ...defaultMetrics, ...customMetrics };
@@ -212,43 +196,6 @@ export default function ScientificHUD({
             <span className="uppercase tracking-wide">Chains</span>
             <span className="text-[#F2F2F2]">{displayMetrics.chainCount}</span>
           </div>
-          <div className="flex justify-between gap-6">
-            <span className="uppercase tracking-wide">Mode</span>
-            <span className="text-[#F2F2F2]">{displayMetrics.mode}</span>
-          </div>
-          <div className="flex justify-between gap-6">
-            <span className="uppercase tracking-wide">Color</span>
-            <span className="text-[#F2F2F2]">{displayMetrics.color}</span>
-          </div>
-          {msaVizBinding && (colorScheme === "msa_entropy" || colorScheme === "msa_gap") ? (
-            <div className="max-w-[200px] text-[9px] leading-tight text-[#6A9A6A]">
-              {Object.entries(msaVizBinding.chains)
-                .map(
-                  ([cid, s]) =>
-                    `${cid}: ${(s.identityFraction * 100).toFixed(0)}% id · ${s.analysis.columns.length} cols`,
-                )
-                .join(" · ")}
-              <span className="block pt-0.5 text-[#5A5A5A]">Blue → conserved / low gap · Yellow → variable / high gap</span>
-            </div>
-          ) : null}
-          <div className="flex justify-between gap-6">
-            <span className="uppercase tracking-wide">Temp</span>
-            <span className="text-[#F2F2F2]">{displayMetrics.temperature}K</span>
-          </div>
-        </div>
-
-        <div className="my-1.5 border-t border-[#2A2A2A]" />
-
-        <div className="flex justify-between gap-6">
-          <span className="uppercase tracking-wide">Focus</span>
-          <span className="max-w-[160px] truncate text-right text-[#F2F2F2]" title={molecularFocus?.primary.label}>
-            {molecularFocus ? `${molecularFocus.radiusAngstrom}Å ctx` : "—"}
-          </span>
-        </div>
-
-        <div className="flex justify-between gap-6">
-          <span className="uppercase tracking-wide">Pick</span>
-          <span className="max-w-[140px] truncate text-right text-[#F2F2F2]">{displayMetrics.selectedResidue}</span>
         </div>
       </div>
     </div>

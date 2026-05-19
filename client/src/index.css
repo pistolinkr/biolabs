@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/dockview-biolabs.css";
 
 /* Biolabs Design System: Dark Industrial Scientific Workstation */
 
@@ -45,44 +46,46 @@
 }
 
 :root {
-  /* Biolabs: Dark monochrome palette */
-  --primary: #7C8A99;
-  --primary-foreground: #F2F2F2;
-  --sidebar-primary: #7C8A99;
-  --sidebar-primary-foreground: #F2F2F2;
-  --chart-1: #7C8A99;
-  --chart-2: #9A9A9A;
-  --chart-3: #7C8A99;
-  --chart-4: #5A5A5A;
-  --chart-5: #3A3A3A;
+  /* Biolabs light — industrial workstation */
+  --primary: #5A6878;
+  --primary-foreground: #F8F8F8;
+  --sidebar-primary: #5A6878;
+  --sidebar-primary-foreground: #F8F8F8;
+  --chart-1: #5A6878;
+  --chart-2: #7A7A7A;
+  --chart-3: #5A6878;
+  --chart-4: #9A9A9A;
+  --chart-5: #B8B8B8;
   --radius: 0;
-  --background: #0A0A0A;
-  --foreground: #F2F2F2;
-  --card: #1B1B1B;
-  --card-foreground: #F2F2F2;
-  --popover: #202020;
-  --popover-foreground: #F2F2F2;
-  --secondary: #2A2A2A;
-  --secondary-foreground: #9A9A9A;
-  --muted: #3A3A3A;
-  --muted-foreground: #7C8A99;
-  --accent: #7C8A99;
-  --accent-foreground: #F2F2F2;
-  --destructive: #FF4444;
-  --destructive-foreground: #F2F2F2;
-  --border: #2A2A2A;
-  --input: #161616;
-  --ring: #7C8A99;
-  --sidebar: #0A0A0A;
-  --sidebar-foreground: #F2F2F2;
-  --sidebar-accent: #7C8A99;
-  --sidebar-accent-foreground: #F2F2F2;
-  --sidebar-border: #2A2A2A;
-  --sidebar-ring: #7C8A99;
+  --background: #F0F0F0;
+  --foreground: #141414;
+  --card: #FFFFFF;
+  --card-foreground: #141414;
+  --popover: #FFFFFF;
+  --popover-foreground: #141414;
+  --secondary: #E4E4E4;
+  --secondary-foreground: #4A4A4A;
+  --muted: #D8D8D8;
+  --muted-foreground: #5A6878;
+  --accent: #5A6878;
+  --accent-foreground: #F8F8F8;
+  --destructive: #CC3333;
+  --destructive-foreground: #F8F8F8;
+  --border: #C8C8C8;
+  --input: #E8E8E8;
+  --ring: #5A6878;
+  --sidebar: #F0F0F0;
+  --sidebar-foreground: #141414;
+  --sidebar-accent: #5A6878;
+  --sidebar-accent-foreground: #F8F8F8;
+  --sidebar-border: #C8C8C8;
+  --sidebar-ring: #5A6878;
+  /* 3D canvas — always dark for molecular contrast (UI chrome may be light). */
+  --viewport-background: #0a0a0a;
 }
 
 .dark {
-  /* Biolabs is dark-only, so these values are the same as :root */
+  /* Biolabs dark — industrial workstation */
   --primary: #7C8A99;
   --primary-foreground: #F2F2F2;
   --sidebar-primary: #7C8A99;
@@ -115,6 +118,7 @@
   --sidebar-accent-foreground: #F2F2F2;
   --sidebar-border: #2A2A2A;
   --sidebar-ring: #7C8A99;
+  --viewport-background: #0a0a0a;
 }
 
 @layer base {
@@ -123,7 +127,10 @@
   }
   
   html {
-    /* Force dark mode for Biolabs */
+    color-scheme: light dark;
+  }
+
+  html.dark {
     color-scheme: dark;
   }
   
@@ -172,29 +179,40 @@
     /* h-full + min-h-0: fill flex parent; avoid h-screen stacking under header (page scroll). */
     @apply flex h-full min-h-0 w-full overflow-hidden bg-background text-foreground;
   }
+
+  .workbench-surface {
+    @apply border border-border bg-card text-card-foreground;
+  }
   
   .panel {
-    @apply border-border bg-card text-card-foreground;
-    border: 1px solid #2A2A2A;
+    @apply border border-border bg-card text-card-foreground;
   }
   
   .panel-left {
     @apply border-border bg-card text-card-foreground w-[280px] border-r flex flex-col overflow-hidden;
-    border: 1px solid #2A2A2A;
   }
   
   .panel-right {
     @apply border-border bg-card text-card-foreground w-[320px] border-l flex flex-col overflow-hidden;
-    border: 1px solid #2A2A2A;
   }
   
   .panel-center {
     @apply flex-1 flex flex-col overflow-hidden overscroll-y-none;
   }
+
+  /* Shadow on inspector content (dockview replaces fixed .panel-right wrapper) */
+  .workbench-inspector-surface {
+    position: relative;
+    z-index: 10;
+    box-shadow: -10px 0 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .workbench-inspector-surface {
+    box-shadow: -14px 0 32px rgba(0, 0, 0, 0.72);
+  }
   
   .panel-bottom {
     @apply border-border bg-card text-card-foreground h-[200px] border-t flex flex-col overflow-hidden;
-    border: 1px solid #2A2A2A;
   }
   
   /* Biolabs: Panel header */
@@ -204,12 +222,21 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #9A9A9A;
+    @apply text-muted-foreground;
   }
   
   /* Biolabs: Panel content */
   .panel-content {
     @apply flex-1 overflow-y-auto px-3 py-2;
+  }
+  
+  /* Biolabs: Hide scrollbar but keep overflow scroll (e.g. viewport toolbar) */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
   
   /* Biolabs: Scrollbar styling */
@@ -222,12 +249,12 @@
   }
   
   .panel-content::-webkit-scrollbar-thumb {
-    background: #3A3A3A;
+    @apply bg-muted;
     border-radius: 0;
   }
   
   .panel-content::-webkit-scrollbar-thumb:hover {
-    background: #5A5A5A;
+    @apply bg-border;
   }
   
   /* Biolabs: Section divider */

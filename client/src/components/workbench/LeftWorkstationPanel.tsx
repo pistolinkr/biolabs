@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import InputWorkspacePanel from "@/components/workbench/InputWorkspacePanel";
 import StructureHierarchyPanel from "@/components/workbench/StructureHierarchyPanel";
 import VisualizationControlPanel from "@/components/workbench/VisualizationControlPanel";
 import ProteinSourcePanel from "@/components/workbench/ProteinSourcePanel";
+import { useWorkflow } from "@/contexts/WorkflowContext";
+import type { LeftWorkbenchTab } from "@/contexts/WorkflowContext";
 import { cn } from "@/lib/utils";
 
-type Tab = "input" | "structure" | "display" | "source";
+type Tab = LeftWorkbenchTab;
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "input", label: "Input" },
@@ -15,7 +17,14 @@ const TABS: { id: Tab; label: string }[] = [
 ];
 
 export default function LeftWorkstationPanel() {
+  const { leftTabRequest, clearLeftTabRequest } = useWorkflow();
   const [tab, setTab] = useState<Tab>("input");
+
+  useEffect(() => {
+    if (!leftTabRequest) return;
+    setTab(leftTabRequest.tab);
+    clearLeftTabRequest();
+  }, [leftTabRequest, clearLeftTabRequest]);
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[#111111]">

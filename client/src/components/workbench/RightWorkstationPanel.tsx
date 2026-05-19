@@ -1,9 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { entityKindLabel, groupChainsByEntityKind, type BiomolecularEntityKind } from "@/lib/biomolecularEntities";
 import { useViewer, type ChainModel } from "@/contexts/ViewerContext";
-import { useAiJobs } from "@/contexts/AiJobsContext";
-import Evo2AnnotationPanel from "@/components/workbench/Evo2AnnotationPanel";
-import GenerativeWorkspacePanel from "@/components/workbench/GenerativeWorkspacePanel";
+import PolymerProximityGraph from "@/components/workbench/PolymerProximityGraph";
 
 function Section({
   title,
@@ -46,12 +44,14 @@ export default function RightWorkstationPanel() {
     colorScheme,
     isolateChainId,
     runViewerCommand,
-    showContactsOverlay,
-    molecularFocus,
-    clearMolecularFocus,
-    entryHint,
+    polymerContextSnapshot,
+    contextContactRadiusAngstrom,
+    polymerInteractionOverlayEnabled,
+    setPolymerInteractionOverlayEnabled,
+    nucleicBackboneAccentEnabled,
+    setNucleicBackboneAccentEnabled,
+    requestReprRefresh,
   } = useViewer();
-  const { contactsJobHint, dismissContactsJobHint } = useAiJobs();
   const [assemblyPick, setAssemblyPick] = useState("asu");
 
   const basic = useMemo(() => {
@@ -127,76 +127,18 @@ export default function RightWorkstationPanel() {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-[#111111]">
-      <div className="shrink-0 border-b border-[#2A2A2A] px-2 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-[#8A8A8A]">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card text-card-foreground">
+      <div className="shrink-0 border-b border-border bg-card px-2 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
         Inspector
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {contactsJobHint && molecularFocus && !showContactsOverlay ? (
-          <div className="mx-2 mt-2 border border-[#4A3A2A] bg-[#1A1510] px-2 py-1.5 font-mono text-[9px] text-[#D8C8A8]">
-            <div className="mb-1 text-[8px] uppercase tracking-[0.14em] text-[#9A8A6A]">Job · Interaction hint</div>
-            <div className="mb-1">Last AI job suggests reviewing contacts around your molecular focus.</div>
-            <div className="flex flex-wrap gap-1">
-              <button
-                type="button"
-                onClick={() => {
-                  runViewerCommand("overlay.contacts.enable");
-                  dismissContactsJobHint();
-                }}
-                className="border border-[#5A4A3A] px-2 py-0.5 text-[8px] uppercase tracking-wide hover:border-[#7A6A5A] hover:text-[#F2F2F2]"
-              >
-                Enable contacts overlay
-              </button>
-              <button
-                type="button"
-                onClick={() => dismissContactsJobHint()}
-                className="border border-[#3A3A3A] px-2 py-0.5 text-[8px] uppercase tracking-wide text-[#8A8A8A] hover:border-[#5A5A5A]"
-              >
-                Dismiss
-              </button>
-            </div>
-          </div>
-        ) : null}
         <Section title="Basic info">
           <Row k="Protein" v={basic.name} />
           <Row k="Organism" v={basic.organism} />
           <Row k="UniProt" v={basic.uniprot} />
           <Row k="PDB" v={basic.pdb} />
-          <Row k="RCSB title" v={entryHint?.title ?? "—"} />
-          <Row k="Deposit" v={entryHint?.depositDate ?? "—"} />
           <Row k="Resolution" v={basic.resolution} />
           <Row k="Method" v={basic.method} />
-        </Section>
-
-        <Section title="Molecular focus" defaultOpen>
-          {molecularFocus ? (
-            <>
-              <Row k="Primary" v={molecularFocus.primary.label} />
-              <Row k="Type" v={molecularFocus.primary.type} />
-              <Row k="Radius" v={`${molecularFocus.radiusAngstrom} Å`} />
-              <Row k="Chains in shell" v={molecularFocus.emphasizedChainIds.join(", ") || "—"} />
-              <Row
-                k="Shell atoms"
-                v={molecularFocus.neighborhoodAtomCount != null ? String(molecularFocus.neighborhoodAtomCount) : "—"}
-              />
-              <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-1 font-mono text-[8px] text-[#7A7A7A]">
-                <div className="mb-0.5 text-[#6A6A6A]">neighborhood sele</div>
-                <div className="break-all text-[#B0B0B0]">{molecularFocus.neighborhoodSele}</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => clearMolecularFocus()}
-                className="mt-1 w-full border border-[#2A2A2A] bg-[#141414] py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A5A5A] hover:text-[#F2F2F2]"
-              >
-                Clear focus overlay
-              </button>
-            </>
-          ) : (
-            <div className="font-mono text-[9px] leading-snug text-[#6A6A6A]">
-              Click atom / residue / bond in the viewport. Contextual neighbors highlight within ~5&nbsp;Å. Measurement
-              mode (ruler) pauses auto-expansion.
-            </div>
-          )}
         </Section>
 
         <Section title="Structure stats">
@@ -205,6 +147,92 @@ export default function RightWorkstationPanel() {
           <Row k="Chains" v={structure.chains} />
           <Row k="Ligands" v={structure.ligands} />
           <Row k="Missing" v={structure.missing} />
+        </Section>
+
+        <Section title="Polymer context (distance)">
+          {!polymerContextSnapshot ? (
+            <p className="font-mono text-[9px] leading-snug text-[#6A6A6A]">
+              Pick a residue in the viewport or from the sequence dock — neighborhood is computed from heavy-atom
+              proximity (radius {contextContactRadiusAngstrom} Å). Codons, grooves, and H-bonds are not inferred in this
+              phase.
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2 py-1 font-mono text-[9px]">
+                <label className="flex cursor-pointer items-center gap-1 text-[#9A9A9A]">
+                  <input
+                    type="checkbox"
+                    checked={polymerInteractionOverlayEnabled}
+                    onChange={(e) => {
+                      setPolymerInteractionOverlayEnabled(e.target.checked);
+                      requestReprRefresh();
+                    }}
+                    className="accent-[#8A8A8A]"
+                  />
+                  Contact lines (heuristic)
+                </label>
+                <label className="flex cursor-pointer items-center gap-1 text-[#9A9A9A]">
+                  <input
+                    type="checkbox"
+                    checked={nucleicBackboneAccentEnabled}
+                    onChange={(e) => {
+                      setNucleicBackboneAccentEnabled(e.target.checked);
+                      requestReprRefresh();
+                    }}
+                    className="accent-[#8A8A8A]"
+                  />
+                  Nucleic line accent
+                </label>
+              </div>
+              <Row k="Radius" v={`${polymerContextSnapshot.radiusAngstrom} Å (preset ${contextContactRadiusAngstrom} Å)`} />
+              <Row
+                k="Center (Å)"
+                v={`${polymerContextSnapshot.center.x.toFixed(2)}, ${polymerContextSnapshot.center.y.toFixed(2)}, ${polymerContextSnapshot.center.z.toFixed(2)}`}
+              />
+              <Row k="Chains" v={polymerContextSnapshot.chainsTouched.join(", ") || "—"} />
+              <Row k="Nucleic chains" v={polymerContextSnapshot.nucleicChains.join(", ") || "—"} />
+              <Row k="Residues (protein)" v={String(polymerContextSnapshot.proteinResidueCount)} />
+              <Row k="Residues (nucleic)" v={String(polymerContextSnapshot.nucleicResidueCount)} />
+              <Row k="Residues (other)" v={String(polymerContextSnapshot.otherResidueCount)} />
+              <Row k="Codon" v="N/A (not computed from coordinates)" />
+              <Row
+                k="Polar contacts ≤3.5Å"
+                v={`${polymerContextSnapshot.candidatePolarContactCount} (H-bond candidates only)`}
+              />
+              <Row k="Heavy contacts ≤4Å" v={String(polymerContextSnapshot.candidateHeavyContactCount)} />
+              <Row k="Phosphate-touch pairs" v={String(polymerContextSnapshot.candidatePhosphateContactCount)} />
+              {polymerContextSnapshot.nearestNucleic ? (
+                <Row
+                  k="Nearest NT"
+                  v={`chain ${polymerContextSnapshot.nearestNucleic.chainId} · PDB ${polymerContextSnapshot.nearestNucleic.pdbResno} · seq #${polymerContextSnapshot.nearestNucleic.stripOrdinal}${polymerContextSnapshot.nearestNucleic.baseLetter ? ` · ${polymerContextSnapshot.nearestNucleic.baseLetter}` : ""}`}
+                />
+              ) : (
+                <Row k="Nearest NT" v="none in radius" />
+              )}
+              <div className="font-mono text-[8px] uppercase tracking-wide text-[#8A8A8A]">Top candidate atom pairs</div>
+              <pre className="max-h-28 overflow-auto whitespace-pre-wrap border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 font-mono text-[8px] text-[#B0B0B0]">
+                {polymerContextSnapshot.candidatePairSummaries.length
+                  ? polymerContextSnapshot.candidatePairSummaries.join("\n")
+                  : "—"}
+              </pre>
+              <div className="font-mono text-[8px] uppercase tracking-wide text-[#8A8A8A]">Protein snippets</div>
+              <pre className="max-h-24 overflow-auto whitespace-pre-wrap border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 font-mono text-[9px] text-[#C8C8C8]">
+                {Object.keys(polymerContextSnapshot.proteinSnippets).length
+                  ? Object.entries(polymerContextSnapshot.proteinSnippets)
+                      .map(([c, s]) => `${c}: ${s}`)
+                      .join("\n")
+                  : "—"}
+              </pre>
+              <div className="font-mono text-[8px] uppercase tracking-wide text-[#8A8A8A]">Nucleic snippets</div>
+              <pre className="max-h-24 overflow-auto whitespace-pre-wrap border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 font-mono text-[9px] text-[#C8C8C8]">
+                {Object.keys(polymerContextSnapshot.nucleicSnippets).length
+                  ? Object.entries(polymerContextSnapshot.nucleicSnippets)
+                      .map(([c, s]) => `${c}: ${s}`)
+                      .join("\n")
+                  : "—"}
+              </pre>
+            </>
+          )}
         </Section>
 
         <Section title="Entity inspector">
@@ -278,29 +306,18 @@ export default function RightWorkstationPanel() {
           <Row k="Interactions" v={polymerMock.ixnCount} />
         </Section>
 
-        <Section title="Structure analysis" defaultOpen={false}>
-          <Row k="RMSD" v="— (reference structure required)" />
-          <Row k="Clashes" v="not computed" />
-          <Row
-            k="Contacts (NGL)"
-            v={showContactsOverlay ? "on — distance contact repr" : "off — palette / left panel"}
-          />
-          <Row k="Interface area" v={polymerMock.ifaceArea} />
-        </Section>
-
-        <Section title="EVO2 reasoning" defaultOpen={false}>
-          <Evo2AnnotationPanel />
-        </Section>
-
-        <Section title="Generative workspace" defaultOpen={false}>
-          <GenerativeWorkspacePanel />
-        </Section>
-
         <Section title="Interaction graph" defaultOpen={false}>
-          <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-2 font-mono text-[9px] leading-snug text-[#7A7A7A]">
-            Graph view (chain–chain edges, ligand spokes) — pipeline not attached. Export interface list from future
-            analysis worker.
-          </div>
+          {!polymerContextSnapshot?.proximityGraphEdges?.length ? (
+            <p className="border border-[#2A2A2A] bg-[#0A0A0A] p-2 font-mono text-[9px] leading-snug text-[#7A7A7A]">
+              Pick a residue with both protein and nucleic neighbors in context to populate the proximity graph (≤5 Å
+              heavy-atom residue pairs).
+            </p>
+          ) : (
+            <PolymerProximityGraph
+              edges={polymerContextSnapshot.proximityGraphEdges}
+              fingerprint={polymerContextSnapshot.contextFingerprint}
+            />
+          )}
         </Section>
 
         <Section title="Simulation" defaultOpen={false}>

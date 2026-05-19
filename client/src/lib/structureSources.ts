@@ -54,15 +54,14 @@ async function fetchAlphaFoldResolved(accession: string): Promise<ResolvedStruct
  */
 export async function resolveStructure(selection: ProteinSelection): Promise<ResolvedStructure> {
   if (selection.source === "file") {
-    const url = selection.structureObjectUrl ?? selection.remoteStructureUrl;
-    if (!url) throw new Error("Structure URL missing (local blob or remote mmCIF)");
+    const url = selection.structureObjectUrl;
+    if (!url) throw new Error("Local file URL missing");
     const name = selection.fileName?.toLowerCase() ?? "";
     const format: "mmcif" | "pdb" = name.endsWith(".pdb") || name.endsWith(".ent") ? "pdb" : "mmcif";
-    const provenance = selection.fileName ? `File · ${selection.fileName}` : "Remote / blob structure";
     return {
       url,
       format,
-      provenance,
+      provenance: selection.fileName ? `File · ${selection.fileName}` : "Local structure file",
     };
   }
 

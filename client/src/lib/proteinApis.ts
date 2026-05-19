@@ -19,8 +19,6 @@ export interface ProteinSelection {
   preferredStructure?: "experimental" | "alphafold";
   /** Local PDB/mmCIF: object URL for NGL (revoked when selection changes). */
   structureObjectUrl?: string;
-  /** Remote mmCIF URL (e.g. signed inference artifact). May fail in the browser if CORS blocks NGL. */
-  remoteStructureUrl?: string;
   fileName?: string;
 }
 
@@ -170,7 +168,7 @@ export async function searchRcsb(query: string): Promise<ProteinSearchHit[]> {
 }
 
 export function proteinSelectionKey(s: ProteinSelection): string {
-  return `${s.source}:${s.id}:${s.structureObjectUrl ?? ""}:${s.remoteStructureUrl ?? ""}:${s.fileName ?? ""}`;
+  return `${s.source}:${s.id}:${s.structureObjectUrl ?? ""}:${s.fileName ?? ""}`;
 }
 
 export function proteinHitToSelection(
