@@ -5,13 +5,10 @@
   "license": "MIT",
   "scripts": {
     "dev": "vite --host",
-    "dev:vite": "vite --host",
-    "dev:api": "tsx watch server/api-dev.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
-    "test": "vitest run",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -46,6 +43,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "dockview": "^6.3.0",
     "dotenv": "^17.4.2",
     "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
