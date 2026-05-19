@@ -5,8 +5,20 @@
   "framework": null,
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "source": "/api/uniprot/:path*",
+      "destination": "https://rest.uniprot.org/:path*"
+    },
+    {
+      "source": "/api/rcsb-search/:path*",
+      "destination": "https://search.rcsb.org/:path*"
+    },
+    {
+      "source": "/api/rcsb-files/:path*",
+      "destination": "https://files.rcsb.org/:path*"
+    },
+    {
+      "source": "/api/alphafold/:path*",
+      "destination": "https://alphafold.ebi.ac.uk/:path*"
     },
     {
       "source": "/(.*)",
