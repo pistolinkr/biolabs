@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { entityKindLabel, groupChainsByEntityKind, type BiomolecularEntityKind } from "@/lib/biomolecularEntities";
 import { useViewer, type ChainModel } from "@/contexts/ViewerContext";
 import PolymerProximityGraph from "@/components/workbench/PolymerProximityGraph";
@@ -14,14 +15,14 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="border-b border-[#2A2A2A]">
+    <div className="border-b border-border">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-2 py-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#F2F2F2] hover:bg-[#141414]"
+        className="flex w-full items-center justify-between px-2 py-1.5 font-mono text-[9px] uppercase tracking-[0.12em] text-foreground hover:bg-secondary"
       >
         {title}
-        <span className="text-[#6A6A6A]">{open ? "−" : "+"}</span>
+        <span className="text-muted-foreground">{open ? "−" : "+"}</span>
       </button>
       {open ? <div className="space-y-0.5 px-2 pb-2 pt-0">{children}</div> : null}
     </div>
@@ -30,14 +31,15 @@ function Section({
 
 function Row({ k, v }: { k: string; v: string }) {
   return (
-    <div className="flex gap-2 font-mono text-[10px] leading-tight text-[#C8C8C8]">
-      <span className="w-[40%] shrink-0 uppercase tracking-wide text-[#8A8A8A]">{k}</span>
-      <span className="min-w-0 flex-1 text-[#F2F2F2]">{v}</span>
+    <div className="flex gap-2 font-mono text-[10px] leading-tight text-foreground">
+      <span className="w-[40%] shrink-0 uppercase tracking-wide text-muted-foreground">{k}</span>
+      <span className="min-w-0 flex-1 text-card-foreground">{v}</span>
     </div>
   );
 }
 
 export default function RightWorkstationPanel() {
+  const { t } = useTranslation("workbench");
   const {
     proteinSelection,
     structureModel,
@@ -67,21 +69,21 @@ export default function RightWorkstationPanel() {
       };
     }
     const pdb = sel.pdbIds?.[0] ?? (sel.source === "rcsb" ? sel.id : "—");
-    const uni = sel.source === "uniprot" ? sel.id : sel.pdbIds?.length ? "(see PDB)" : "—";
+    const uni = sel.source === "uniprot" ? sel.id : sel.pdbIds?.length ? t("metadata.seePdb") : t("metadata.dash");
     return {
       name: sel.label.split("—")[0]?.trim() ?? sel.id,
-      organism: "—",
+      organism: t("metadata.dash"),
       uniprot: uni,
       pdb,
-      resolution: "—",
+      resolution: t("metadata.dash"),
       method:
         sel.source === "file"
-          ? "LOCAL FILE"
+          ? t("metadata.localFile")
           : sel.preferredStructure === "alphafold"
-            ? "PREDICTION (AFDB)"
-            : "—",
+            ? t("metadata.prediction")
+            : t("metadata.dash"),
     };
-  }, [proteinSelection]);
+  }, [proteinSelection, t]);
 
   const structure = useMemo(() => {
     if (!structureModel) {
@@ -129,37 +131,35 @@ export default function RightWorkstationPanel() {
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card text-card-foreground">
       <div className="shrink-0 border-b border-border bg-card px-2 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
-        Inspector
+        {t("inspector.title")}
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <Section title="Basic info">
-          <Row k="Protein" v={basic.name} />
-          <Row k="Organism" v={basic.organism} />
-          <Row k="UniProt" v={basic.uniprot} />
-          <Row k="PDB" v={basic.pdb} />
-          <Row k="Resolution" v={basic.resolution} />
-          <Row k="Method" v={basic.method} />
+        <Section title={t("inspector.sections.basicInfo")}>
+          <Row k={t("inspector.rows.protein")} v={basic.name} />
+          <Row k={t("inspector.rows.organism")} v={basic.organism} />
+          <Row k={t("inspector.rows.uniprot")} v={basic.uniprot} />
+          <Row k={t("inspector.rows.pdb")} v={basic.pdb} />
+          <Row k={t("inspector.rows.resolution")} v={basic.resolution} />
+          <Row k={t("inspector.rows.method")} v={basic.method} />
         </Section>
 
-        <Section title="Structure stats">
-          <Row k="Atoms" v={structure.atoms} />
-          <Row k="Residues" v={structure.residues} />
-          <Row k="Chains" v={structure.chains} />
-          <Row k="Ligands" v={structure.ligands} />
-          <Row k="Missing" v={structure.missing} />
+        <Section title={t("inspector.sections.structureStats")}>
+          <Row k={t("inspector.rows.atoms")} v={structure.atoms} />
+          <Row k={t("inspector.rows.residues")} v={structure.residues} />
+          <Row k={t("inspector.rows.chains")} v={structure.chains} />
+          <Row k={t("inspector.rows.ligands")} v={structure.ligands} />
+          <Row k={t("inspector.rows.missing")} v={structure.missing} />
         </Section>
 
-        <Section title="Polymer context (distance)">
+        <Section title={t("inspector.sections.polymerContext")}>
           {!polymerContextSnapshot ? (
-            <p className="font-mono text-[9px] leading-snug text-[#6A6A6A]">
-              Pick a residue in the viewport or from the sequence dock — neighborhood is computed from heavy-atom
-              proximity (radius {contextContactRadiusAngstrom} Å). Codons, grooves, and H-bonds are not inferred in this
-              phase.
+            <p className="font-mono text-[9px] leading-snug text-muted-foreground">
+              {t("inspector.polymerEmpty", { radius: contextContactRadiusAngstrom })}
             </p>
           ) : (
             <>
               <div className="flex flex-wrap gap-2 py-1 font-mono text-[9px]">
-                <label className="flex cursor-pointer items-center gap-1 text-[#9A9A9A]">
+                <label className="flex cursor-pointer items-center gap-1 text-muted-foreground">
                   <input
                     type="checkbox"
                     checked={polymerInteractionOverlayEnabled}
@@ -169,9 +169,9 @@ export default function RightWorkstationPanel() {
                     }}
                     className="accent-[#8A8A8A]"
                   />
-                  Contact lines (heuristic)
+                  {t("inspector.contactLines")}
                 </label>
-                <label className="flex cursor-pointer items-center gap-1 text-[#9A9A9A]">
+                <label className="flex cursor-pointer items-center gap-1 text-muted-foreground">
                   <input
                     type="checkbox"
                     checked={nucleicBackboneAccentEnabled}
@@ -181,50 +181,50 @@ export default function RightWorkstationPanel() {
                     }}
                     className="accent-[#8A8A8A]"
                   />
-                  Nucleic line accent
+                  {t("inspector.nucleicLineAccent")}
                 </label>
               </div>
-              <Row k="Radius" v={`${polymerContextSnapshot.radiusAngstrom} Å (preset ${contextContactRadiusAngstrom} Å)`} />
+              <Row k={t("inspector.rows.radius")} v={`${polymerContextSnapshot.radiusAngstrom} Å (preset ${contextContactRadiusAngstrom} Å)`} />
               <Row
-                k="Center (Å)"
+                k={t("inspector.rows.center")}
                 v={`${polymerContextSnapshot.center.x.toFixed(2)}, ${polymerContextSnapshot.center.y.toFixed(2)}, ${polymerContextSnapshot.center.z.toFixed(2)}`}
               />
-              <Row k="Chains" v={polymerContextSnapshot.chainsTouched.join(", ") || "—"} />
-              <Row k="Nucleic chains" v={polymerContextSnapshot.nucleicChains.join(", ") || "—"} />
-              <Row k="Residues (protein)" v={String(polymerContextSnapshot.proteinResidueCount)} />
-              <Row k="Residues (nucleic)" v={String(polymerContextSnapshot.nucleicResidueCount)} />
-              <Row k="Residues (other)" v={String(polymerContextSnapshot.otherResidueCount)} />
-              <Row k="Codon" v="N/A (not computed from coordinates)" />
+              <Row k={t("inspector.rows.chains")} v={polymerContextSnapshot.chainsTouched.join(", ") || t("metadata.dash")} />
+              <Row k={t("inspector.rows.nucleicChains")} v={polymerContextSnapshot.nucleicChains.join(", ") || t("metadata.dash")} />
+              <Row k={t("inspector.rows.residuesProtein")} v={String(polymerContextSnapshot.proteinResidueCount)} />
+              <Row k={t("inspector.rows.residuesNucleic")} v={String(polymerContextSnapshot.nucleicResidueCount)} />
+              <Row k={t("inspector.rows.residuesOther")} v={String(polymerContextSnapshot.otherResidueCount)} />
+              <Row k={t("inspector.rows.codon")} v={t("inspector.codonNa")} />
               <Row
-                k="Polar contacts ≤3.5Å"
-                v={`${polymerContextSnapshot.candidatePolarContactCount} (H-bond candidates only)`}
+                k={t("inspector.rows.polarContacts")}
+                v={t("inspector.polarCandidates", { count: polymerContextSnapshot.candidatePolarContactCount })}
               />
-              <Row k="Heavy contacts ≤4Å" v={String(polymerContextSnapshot.candidateHeavyContactCount)} />
-              <Row k="Phosphate-touch pairs" v={String(polymerContextSnapshot.candidatePhosphateContactCount)} />
+              <Row k={t("inspector.rows.heavyContacts")} v={String(polymerContextSnapshot.candidateHeavyContactCount)} />
+              <Row k={t("inspector.rows.phosphatePairs")} v={String(polymerContextSnapshot.candidatePhosphateContactCount)} />
               {polymerContextSnapshot.nearestNucleic ? (
                 <Row
-                  k="Nearest NT"
+                  k={t("inspector.rows.nearestNt")}
                   v={`chain ${polymerContextSnapshot.nearestNucleic.chainId} · PDB ${polymerContextSnapshot.nearestNucleic.pdbResno} · seq #${polymerContextSnapshot.nearestNucleic.stripOrdinal}${polymerContextSnapshot.nearestNucleic.baseLetter ? ` · ${polymerContextSnapshot.nearestNucleic.baseLetter}` : ""}`}
                 />
               ) : (
-                <Row k="Nearest NT" v="none in radius" />
+                <Row k={t("inspector.rows.nearestNt")} v={t("inspector.noneInRadius")} />
               )}
-              <div className="font-mono text-[8px] uppercase tracking-wide text-[#8A8A8A]">Top candidate atom pairs</div>
-              <pre className="max-h-28 overflow-auto whitespace-pre-wrap border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 font-mono text-[8px] text-[#B0B0B0]">
+              <div className="font-mono text-[8px] uppercase tracking-wide text-muted-foreground">{t("inspector.topPairs")}</div>
+              <pre className="max-h-28 overflow-auto whitespace-pre-wrap border border-border bg-background p-1.5 font-mono text-[8px] text-muted-foreground">
                 {polymerContextSnapshot.candidatePairSummaries.length
                   ? polymerContextSnapshot.candidatePairSummaries.join("\n")
                   : "—"}
               </pre>
-              <div className="font-mono text-[8px] uppercase tracking-wide text-[#8A8A8A]">Protein snippets</div>
-              <pre className="max-h-24 overflow-auto whitespace-pre-wrap border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 font-mono text-[9px] text-[#C8C8C8]">
+              <div className="font-mono text-[8px] uppercase tracking-wide text-muted-foreground">{t("inspector.proteinSnippets")}</div>
+              <pre className="max-h-24 overflow-auto whitespace-pre-wrap border border-border bg-background p-1.5 font-mono text-[9px] text-foreground">
                 {Object.keys(polymerContextSnapshot.proteinSnippets).length
                   ? Object.entries(polymerContextSnapshot.proteinSnippets)
                       .map(([c, s]) => `${c}: ${s}`)
                       .join("\n")
                   : "—"}
               </pre>
-              <div className="font-mono text-[8px] uppercase tracking-wide text-[#8A8A8A]">Nucleic snippets</div>
-              <pre className="max-h-24 overflow-auto whitespace-pre-wrap border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 font-mono text-[9px] text-[#C8C8C8]">
+              <div className="font-mono text-[8px] uppercase tracking-wide text-muted-foreground">{t("inspector.nucleicSnippets")}</div>
+              <pre className="max-h-24 overflow-auto whitespace-pre-wrap border border-border bg-background p-1.5 font-mono text-[9px] text-foreground">
                 {Object.keys(polymerContextSnapshot.nucleicSnippets).length
                   ? Object.entries(polymerContextSnapshot.nucleicSnippets)
                       .map(([c, s]) => `${c}: ${s}`)
@@ -235,22 +235,22 @@ export default function RightWorkstationPanel() {
           )}
         </Section>
 
-        <Section title="Entity inspector">
-          <Row k="Lanes" v={polymerMock.entityLanes} />
-          <Row k="Assembly" v="placeholder — import BIounit metadata" />
+        <Section title={t("inspector.sections.entityInspector")}>
+          <Row k={t("inspector.rows.lanes")} v={polymerMock.entityLanes} />
+          <Row k={t("inspector.rows.assembly")} v={t("inspector.assemblyPlaceholder")} />
         </Section>
 
-        <Section title="Biological" defaultOpen={false}>
-          <Row k="Function" v="not fetched" />
-          <Row k="Family" v="—" />
-          <Row k="Localization" v="—" />
-          <Row k="Binding" v="—" />
+        <Section title={t("inspector.sections.biological")} defaultOpen={false}>
+          <Row k={t("inspector.rows.function")} v={t("inspector.notFetched")} />
+          <Row k={t("inspector.rows.family")} v={t("metadata.dash")} />
+          <Row k={t("inspector.rows.localization")} v={t("metadata.dash")} />
+          <Row k={t("inspector.rows.binding")} v={t("metadata.dash")} />
         </Section>
 
-        <Section title="Confidence" defaultOpen>
+        <Section title={t("inspector.sections.confidence")} defaultOpen>
           <div className="space-y-2 border border-[#2A2A2A] bg-[#0A0A0A] p-2">
             <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#6A6A6A]">
-              pLDDT / B-factor ramp
+              {t("inspector.plddtRamp")}
             </div>
             <div
               className="h-2.5 w-full border border-[#2A2A2A]"
@@ -260,33 +260,36 @@ export default function RightWorkstationPanel() {
               }}
             />
             <div className="flex justify-between font-mono text-[8px] text-[#5A5A5A]">
-              <span>Disordered</span>
-              <span>Uncertain</span>
-              <span>Confident</span>
+              <span>{t("inspector.disordered")}</span>
+              <span>{t("inspector.uncertain")}</span>
+              <span>{t("inspector.confident")}</span>
             </div>
-            <Row k="Source" v={proteinSelection?.preferredStructure === "alphafold" ? "AFDB (B-factor)" : "Experimental B / N/A"} />
-            <Row k="Active scheme" v={colorScheme} />
+            <Row
+              k={t("inspector.rows.source")}
+              v={proteinSelection?.preferredStructure === "alphafold" ? t("inspector.afdbSource") : t("inspector.experimentalB")}
+            />
+            <Row k={t("inspector.rows.activeScheme")} v={colorScheme} />
             <button
               type="button"
               onClick={() => runViewerCommand("overlay.confidence.toggle")}
               className="w-full border border-[#2A2A2A] bg-[#141414] py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A5A5A] hover:text-[#F2F2F2]"
             >
               {colorScheme === "bfactor" || colorScheme === "bfactor_gray"
-                ? "Clear heatmap"
-                : "Apply confidence heatmap"}
+                ? t("inspector.clearHeatmap")
+                : t("inspector.applyHeatmap")}
             </button>
           </div>
         </Section>
 
-        <Section title="Polymer / complex" defaultOpen>
-          <Row k="Chain IDs" v={polymerMock.subunits} />
-          <Row k="Interfaces" v={polymerMock.interfaces} />
-          <Row k="H-bonds" v={polymerMock.hbonds} />
-          <Row k="Salt bridges" v={polymerMock.salt} />
-          <Row k="Hydrophobic" v={polymerMock.hp} />
+        <Section title={t("inspector.sections.polymerComplex")} defaultOpen>
+          <Row k={t("inspector.rows.chainIds")} v={polymerMock.subunits} />
+          <Row k={t("inspector.rows.interfaces")} v={polymerMock.interfaces} />
+          <Row k={t("inspector.rows.hbonds")} v={polymerMock.hbonds} />
+          <Row k={t("inspector.rows.saltBridges")} v={polymerMock.salt} />
+          <Row k={t("inspector.rows.hydrophobic")} v={polymerMock.hp} />
           <div className="flex flex-col gap-1 py-0.5">
             <span className="w-[40%] font-mono text-[10px] uppercase tracking-wide text-[#8A8A8A]">
-              Bio assembly
+              {t("inspector.bioAssembly")}
             </span>
             <select
               value={assemblyPick}
@@ -294,23 +297,22 @@ export default function RightWorkstationPanel() {
               disabled={!structureModel}
               className="border border-[#2A2A2A] bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] text-[#F2F2F2] disabled:opacity-40"
             >
-              <option value="asu">Asymmetric unit</option>
-              <option value="bio1">Biological assembly 1 (RCSB metadata N/A)</option>
-              <option value="bio2">Biological assembly 2 (stub)</option>
+              <option value="asu">{t("inspector.asu")}</option>
+              <option value="bio1">{t("inspector.bio1")}</option>
+              <option value="bio2">{t("inspector.bio2")}</option>
             </select>
           </div>
-          <Row k="Stoichiometry (heuristic)" v={polymerMock.stoich} />
-          <Row k="Symmetry" v={polymerMock.symmetry} />
-          <Row k="Iface area (Å²)" v={polymerMock.ifaceArea} />
-          <Row k="ΔG_bind (mock)" v={polymerMock.bindEnergy} />
-          <Row k="Interactions" v={polymerMock.ixnCount} />
+          <Row k={t("inspector.rows.stoichiometry")} v={polymerMock.stoich} />
+          <Row k={t("inspector.rows.symmetry")} v={polymerMock.symmetry} />
+          <Row k={t("inspector.rows.ifaceArea")} v={polymerMock.ifaceArea} />
+          <Row k={t("inspector.rows.bindEnergy")} v={polymerMock.bindEnergy} />
+          <Row k={t("inspector.rows.interactions")} v={polymerMock.ixnCount} />
         </Section>
 
-        <Section title="Interaction graph" defaultOpen={false}>
+        <Section title={t("inspector.sections.interactionGraph")} defaultOpen={false}>
           {!polymerContextSnapshot?.proximityGraphEdges?.length ? (
             <p className="border border-[#2A2A2A] bg-[#0A0A0A] p-2 font-mono text-[9px] leading-snug text-[#7A7A7A]">
-              Pick a residue with both protein and nucleic neighbors in context to populate the proximity graph (≤5 Å
-              heavy-atom residue pairs).
+              {t("inspector.graphEmpty")}
             </p>
           ) : (
             <PolymerProximityGraph
@@ -320,14 +322,12 @@ export default function RightWorkstationPanel() {
           )}
         </Section>
 
-        <Section title="Simulation" defaultOpen={false}>
-          <Row k="MD engine" v="not connected" />
-          <Row k="Folding run" v="placeholder trajectory slot" />
-          <Row k="Docking" v="placeholder pose stack" />
-          <Row k="Mutagenesis" v="future variant grid" />
-          <p className="font-mono text-[8px] leading-tight text-[#5A5A5A]">
-            Types reserved in client/src/lib/futureWorkspace.ts (idle hooks).
-          </p>
+        <Section title={t("inspector.sections.simulation")} defaultOpen={false}>
+          <Row k={t("inspector.rows.mdEngine")} v={t("inspector.notConnected")} />
+          <Row k={t("inspector.rows.foldingRun")} v={t("inspector.trajectoryPlaceholder")} />
+          <Row k={t("inspector.rows.docking")} v={t("inspector.dockingPlaceholder")} />
+          <Row k={t("inspector.rows.mutagenesis")} v={t("inspector.mutagenesisPlaceholder")} />
+          <p className="font-mono text-[8px] leading-tight text-[#5A5A5A]">{t("inspector.simulationNote")}</p>
         </Section>
       </div>
     </div>

@@ -1,0 +1,75 @@
+{
+  "title": "设置",
+  "subtitle": "Biolabs 工作站配置",
+  "tabs": {
+    "general": "常规",
+    "ai": "AI 助手",
+    "workspace": "工作区",
+    "about": "关于"
+  },
+  "general": {
+    "appearance": "外观",
+    "colorTheme": "颜色主题",
+    "colorThemeHint": "跟随系统或手动选择。",
+    "scientificHud": "Scientific HUD",
+    "scientificHudHint": "在视口上显示坐标信息叠加层。",
+    "viewportNote": "视口渲染选项（AO、阴影）由 Display 工作台标签页控制。"
+  },
+  "workspace": {
+    "persistence": "持久化",
+    "autoSave": "自动保存会话",
+    "autoSaveHint": "查看器选择和显示偏好（localStorage）。",
+    "autoSaveInterval": "自动保存间隔",
+    "autoSaveIntervalHint": "{{minutes}} 分钟（查看器在更改时约 500ms 防抖）",
+    "saveNote": "使用标题栏保存按钮（⌘S）写入包含停靠布局和 AI 偏好的完整工作区快照。通过下载菜单导出 JSON。"
+  },
+  "about": {
+    "kicker": "Biolabs",
+    "version": "{{version}} · 计算生物学工作站",
+    "stack": "结构: NGL · 布局: Dockview · AI: 模块化云提供商",
+    "copyright": "© 2026 Biolabs Project"
+  },
+  "ai": {
+    "serverStatus": "服务器状态",
+    "checking": "正在检查提供商…",
+    "active": "活跃: {{provider}}{{model}}",
+    "activeModel": " · {{model}}",
+    "available": "可用: {{list}}",
+    "none": "无",
+    "rateLimit": "速率限制 {{limit}}/分钟 · 最大令牌 {{tokens}} · 上下文 {{chars}} 字符",
+    "notConfigured": "未配置提供商。请在服务器 .env 文件中添加 GEMINI_API_KEY、OPENROUTER_API_KEY 或 HUGGINGFACE_API_KEY 并重启。",
+    "staticDeployNote": "Vercel 静态托管仅提供前端 — 无 /api/ai 服务器。要使用 AI，请用 Node（pnpm build && pnpm start）或 Docker 部署，并在服务器 .env 中添加密钥。",
+    "refreshStatus": "刷新状态",
+    "testConnection": "测试连接",
+    "clientPrefs": "客户端偏好",
+    "preferredProvider": "首选提供商",
+    "preferredProviderHint": "覆盖服务器对您请求的自动选择。",
+    "interfaceLanguage": "界面语言",
+    "interfaceLanguageHint": "控制整个工作站的菜单、面板标题、标签和消息。",
+    "responseLanguage": "AI 回复语言",
+    "responseLanguageHint": "选择特定语言时，界面也会同步切换。中文 / Deutsch / Español 等请使用上方的界面语言。",
+    "responseLanguageAuto": "自动（匹配界面 / 浏览器）",
+    "temperature": "Temperature",
+    "temperatureHint": "{{value}} — 越低越贴近事实",
+    "maxTokens": "最大输出令牌",
+    "maxTokensHint": "{{value}}（服务器上限 {{cap}}）",
+    "includeSequences": "包含完整序列",
+    "includeSequencesHint": "在 AI 上下文中发送链序列（截断）。",
+    "compactContext": "精简上下文",
+    "compactContextHint": "缩短序列和片段以节省令牌。",
+    "autoOpenChat": "解释时自动打开聊天",
+    "autoOpenChatHint": "使用 Explain 按钮时打开助手面板。",
+    "residuePanel": "残基分析面板",
+    "residuePanelHint": "在视口中选择残基后显示锚定分析面板。",
+    "apiKeys": "API 密钥",
+    "apiKeysHint": "密钥仅存储在服务器（.env）上。切勿将提供商密钥放入客户端设置或 VITE_ 变量。",
+    "clearChat": "清除聊天记录",
+    "resetDefaults": "重置 AI 默认值",
+    "providers": {
+      "auto": "自动（服务器优先级）",
+      "gemini": "Gemini",
+      "openrouter": "OpenRouter",
+      "huggingface": "Hugging Face"
+    }
+  }
+}

@@ -1,14 +1,14 @@
 import {
   Camera,
   Download,
-  Focus,
   Fullscreen,
-  Maximize2,
   Orbit,
+  Sparkles,
   Sun,
-  SwitchCamera,
 } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { useAssistant } from "@/contexts/AssistantContext";
 import { useViewer } from "@/contexts/ViewerContext";
 import { cn } from "@/lib/utils";
 
@@ -38,40 +38,46 @@ export function RailBtn({
   );
 }
 
-/** RCSB-style left vertical tool column (I/O, spin, fog — camera grouped in top bar). */
+/** RCSB-style left vertical tool column (I/O, spin, fog). */
 export default function ViewportLeftToolRail() {
+  const { t } = useTranslation("viewport");
   const { runViewerCommand, spinEnabled, renderOptions, setRenderOptions } = useViewer();
+  const { aiSettings, updateAiSettings } = useAssistant();
 
   return (
     <div className="flex w-11 shrink-0 flex-col gap-1 border-r border-[#2A2A2A] bg-[#0A0A0A] px-1.5 py-1.5">
-      <RailBtn title="Reset camera" onClick={() => runViewerCommand("view.reset")}>
-        <SwitchCamera className="size-3.5" strokeWidth={1.25} />
-      </RailBtn>
-      <RailBtn title="Fit structure" onClick={() => runViewerCommand("view.fit.structure")}>
-        <Maximize2 className="size-3.5" strokeWidth={1.25} />
-      </RailBtn>
-      <RailBtn title="Fit selection / isolate" onClick={() => runViewerCommand("view.fit.selection")}>
-        <Focus className="size-3.5" strokeWidth={1.25} />
-      </RailBtn>
-      <RailBtn title="Screenshot PNG" onClick={() => runViewerCommand("screenshot")}>
+      <RailBtn title={t("rail.screenshot")} onClick={() => runViewerCommand("screenshot")}>
         <Camera className="size-3.5" strokeWidth={1.25} />
       </RailBtn>
-      <RailBtn title="Export coordinates (remote)" onClick={() => runViewerCommand("export.cif")}>
+      <RailBtn title={t("rail.exportCoords")} onClick={() => runViewerCommand("export.cif")}>
         <Download className="size-3.5" strokeWidth={1.25} />
       </RailBtn>
-      <RailBtn title="Fullscreen" onClick={() => runViewerCommand("view.fullscreen.toggle")}>
+      <RailBtn title={t("rail.fullscreen")} onClick={() => runViewerCommand("view.fullscreen.toggle")}>
         <Fullscreen className="size-3.5" strokeWidth={1.25} />
       </RailBtn>
-      <RailBtn title="Spin" active={spinEnabled} onClick={() => runViewerCommand("view.spin.toggle")}>
+      <RailBtn title={t("rail.spin")} active={spinEnabled} onClick={() => runViewerCommand("view.spin.toggle")}>
         <Orbit className="size-3.5" strokeWidth={1.25} />
       </RailBtn>
       <RailBtn
-        title="Depth cue (fog)"
+        title={t("rail.depthCue")}
         active={renderOptions.depthCue}
         onClick={() => setRenderOptions({ depthCue: !renderOptions.depthCue })}
       >
         <Sun className="size-3.5" strokeWidth={1.25} />
       </RailBtn>
+      <div className="mt-1 border-t border-[#2A2A2A] pt-1">
+        <RailBtn
+          title={
+            aiSettings.showResidueExplainPopup ? t("rail.aiAnalysisOn") : t("rail.aiAnalysisOff")
+          }
+          active={aiSettings.showResidueExplainPopup}
+          onClick={() =>
+            updateAiSettings({ showResidueExplainPopup: !aiSettings.showResidueExplainPopup })
+          }
+        >
+          <Sparkles className="size-3.5" strokeWidth={1.25} />
+        </RailBtn>
+      </div>
     </div>
   );
 }

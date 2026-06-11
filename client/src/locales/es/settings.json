@@ -1,0 +1,75 @@
+{
+  "title": "Configuración",
+  "subtitle": "Configuración de la estación de trabajo Biolabs",
+  "tabs": {
+    "general": "General",
+    "ai": "Asistente de IA",
+    "workspace": "Espacio de trabajo",
+    "about": "Acerca de"
+  },
+  "general": {
+    "appearance": "Apariencia",
+    "colorTheme": "Tema de color",
+    "colorThemeHint": "Sigue el sistema o la selección manual.",
+    "scientificHud": "Scientific HUD",
+    "scientificHudHint": "Superposición de coordenadas en el viewport.",
+    "viewportNote": "Las opciones de renderizado del viewport (AO, sombras) se controlan desde la pestaña Display del workbench."
+  },
+  "workspace": {
+    "persistence": "Persistencia",
+    "autoSave": "Guardar sesión automáticamente",
+    "autoSaveHint": "Selección del visor y preferencias de visualización (localStorage).",
+    "autoSaveInterval": "Intervalo de guardado automático",
+    "autoSaveIntervalHint": "{{minutes}} min (el visor hace debounce ~500 ms al cambiar)",
+    "saveNote": "Use el botón Guardar del encabezado (⌘S) para escribir una instantánea completa del espacio de trabajo incluyendo el diseño del dock y las preferencias de IA. Exporte JSON desde el menú Descargar."
+  },
+  "about": {
+    "kicker": "Biolabs",
+    "version": "{{version}} · Estación de trabajo de biología computacional",
+    "stack": "Estructura: NGL · Diseño: Dockview · IA: proveedores cloud modulares",
+    "copyright": "© 2026 Biolabs Project"
+  },
+  "ai": {
+    "serverStatus": "Estado del servidor",
+    "checking": "Comprobando proveedores…",
+    "active": "Activo: {{provider}}{{model}}",
+    "activeModel": " · {{model}}",
+    "available": "Disponible: {{list}}",
+    "none": "ninguno",
+    "rateLimit": "Límite de velocidad {{limit}}/min · tokens máx. {{tokens}} · contexto {{chars}} caracteres",
+    "notConfigured": "Ningún proveedor configurado. Añada GEMINI_API_KEY, OPENROUTER_API_KEY o HUGGINGFACE_API_KEY al archivo .env del servidor y reinicie.",
+    "staticDeployNote": "El hosting estático de Vercel sirve solo el frontend — no hay servidor /api/ai. Para IA: despliegue con Node (pnpm build && pnpm start) o Docker y añada claves al .env del servidor.",
+    "refreshStatus": "Actualizar estado",
+    "testConnection": "Probar conexión",
+    "clientPrefs": "Preferencias del cliente",
+    "preferredProvider": "Proveedor preferido",
+    "preferredProviderHint": "Anula la selección automática del servidor para sus solicitudes.",
+    "interfaceLanguage": "Idioma de la interfaz",
+    "interfaceLanguageHint": "Controla menús, títulos de paneles, etiquetas y mensajes en toda la estación de trabajo.",
+    "responseLanguage": "Idioma de respuesta de IA",
+    "responseLanguageHint": "Al elegir un idioma concreto, la interfaz también cambia. Para 中文 / Deutsch / Español, etc., use el idioma de interfaz arriba.",
+    "responseLanguageAuto": "Auto (interfaz / navegador)",
+    "temperature": "Temperature",
+    "temperatureHint": "{{value}} — más bajo = más factual",
+    "maxTokens": "Tokens de salida máx.",
+    "maxTokensHint": "{{value}} (límite del servidor {{cap}})",
+    "includeSequences": "Incluir secuencias completas",
+    "includeSequencesHint": "Enviar secuencias de cadenas en el contexto de IA (truncadas).",
+    "compactContext": "Contexto compacto",
+    "compactContextHint": "Secuencias y fragmentos más cortos para ahorrar tokens.",
+    "autoOpenChat": "Abrir chat automáticamente al explicar",
+    "autoOpenChatHint": "Abrir el panel del asistente al usar los botones Explain.",
+    "residuePanel": "Panel de análisis de residuos",
+    "residuePanelHint": "Mostrar panel de análisis anclado tras seleccionar un residuo en el viewport.",
+    "apiKeys": "Claves API",
+    "apiKeysHint": "Las claves se almacenan solo en el servidor (.env). Nunca ponga claves de proveedor en la configuración del cliente ni en variables VITE_.",
+    "clearChat": "Borrar historial del chat",
+    "resetDefaults": "Restablecer valores predeterminados de IA",
+    "providers": {
+      "auto": "Auto (prioridad del servidor)",
+      "gemini": "Gemini",
+      "openrouter": "OpenRouter",
+      "huggingface": "Hugging Face"
+    }
+  }
+}

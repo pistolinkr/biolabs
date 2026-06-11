@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "输入", "short": "In" },
+    "ai_pipeline": { "label": "AI 流水线", "short": "AI" },
+    "folding": { "label": "折叠", "short": "Fold" },
+    "analysis": { "label": "分析", "short": "Anly" },
+    "reasoning": { "label": "推理", "short": "Rsn" },
+    "visualization": { "label": "可视化", "short": "Viz" },
+    "simulation": { "label": "模拟", "short": "Sim" },
+    "engineering": { "label": "工程", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "加载结构以开始工作流流水线。",
+    "stage": "阶段: {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "在输入中加载坐标（文件 / RCSB / UniProt）或粘贴 FASTA — 之后解锁流水线阶段。",
+    "resolving": "正在解析结构 — 模型加载后解锁分析与可视化。请从来源远程获取或使用 AFDB。",
+    "predicted": "已加载预测模型 — 在检查器中查看置信度、隔离链，连接 worker 后运行相互作用分析。",
+    "experimental": "实验结构 — 检查组装体与聚合物上下文；在后端连接前，模拟/工程仍为离线。"
+  },
+  "orchestration": {
+    "unreachable": "阶段：来自查看器。Job API 不可达 — 叠加层已禁用。",
+    "disconnected": "阶段：仅来自查看器。Job 队列未连接。",
+    "connectedEmpty": "阶段：来自查看器；Job API 已连接（队列为空）。",
+    "connectedJobs": "阶段：来自查看器 + 服务器 {{count}} 个 job。"
+  },
+  "goStage": "Go {{stage}}"
+}

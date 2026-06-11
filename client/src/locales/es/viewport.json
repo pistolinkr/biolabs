@@ -1,0 +1,101 @@
+{
+  "idle": "Viewport inactivo",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "Actualizando visualización de estructura…",
+  "hud": {
+    "title": "HUD",
+    "drag": "Arrastrar",
+    "fps": "FPS",
+    "atoms": "Átomos",
+    "chains": "Cadenas"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": { "distance": "Dist", "angle": "Ang", "dihedral": "Dih" },
+    "qualityLevels": { "low": "Baja", "medium": "Media", "high": "Alta" },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "Legible",
+    "tips": {
+      "context": "Contexto de polímero basado en distancia (selección en viewport o secuencia)",
+      "interactions": "Alternar líneas de distancia heurísticas proteína–ácido nucleico en el contexto",
+      "nucleicAccent": "Alternar acento de línea fina del esqueleto nucleico",
+      "readable": "Preajuste legible: cartoon + colores de cadena + aislamiento claro",
+      "reset": "Restablecer vista",
+      "fit": "Ajustar todo",
+      "fitSelection": "Ajustar aislamiento/selección",
+      "measure": "Distancia/ángulo/diedro en ciclo. Elija átomos; vuelva a clicar el último para confirmar.",
+      "quality": "Calidad de render en ciclo (Baja/Media/Alta). Reconstruye mallas.",
+      "clearIsolate": "Borrar aislamiento de cadena"
+    }
+  },
+  "rail": {
+    "resetCamera": "Restablecer cámara",
+    "fitStructure": "Ajustar estructura",
+    "fitSelection": "Ajustar selección / aislamiento",
+    "screenshot": "Captura PNG",
+    "exportCoords": "Exportar coordenadas (remoto)",
+    "fullscreen": "Pantalla completa",
+    "spin": "Girar",
+    "depthCue": "Indicador de profundidad (niebla)",
+    "aiAnalysisOn": "Panel de análisis IA (activado)",
+    "aiAnalysisOff": "Panel de análisis IA (desactivado)"
+  },
+  "bottomStrip": {
+    "struct": "Estructura",
+    "pick": "Selección",
+    "measure": "Medir",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "2 átomos · 2.º clic confirma",
+      "angle": "3 átomos · 3.º clic confirma",
+      "dihedral": "4 átomos · 4.º clic confirma"
+    },
+    "noStructure": "No hay estructura cargada",
+    "loading": "{{label}} · cargando…",
+    "pickHint": "Selección: haga clic en átomo / residuo en el viewport",
+    "selection": "Selección · {{key}}",
+    "pickDetail": "CADENA {{chain}} · RES {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · {{atoms}} átomos · {{residues}} res · {{chains}} cadenas"
+  },
+  "toasts": {
+    "visibilitySkipped": "Actualización de selección omitida.",
+    "measurement": "{{mode}} — use el picking NGL en el viewport",
+    "measurementActive": {
+      "distance": "Distancia: elija 2 átomos y vuelva a clicar el 2.º para confirmar.",
+      "angle": "Ángulo: elija 3 átomos y vuelva a clicar el 3.º para confirmar.",
+      "dihedral": "Diedro: elija 4 átomos y vuelva a clicar el 4.º para confirmar."
+    },
+    "qualityChanged": "Calidad de render: {{quality}}",
+    "fullscreenNotMounted": "Objetivo de pantalla completa no montado.",
+    "fullscreenBlocked": "Solicitud bloqueada o no compatible.",
+    "aoOn": "Indicador activado (conexión de parámetros NGL pendiente)",
+    "aoOff": "Desactivado",
+    "exportNoStructure": "No hay estructura cargada.",
+    "exportStarted": "Descarga de estructura iniciada",
+    "exportFailed": "Error al exportar",
+    "screenshotOk": "Viewport PNG",
+    "screenshotFailed": "Error al capturar pantalla",
+    "contactsOn": "Activado (pares heurísticos)",
+    "contactsOff": "Desactivado",
+    "nucleicAccentOn": "Línea fina en ácido nucleico",
+    "nucleicAccentOff": "Desactivado"
+  },
+  "toastTitles": {
+    "visibility": "Visibilidad",
+    "measurement": "Medición",
+    "quality": "Calidad de render",
+    "viewport": "Viewport",
+    "fullscreen": "Pantalla completa",
+    "ambientOcclusion": "Oclusión ambiental",
+    "export": "Exportar",
+    "contextContacts": "Superposición de contactos contextuales",
+    "nucleicAccent": "Acento del esqueleto nucleico"
+  }
+}

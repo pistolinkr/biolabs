@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "title": "Bio-Simulation der nächsten Generation",
+    "subtitle": "Ein Computational-Biology-Betriebssystem für Strukturanalyse, Molekular­dynamik und interaktive Proteinvisualisierung.",
+    "enterWorkspace": "Workspace öffnen"
+  },
+  "capabilities": "Kernfunktionen",
+  "features": {
+    "visualization": {
+      "title": "Proteinvisualisierung",
+      "description": "Erweiterte Molekülstrukturansicht mit AlphaFold-Integration"
+    },
+    "simulation": {
+      "title": "Bio-Simulation",
+      "description": "Echtzeit-Molekular­dynamik und Interaktionssimulation"
+    },
+    "layers": {
+      "title": "Ebenensystem",
+      "description": "Photoshop-ähnliche Ebenenverwaltung für komplexe molekulare Systeme"
+    },
+    "hud": {
+      "title": "Scientific HUD",
+      "description": "Echtzeitmetriken, Energieberechnungen und Analysewerkzeuge"
+    }
+  },
+  "footer": {
+    "version": "biolabs v2.1",
+    "tagline": "Working with the supervision of G.Gear Vanguard Service."
+  }
+}

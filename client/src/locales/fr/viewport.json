@@ -1,0 +1,101 @@
+{
+  "idle": "Viewport inactif",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "Mise à jour de l'affichage de la structure…",
+  "hud": {
+    "title": "HUD",
+    "drag": "Glisser",
+    "fps": "FPS",
+    "atoms": "Atomes",
+    "chains": "Chaînes"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": { "distance": "Dist", "angle": "Ang", "dihedral": "Dih" },
+    "qualityLevels": { "low": "Bas", "medium": "Moy", "high": "Haut" },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "Lisible",
+    "tips": {
+      "context": "Contexte polymère basé sur la distance (sélection viewport ou séquence)",
+      "interactions": "Basculer les lignes de distance heuristiques protéine–acide nucléique dans le contexte",
+      "nucleicAccent": "Basculer l'accent fin de ligne du squelette nucléique",
+      "readable": "Préréglage lisible : cartoon + couleurs de chaîne + isolation claire",
+      "reset": "Réinitialiser la vue",
+      "fit": "Tout ajuster",
+      "fitSelection": "Ajuster isolation/sélection",
+      "measure": "Distance/angle/dihédral en cycle. Choisir des atomes ; recliquer le dernier pour confirmer.",
+      "quality": "Qualité de rendu en cycle (Bas/Moy/Haut). Reconstruit les maillages.",
+      "clearIsolate": "Effacer l'isolation de chaîne"
+    }
+  },
+  "rail": {
+    "resetCamera": "Réinitialiser la caméra",
+    "fitStructure": "Ajuster la structure",
+    "fitSelection": "Ajuster sélection / isolation",
+    "screenshot": "Capture PNG",
+    "exportCoords": "Exporter les coordonnées (distant)",
+    "fullscreen": "Plein écran",
+    "spin": "Rotation",
+    "depthCue": "Indice de profondeur (brouillard)",
+    "aiAnalysisOn": "Panneau d'analyse IA (activé)",
+    "aiAnalysisOff": "Panneau d'analyse IA (désactivé)"
+  },
+  "bottomStrip": {
+    "struct": "Structure",
+    "pick": "Sélection",
+    "measure": "Mesurer",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "2 atomes · 2e clic confirme",
+      "angle": "3 atomes · 3e clic confirme",
+      "dihedral": "4 atomes · 4e clic confirme"
+    },
+    "noStructure": "Aucune structure chargée",
+    "loading": "{{label}} · chargement…",
+    "pickHint": "Sélection : cliquez sur un atome / résidu dans le viewport",
+    "selection": "Sélection · {{key}}",
+    "pickDetail": "CHAÎNE {{chain}} · RÉS {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · {{atoms}} atomes · {{residues}} rés · {{chains}} chaînes"
+  },
+  "toasts": {
+    "visibilitySkipped": "Mise à jour de la sélection ignorée.",
+    "measurement": "{{mode}} — utilisez le picking NGL dans le viewport",
+    "measurementActive": {
+      "distance": "Distance : choisissez 2 atomes, puis recliquez le 2e pour confirmer.",
+      "angle": "Angle : choisissez 3 atomes, puis recliquez le 3e pour confirmer.",
+      "dihedral": "Dièdre : choisissez 4 atomes, puis recliquez le 4e pour confirmer."
+    },
+    "qualityChanged": "Qualité de rendu : {{quality}}",
+    "fullscreenNotMounted": "Cible plein écran non montée.",
+    "fullscreenBlocked": "Requête bloquée ou non prise en charge.",
+    "aoOn": "Drapeau activé (connexion des paramètres NGL en attente)",
+    "aoOff": "Désactivé",
+    "exportNoStructure": "Aucune structure chargée.",
+    "exportStarted": "Téléchargement de la structure démarré",
+    "exportFailed": "Échec de l'export",
+    "screenshotOk": "Viewport PNG",
+    "screenshotFailed": "Échec de la capture d'écran",
+    "contactsOn": "Activé (paires heuristiques)",
+    "contactsOff": "Désactivé",
+    "nucleicAccentOn": "Ligne fine sur l'acide nucléique",
+    "nucleicAccentOff": "Désactivé"
+  },
+  "toastTitles": {
+    "visibility": "Visibilité",
+    "measurement": "Mesure",
+    "quality": "Qualité de rendu",
+    "viewport": "Viewport",
+    "fullscreen": "Plein écran",
+    "ambientOcclusion": "Occlusion ambiante",
+    "export": "Export",
+    "contextContacts": "Superposition des contacts contextuels",
+    "nucleicAccent": "Accent du squelette nucléique"
+  }
+}

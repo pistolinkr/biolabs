@@ -1,0 +1,39 @@
+{
+  "analysisLabel": "어시스턴트 분석",
+  "dragPanel": "패널을 드래그하여 이동",
+  "expandPanel": "패널 펼치기",
+  "collapsePanel": "패널 접기",
+  "noAnalysisYet": "아직 분석 없음",
+  "analyzing": "분석 중…",
+  "history": "기록 · {{count}}",
+  "historyHint": "더 많은 분석 후 위로 스크롤하여 이 단백질에 대한 이전 잔기 질문을 확인하세요.",
+  "current": "현재 · {{resname}} {{chain}}:{{resno}}",
+  "running": "{{label}} 실행 중…",
+  "couldNotAnalyze": "이 잔기를 분석할 수 없습니다.",
+  "askAi": "AI에게 질문",
+  "explain": "설명",
+  "assistant": {
+    "title": "연구 어시스턴트",
+    "clearChat": "채팅 지우기",
+    "checking": "AI 프로바이더 확인 중…",
+    "provider": "프로바이더: {{provider}}{{model}}",
+    "providerModel": " · {{model}}",
+    "notConfiguredEnv": "API 키가 구성되지 않음 — .env에 GEMINI_API_KEY(권장) 추가",
+    "staticHostingNote": "Vercel 정적 배포에는 AI 백엔드가 없습니다. Node/Docker + 서버 .env로 /api/ai를 사용하세요.",
+    "context": "컨텍스트: {{protein}}{{residue}}",
+    "noProtein": "단백질 없음",
+    "emptyState": "로드된 구조, 선택된 잔기, 고분자 접촉 또는 일반 생물학에 대해 질문하세요. 모든 답변은 플랫폼의 전체 컨텍스트를 자동으로 사용합니다.",
+    "you": "나",
+    "aiName": "Biolabs AI",
+    "thinking": "생각 중…",
+    "placeholder": "이 구조에 대해 질문하세요…"
+  },
+  "toasts": {
+    "notConfigured": "AI가 구성되지 않음",
+    "notConfiguredHint": "서버 .env에 프로바이더 키를 추가하고 재시작하세요.",
+    "unavailable": "AI 사용 불가",
+    "explainUnavailable": "설명 사용 불가",
+    "connectionOk": "AI 연결 정상",
+    "connectionFailed": "연결 사용 불가"
+  }
+}

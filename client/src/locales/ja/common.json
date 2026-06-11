@@ -1,0 +1,57 @@
+{
+  "appName": "BIOLABS",
+  "actions": {
+    "close": "閉じる",
+    "launch": "起動",
+    "save": "保存",
+    "export": "エクスポート",
+    "settings": "設定",
+    "reset": "リセット",
+    "refresh": "更新",
+    "download": "ダウンロード",
+    "clear": "クリア",
+    "expand": "展開",
+    "collapse": "折りたたむ",
+    "drag": "ドラッグ"
+  },
+  "theme": {
+    "system": "システム",
+    "dark": "ダーク",
+    "light": "ライト"
+  },
+  "locale": {
+    "auto": "自動（ブラウザ）",
+    "label": "UI 言語",
+    "hint": "メニュー、ラベル、メッセージを制御します。自動はブラウザ言語を優先し、次にシステムのタイムゾーン地域を使用します。VPN だけでは言語は変わりません。",
+    "autoResolved": "自動検出: {{locale}}"
+  },
+  "localeSuggestion": {
+    "ariaLabel": "言語の提案",
+    "message": "お住まいの地域は {{region}} と検出されました。インターフェースを {{language}} に変更しますか？",
+    "accept": "{{language}} に変更",
+    "dismiss": "後で"
+  },
+  "tabs": {
+    "input": "入力",
+    "structure": "構造",
+    "display": "表示",
+    "source": "ソース"
+  },
+  "dock": {
+    "data": "データ",
+    "viewport": "ビューポート",
+    "inspector": "インスペクター",
+    "assistant": "アシスタント"
+  },
+  "loaded": "読み込み済み",
+  "notFound": {
+    "title": "ページが見つかりません",
+    "description": "リクエストされたページは存在しません。",
+    "back": "ホームに戻る"
+  },
+  "errorBoundary": {
+    "title": "問題が発生しました",
+    "description": "このビューで予期しないエラーが発生しました。",
+    "retry": "再試行"
+  }
+}

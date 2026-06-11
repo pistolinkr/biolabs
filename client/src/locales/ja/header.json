@@ -1,0 +1,18 @@
+{
+  "command": "コマンド...",
+  "commandPalette": "コマンドパレット",
+  "saveWorkspace": "ワークスペースを保存 (⌘S)",
+  "exportMenu": "エクスポート",
+  "settings": "設定",
+  "saveSuccess": "ワークスペースを保存しました",
+  "saveSuccessWithProtein": "{{source}} · {{id}}",
+  "saveSuccessGeneric": "レイアウトと設定をローカルに保存しました",
+  "export": {
+    "snapshot": "ワークスペーススナップショット (JSON)",
+    "structure": "構造座標",
+    "screenshot": "ビューポート PNG",
+    "comingSoon": "{{label}} — 近日公開",
+    "jsonDownloaded": "ワークスペース JSON をダウンロードしました",
+    "footerHint": "エクスポートは読み込まれたプラットフォーム状態を使用します"
+  }
+}

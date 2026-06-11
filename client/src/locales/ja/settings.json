@@ -1,0 +1,75 @@
+{
+  "title": "設定",
+  "subtitle": "Biolabs ワークステーション構成",
+  "tabs": {
+    "general": "一般",
+    "ai": "AI アシスタント",
+    "workspace": "ワークスペース",
+    "about": "情報"
+  },
+  "general": {
+    "appearance": "外観",
+    "colorTheme": "カラーテーマ",
+    "colorThemeHint": "システム設定または手動選択に従います。",
+    "scientificHud": "Scientific HUD",
+    "scientificHudHint": "ビューポートに座標情報オーバーレイを表示します。",
+    "viewportNote": "ビューポートのレンダーオプション（AO、シャドウ）は Display ワークベンチタブから制御します。"
+  },
+  "workspace": {
+    "persistence": "永続化",
+    "autoSave": "セッション自動保存",
+    "autoSaveHint": "ビューアの選択と表示設定（localStorage）。",
+    "autoSaveInterval": "自動保存間隔",
+    "autoSaveIntervalHint": "{{minutes}} 分（ビューアは変更時に約 500ms デバウンス）",
+    "saveNote": "ヘッダーの保存ボタン（⌘S）でドックレイアウトと AI 設定を含むワークスペース全体のスナップショットを保存します。ダウンロードメニューから JSON をエクスポートできます。"
+  },
+  "about": {
+    "kicker": "Biolabs",
+    "version": "{{version}} · 計算生物学ワークステーション",
+    "stack": "構造: NGL · レイアウト: Dockview · AI: モジュール型クラウドプロバイダー",
+    "copyright": "© 2026 Biolabs Project"
+  },
+  "ai": {
+    "serverStatus": "サーバーステータス",
+    "checking": "プロバイダーを確認中…",
+    "active": "アクティブ: {{provider}}{{model}}",
+    "activeModel": " · {{model}}",
+    "available": "利用可能: {{list}}",
+    "none": "なし",
+    "rateLimit": "レート制限 {{limit}}/分 · 最大トークン {{tokens}} · コンテキスト {{chars}} 文字",
+    "notConfigured": "プロバイダーが設定されていません。サーバーの .env ファイルに GEMINI_API_KEY、OPENROUTER_API_KEY、または HUGGINGFACE_API_KEY を追加して再起動してください。",
+    "staticDeployNote": "Vercel の静的ホスティングはフロントエンドのみです — /api/ai サーバーはありません。AI を使うには Node（pnpm build && pnpm start）または Docker でデプロイし、サーバー .env にキーを追加してください。",
+    "refreshStatus": "ステータスを更新",
+    "testConnection": "接続テスト",
+    "clientPrefs": "クライアント設定",
+    "preferredProvider": "優先プロバイダー",
+    "preferredProviderHint": "リクエストに対してサーバーの自動選択を上書きします。",
+    "interfaceLanguage": "インターフェース言語",
+    "interfaceLanguageHint": "ワークステーション全体のメニュー、パネルタイトル、ラベル、メッセージを制御します。",
+    "responseLanguage": "AI 応答言語",
+    "responseLanguageHint": "特定の言語を選ぶとインターフェースも連動します。中文 / Deutsch / Español などは上のインターフェース言語を使用してください。",
+    "responseLanguageAuto": "自動（インターフェース / ブラウザに合わせる）",
+    "temperature": "Temperature",
+    "temperatureHint": "{{value}} — 低いほど事実的",
+    "maxTokens": "最大出力トークン",
+    "maxTokensHint": "{{value}}（サーバー上限 {{cap}}）",
+    "includeSequences": "全配列を含める",
+    "includeSequencesHint": "AI コンテキストにチェーン配列を送信します（切り詰め）。",
+    "compactContext": "コンパクトコンテキスト",
+    "compactContextHint": "トークン節約のため配列とスニペットを短縮します。",
+    "autoOpenChat": "説明時にチャットを自動で開く",
+    "autoOpenChatHint": "Explain ボタン使用時にアシスタントパネルを開きます。",
+    "residuePanel": "残基分析パネル",
+    "residuePanelHint": "ビューポートで残基を選択後、アンカー付き分析パネルを表示します。",
+    "apiKeys": "API キー",
+    "apiKeysHint": "キーはサーバー（.env）にのみ保存されます。クライアント設定や VITE_ 変数にプロバイダーキーを入れないでください。",
+    "clearChat": "チャット履歴をクリア",
+    "resetDefaults": "AI デフォルトをリセット",
+    "providers": {
+      "auto": "自動（サーバー優先順位）",
+      "gemini": "Gemini",
+      "openrouter": "OpenRouter",
+      "huggingface": "Hugging Face"
+    }
+  }
+}

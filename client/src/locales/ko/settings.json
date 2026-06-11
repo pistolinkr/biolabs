@@ -1,0 +1,75 @@
+{
+  "title": "설정",
+  "subtitle": "Biolabs 워크스테이션 구성",
+  "tabs": {
+    "general": "일반",
+    "ai": "AI 어시스턴트",
+    "workspace": "워크스페이스",
+    "about": "정보"
+  },
+  "general": {
+    "appearance": "외관",
+    "colorTheme": "색상 테마",
+    "colorThemeHint": "시스템 설정 또는 수동 선택을 따릅니다.",
+    "scientificHud": "Scientific HUD",
+    "scientificHudHint": "뷰포트에 좌표 정보 오버레이를 표시합니다.",
+    "viewportNote": "뷰포트 렌더 옵션(AO, 그림자)은 Display 워크벤치 탭에서 제어합니다."
+  },
+  "workspace": {
+    "persistence": "영속성",
+    "autoSave": "세션 자동 저장",
+    "autoSaveHint": "뷰어 선택 및 표시 설정(localStorage).",
+    "autoSaveInterval": "자동 저장 간격",
+    "autoSaveIntervalHint": "{{minutes}}분 (뷰어는 변경 시 ~500ms 디바운스)",
+    "saveNote": "헤더의 저장 버튼(⌘S)을 사용하여 도크 레이아웃 및 AI 설정을 포함한 전체 워크스페이스 스냅샷을 저장하세요. 다운로드 메뉴에서 JSON을 보낼 수 있습니다."
+  },
+  "about": {
+    "kicker": "Biolabs",
+    "version": "{{version}} · 계산 생물학 워크스테이션",
+    "stack": "구조: NGL · 레이아웃: Dockview · AI: 모듈형 클라우드 프로바이더",
+    "copyright": "© 2026 Biolabs Project"
+  },
+  "ai": {
+    "serverStatus": "서버 상태",
+    "checking": "프로바이더 확인 중…",
+    "active": "활성: {{provider}}{{model}}",
+    "activeModel": " · {{model}}",
+    "available": "사용 가능: {{list}}",
+    "none": "없음",
+    "rateLimit": "속도 제한 {{limit}}/분 · 최대 토큰 {{tokens}} · 컨텍스트 {{chars}}자",
+    "notConfigured": "프로바이더가 구성되지 않았습니다. 서버 .env 파일에 GEMINI_API_KEY, OPENROUTER_API_KEY 또는 HUGGINGFACE_API_KEY를 추가하고 재시작하세요.",
+    "staticDeployNote": "Vercel 정적 호스팅은 프론트엔드만 제공하며 /api/ai 서버가 없습니다. AI를 사용하려면 Node(pnpm build && pnpm start) 또는 Docker로 배포하고 서버 .env에 API 키를 추가하세요.",
+    "refreshStatus": "상태 새로고침",
+    "testConnection": "연결 테스트",
+    "clientPrefs": "클라이언트 설정",
+    "preferredProvider": "선호 프로바이더",
+    "preferredProviderHint": "요청에 대해 서버 자동 선택을 재정의합니다.",
+    "interfaceLanguage": "인터페이스 언어",
+    "interfaceLanguageHint": "워크스테이션 전체의 메뉴, 패널 제목, 레이블, 메시지를 제어합니다.",
+    "responseLanguage": "AI 응답 언어",
+    "responseLanguageHint": "특정 언어를 선택하면 인터페이스도 함께 전환됩니다. 中文 / Deutsch / Español 등은 위의 인터페이스 언어를 사용하세요.",
+    "responseLanguageAuto": "자동 (인터페이스 / 브라우저와 일치)",
+    "temperature": "Temperature",
+    "temperatureHint": "{{value}} — 낮을수록 사실적",
+    "maxTokens": "최대 출력 토큰",
+    "maxTokensHint": "{{value}} (서버 상한 {{cap}})",
+    "includeSequences": "전체 서열 포함",
+    "includeSequencesHint": "AI 컨텍스트에 체인 서열을 전송합니다(잘림).",
+    "compactContext": "압축 컨텍스트",
+    "compactContextHint": "토큰 절약을 위해 서열 및 스니펫을 축소합니다.",
+    "autoOpenChat": "설명 시 채팅 자동 열기",
+    "autoOpenChatHint": "Explain 버튼 사용 시 어시스턴트 패널을 엽니다.",
+    "residuePanel": "잔기 분석 패널",
+    "residuePanelHint": "뷰포트에서 잔기를 선택한 후 고정 분석 패널을 표시합니다.",
+    "apiKeys": "API 키",
+    "apiKeysHint": "키는 서버(.env)에만 저장됩니다. 클라이언트 설정이나 VITE_ 변수에 프로바이더 키를 넣지 마세요.",
+    "clearChat": "채팅 기록 지우기",
+    "resetDefaults": "AI 기본값 초기화",
+    "providers": {
+      "auto": "자동 (서버 우선순위)",
+      "gemini": "Gemini",
+      "openrouter": "OpenRouter",
+      "huggingface": "Hugging Face"
+    }
+  }
+}

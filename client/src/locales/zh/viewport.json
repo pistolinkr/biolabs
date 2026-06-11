@@ -1,0 +1,101 @@
+{
+  "idle": "视口空闲",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "正在更新结构显示…",
+  "hud": {
+    "title": "HUD",
+    "drag": "拖动",
+    "fps": "FPS",
+    "atoms": "原子",
+    "chains": "链"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": { "distance": "距离", "angle": "角", "dihedral": "二面" },
+    "qualityLevels": { "low": "低", "medium": "中", "high": "高" },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "读取",
+    "tips": {
+      "context": "基于距离的聚合物上下文（视口拾取或序列）",
+      "interactions": "在上下文中切换启发式蛋白质–核酸距离线",
+      "nucleicAccent": "切换细核酸骨架线强调",
+      "readable": "易读预设：卡通 + 链颜色 + 清晰隔离",
+      "reset": "重置视图",
+      "fit": "适配全部",
+      "fitSelection": "适配隔离/选择",
+      "measure": "循环距离/角度/二面角。在视口中选择原子，再次点击最后一个原子确认。",
+      "quality": "循环渲染质量（低/中/高），会重建结构网格。",
+      "clearIsolate": "清除链隔离"
+    }
+  },
+  "rail": {
+    "resetCamera": "重置相机",
+    "fitStructure": "适配结构",
+    "fitSelection": "适配选择 / 隔离",
+    "screenshot": "截图 PNG",
+    "exportCoords": "导出坐标（远程）",
+    "fullscreen": "全屏",
+    "spin": "旋转",
+    "depthCue": "深度提示（雾）",
+    "aiAnalysisOn": "AI 分析面板（开）",
+    "aiAnalysisOff": "AI 分析面板（关）"
+  },
+  "bottomStrip": {
+    "struct": "结构",
+    "pick": "拾取",
+    "measure": "测量",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "选 2 个原子 · 第 2 次点击确认",
+      "angle": "选 3 个原子 · 第 3 次点击确认",
+      "dihedral": "选 4 个原子 · 第 4 次点击确认"
+    },
+    "noStructure": "未加载结构",
+    "loading": "{{label}} · 加载中…",
+    "pickHint": "拾取：在视口中点击原子 / 残基",
+    "selection": "选择 · {{key}}",
+    "pickDetail": "链 {{chain}} · 残基 {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · {{atoms}} 个原子 · {{residues}} 个残基 · {{chains}} 条链"
+  },
+  "toasts": {
+    "visibilitySkipped": "已跳过选择更新。",
+    "measurement": "{{mode}} — 在视口中使用 NGL 拾取",
+    "measurementActive": {
+      "distance": "距离：选择 2 个原子，再次点击第 2 个确认。",
+      "angle": "角度：选择 3 个原子，再次点击第 3 个确认。",
+      "dihedral": "二面角：选择 4 个原子，再次点击第 4 个确认。"
+    },
+    "qualityChanged": "渲染质量：{{quality}}",
+    "fullscreenNotMounted": "全屏目标未挂载。",
+    "fullscreenBlocked": "请求被阻止或不支持。",
+    "aoOn": "标志已开启（NGL 参数连接待完成）",
+    "aoOff": "关闭",
+    "exportNoStructure": "未加载结构。",
+    "exportStarted": "结构下载已开始",
+    "exportFailed": "导出失败",
+    "screenshotOk": "视口 PNG",
+    "screenshotFailed": "截图失败",
+    "contactsOn": "开启（启发式配对）",
+    "contactsOff": "关闭",
+    "nucleicAccentOn": "核酸上显示细线",
+    "nucleicAccentOff": "关闭"
+  },
+  "toastTitles": {
+    "visibility": "可见性",
+    "measurement": "测量",
+    "quality": "渲染质量",
+    "viewport": "视口",
+    "fullscreen": "全屏",
+    "ambientOcclusion": "环境光遮蔽",
+    "export": "导出",
+    "contextContacts": "上下文接触叠加层",
+    "nucleicAccent": "核酸骨架强调"
+  }
+}

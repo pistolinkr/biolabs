@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "title": "下一代生物模拟",
+    "subtitle": "面向结构分析、分子动力学和交互式蛋白质可视化的计算生物学操作系统。",
+    "enterWorkspace": "进入工作区"
+  },
+  "capabilities": "核心能力",
+  "features": {
+    "visualization": {
+      "title": "蛋白质可视化",
+      "description": "集成 AlphaFold 的高级分子结构查看器"
+    },
+    "simulation": {
+      "title": "生物模拟",
+      "description": "实时分子动力学与相互作用模拟"
+    },
+    "layers": {
+      "title": "图层系统",
+      "description": "类似 Photoshop 的复杂分子系统图层管理"
+    },
+    "hud": {
+      "title": "Scientific HUD",
+      "description": "实时指标、能量计算与分析工具"
+    }
+  },
+  "footer": {
+    "version": "biolabs v2.1",
+    "tagline": "Working with the supervision of G.Gear Vanguard Service."
+  }
+}

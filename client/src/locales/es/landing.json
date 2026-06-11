@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "title": "Bio-simulación de nueva generación",
+    "subtitle": "Un sistema operativo de biología computacional para análisis estructural, dinámica molecular y visualización interactiva de proteínas.",
+    "enterWorkspace": "Entrar al espacio de trabajo"
+  },
+  "capabilities": "Capacidades principales",
+  "features": {
+    "visualization": {
+      "title": "Visualización de proteínas",
+      "description": "Visualización avanzada de estructuras moleculares con integración AlphaFold"
+    },
+    "simulation": {
+      "title": "Bio-simulación",
+      "description": "Dinámica molecular y simulación de interacciones en tiempo real"
+    },
+    "layers": {
+      "title": "Sistema de capas",
+      "description": "Gestión de capas al estilo Photoshop para sistemas moleculares complejos"
+    },
+    "hud": {
+      "title": "Scientific HUD",
+      "description": "Métricas en tiempo real, cálculos de energía y herramientas de análisis"
+    }
+  },
+  "footer": {
+    "version": "biolabs v2.1",
+    "tagline": "Working with the supervision of G.Gear Vanguard Service."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "Input", "short": "In" },
+    "ai_pipeline": { "label": "AI pipeline", "short": "AI" },
+    "folding": { "label": "Folding", "short": "Fold" },
+    "analysis": { "label": "Analysis", "short": "Anly" },
+    "reasoning": { "label": "Reasoning", "short": "Rsn" },
+    "visualization": { "label": "Visualize", "short": "Viz" },
+    "simulation": { "label": "Simulation", "short": "Sim" },
+    "engineering": { "label": "Engineering", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "Load a structure to begin the workflow pipeline.",
+    "stage": "Stage: {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "Load coordinates (file / RCSB / UniProt) or paste FASTA in Input — pipeline stages unlock after a target exists.",
+    "resolving": "Structure resolving — when the model lands, Analysis and Visualization unlock. Use Source for remote fetch or AFDB.",
+    "predicted": "Predicted model loaded — review confidence in Inspector, isolate chains, then run interaction analysis when the worker is attached.",
+    "experimental": "Experimental structure — inspect assemblies & polymer context; Simulation / Engineering remain offline until backends are wired."
+  },
+  "orchestration": {
+    "unreachable": "Stages: viewer-derived. Job API unreachable — overlay disabled.",
+    "disconnected": "Stages: viewer-derived only. Job queue not connected.",
+    "connectedEmpty": "Stages: viewer-derived; job API connected (queue empty).",
+    "connectedJobs": "Stages: viewer-derived + {{count}} job(s) from server."
+  },
+  "goStage": "Go {{stage}}"
+}

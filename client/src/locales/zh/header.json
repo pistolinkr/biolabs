@@ -1,0 +1,18 @@
+{
+  "command": "命令...",
+  "commandPalette": "命令面板",
+  "saveWorkspace": "保存工作区 (⌘S)",
+  "exportMenu": "导出",
+  "settings": "设置",
+  "saveSuccess": "工作区已保存",
+  "saveSuccessWithProtein": "{{source}} · {{id}}",
+  "saveSuccessGeneric": "布局和偏好已本地存储",
+  "export": {
+    "snapshot": "工作区快照 (JSON)",
+    "structure": "结构坐标",
+    "screenshot": "视口 PNG",
+    "comingSoon": "{{label}} — 即将推出",
+    "jsonDownloaded": "工作区 JSON 已下载",
+    "footerHint": "导出使用已加载的平台状态"
+  }
+}

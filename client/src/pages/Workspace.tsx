@@ -1,5 +1,9 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import WorkstationDockLayout from "@/components/WorkstationDockLayout";
+import AIChatSheet from "@/components/assistant/AIChatSheet";
+import ExplainPopover from "@/components/assistant/ExplainPopover";
+import ResidueAnalysisPanel from "@/components/assistant/ResidueAnalysisPanel";
 import ViewportOverlays from "@/components/workbench/ViewportOverlays";
 import ContextualWorkflowBanner from "@/components/workbench/ContextualWorkflowBanner";
 import WorkflowPipelineRail from "@/components/workbench/WorkflowPipelineRail";
@@ -9,6 +13,7 @@ import SettingsPanel from "@/components/SettingsPanel";
 import ScientificHUD from "@/components/ScientificHUD";
 import StructureViewport from "@/components/StructureViewport";
 import ViewportChrome from "@/components/viewport/ViewportChrome";
+import { AssistantProvider } from "@/contexts/AssistantContext";
 import { ViewerProvider, useViewer } from "@/contexts/ViewerContext";
 import { WorkflowProvider } from "@/contexts/WorkflowContext";
 
@@ -19,25 +24,29 @@ export default function Workspace() {
   return (
     <ViewerProvider>
       <WorkflowProvider>
-        <WorkspaceChrome />
+        <AssistantProvider>
+          <WorkspaceChrome />
+        </AssistantProvider>
       </WorkflowProvider>
     </ViewerProvider>
   );
 }
 
 function WorkspaceChrome() {
+  const { t } = useTranslation("common");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { proteinSelection, setViewportShell } = useViewer();
+  const viewportShellRef = useRef<HTMLDivElement>(null);
   const canvasHudBoundsRef = useRef<HTMLDivElement>(null);
 
   const setViewportAndHudRef = (el: HTMLDivElement | null) => {
-    canvasHudBoundsRef.current = el;
+    viewportShellRef.current = el;
     setViewportShell(el);
   };
 
   return (
-    <div className="flex h-screen max-h-screen flex-col overflow-hidden bg-background text-foreground">
+    <div className="workstation-shell flex h-screen max-h-screen flex-col overflow-hidden bg-background text-foreground">
       <AppHeader
         onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
         onSettingsOpen={() => setSettingsOpen(true)}
@@ -49,7 +58,7 @@ function WorkspaceChrome() {
           className="shrink-0 border-b border-border bg-card px-4 py-1.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground"
           title={proteinSelection.label}
         >
-          <span className="text-foreground">Loaded</span>
+          <span className="text-foreground">{t("loaded")}</span>
           {" · "}
           {proteinSelection.source} {proteinSelection.id}
           {proteinSelection.pdbIds?.length ? (
@@ -66,9 +75,13 @@ function WorkspaceChrome() {
             >
               <div className="relative min-h-0 flex-1 overflow-hidden">
                 <ViewportChrome>
-                  <div className="relative h-full min-h-0 w-full overflow-hidden">
+                  <div
+                    ref={canvasHudBoundsRef}
+                    className="relative h-full min-h-0 w-full overflow-hidden"
+                  >
                     <StructureViewport className="absolute inset-0" />
                     <ViewportOverlays />
+                    <ResidueAnalysisPanel />
                     <ScientificHUD
                       visible={true}
                       position="top-right"
@@ -84,6 +97,8 @@ function WorkspaceChrome() {
       </div>
       <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
       <SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <AIChatSheet />
+      <ExplainPopover />
     </div>
   );
 }

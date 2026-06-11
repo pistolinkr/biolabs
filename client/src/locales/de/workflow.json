@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "Eingabe", "short": "In" },
+    "ai_pipeline": { "label": "KI-Pipeline", "short": "AI" },
+    "folding": { "label": "Faltung", "short": "Fold" },
+    "analysis": { "label": "Analyse", "short": "Anly" },
+    "reasoning": { "label": "Schlussfolgerung", "short": "Rsn" },
+    "visualization": { "label": "Visualisierung", "short": "Viz" },
+    "simulation": { "label": "Simulation", "short": "Sim" },
+    "engineering": { "label": "Engineering", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "Laden Sie eine Struktur, um die Workflow-Pipeline zu starten.",
+    "stage": "Phase: {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "Koordinaten laden (Datei / RCSB / UniProt) oder FASTA in Eingabe einfügen — Pipeline-Phasen werden danach freigeschaltet.",
+    "resolving": "Struktur wird aufgelöst — sobald das Modell geladen ist, werden Analyse und Visualisierung freigeschaltet. Quelle für Remote-Abruf oder AFDB nutzen.",
+    "predicted": "Vorhergesagtes Modell geladen — Konfidenz im Inspektor prüfen, Ketten isolieren, dann Interaktionsanalyse starten, wenn der Worker verbunden ist.",
+    "experimental": "Experimentelle Struktur — Assemblies und Polymer-Kontext prüfen; Simulation / Engineering bleiben offline, bis Backends verbunden sind."
+  },
+  "orchestration": {
+    "unreachable": "Phasen: aus Viewer abgeleitet. Job-API nicht erreichbar — Overlay deaktiviert.",
+    "disconnected": "Phasen: nur aus Viewer abgeleitet. Job-Warteschlange nicht verbunden.",
+    "connectedEmpty": "Phasen: aus Viewer abgeleitet; Job-API verbunden (Warteschlange leer).",
+    "connectedJobs": "Phasen: aus Viewer abgeleitet + {{count}} Job(s) vom Server."
+  },
+  "goStage": "Go {{stage}}"
+}

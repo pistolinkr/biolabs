@@ -3,6 +3,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import LocaleSuggestionBanner from "./components/LocaleSuggestionBanner";
+import { LocaleProvider, useLocale } from "./contexts/LocaleContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Landing from "./pages/Landing";
 import Workspace from "./pages/Workspace";
@@ -25,13 +27,25 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
+      <LocaleProvider>
+        <AppShell />
+      </LocaleProvider>
     </ErrorBoundary>
+  );
+}
+
+/** Remount routed UI when locale changes so dock titles and stale subtrees refresh. */
+function AppShell() {
+  const { resolvedLocale } = useLocale();
+
+  return (
+    <ThemeProvider key={resolvedLocale}>
+      <TooltipProvider>
+        <Toaster />
+        <LocaleSuggestionBanner />
+        <Router />
+      </TooltipProvider>
+    </ThemeProvider>
   );
 }
 

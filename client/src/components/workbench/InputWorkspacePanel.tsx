@@ -1,8 +1,11 @@
 import { Dna, FileStack, Layers } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useAssistant } from "@/contexts/AssistantContext";
 import { useViewer } from "@/contexts/ViewerContext";
 import type { ProteinSelection } from "@/lib/proteinApis";
 import { proteinSelectionKey } from "@/lib/proteinApis";
+import { cn } from "@/lib/utils";
 
 function parseFasta(text: string): { header: string; sequence: string } | null {
   const lines = text.trim().split(/\r?\n/).filter(Boolean);
@@ -18,6 +21,8 @@ function parseFasta(text: string): { header: string; sequence: string } | null {
  * Workspace-style input rail: structure stack, file import, FASTA / MSA / preset placeholders.
  */
 export default function InputWorkspacePanel() {
+  const { t } = useTranslation("workbench");
+  const { registerContextExtension } = useAssistant();
   const {
     proteinSelection,
     setProteinSelection,
@@ -57,27 +62,40 @@ export default function InputWorkspacePanel() {
     if (p) setFocusResidueQuery("");
   };
 
+  useEffect(() => {
+    const drafts: string[] = [];
+    if (fastaDraft.trim()) drafts.push(`FASTA draft (${fastaDraft.trim().length} chars)`);
+    if (fastaParsed) {
+      drafts.push(`FASTA parsed header=${fastaParsed.header} length=${fastaParsed.sequence.length}`);
+    }
+    if (!drafts.length) return undefined;
+    return registerContextExtension({ input_drafts: drafts.join("; ") });
+  }, [fastaDraft, fastaParsed, registerContextExtension]);
+
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 font-mono text-[10px] text-[#B0B0B0]">
-      <div className="border border-[#2A2A2A] bg-[#0A0A0A] p-2">
-        <div className="mb-1 flex items-center gap-1 text-[9px] uppercase tracking-[0.14em] text-[#8A8A8A]">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 font-mono text-[10px] text-muted-foreground">
+      <div className="workbench-panel-inset p-2">
+        <div className="workbench-kicker mb-1 flex items-center gap-1">
           <Layers className="size-3" />
-          Entity stack
+          {t("input.entityStack")}
         </div>
         {proteinSelection ? (
-          <div className="space-y-1 text-[#F2F2F2]">
+          <div className="space-y-1 text-foreground">
             <div className="break-all">{proteinSelection.label}</div>
-            <div className="text-[#8A8A8A]">
+            <div className="text-muted-foreground">
               {proteinSelection.source} · {proteinSelectionKey(proteinSelection)}
             </div>
             {structureModel ? (
-              <div className="text-[#8A8A8A]">
-                {structureModel.atomCount.toLocaleString()} atoms · {structureModel.chains.length} chains
+              <div className="text-muted-foreground">
+                {t("input.atomsChains", {
+                  atoms: structureModel.atomCount.toLocaleString(),
+                  chains: structureModel.chains.length,
+                })}
               </div>
             ) : null}
           </div>
         ) : (
-          <div className="text-[#6A6A6A]">No structure document — import or search in Source tab.</div>
+          <div className="text-muted-foreground">{t("input.noDocument")}</div>
         )}
       </div>
 
@@ -88,50 +106,51 @@ export default function InputWorkspacePanel() {
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        className={`border border-dashed p-4 text-center transition-colors ${
-          dragOver ? "border-[#7C8A99] bg-[#141414]" : "border-[#2A2A2A] bg-[#111111]"
-        }`}
+        className={cn(
+          "border border-dashed p-4 text-center transition-colors",
+          dragOver ? "border-accent bg-secondary" : "border-border bg-card",
+        )}
       >
-        <FileStack className="mx-auto mb-2 size-6 text-[#6A6A6A]" />
-        <div className="uppercase tracking-widest text-[#8A8A8A]">Structure import</div>
-        <div className="mt-1 text-[#6A6A6A]">Drop PDB / mmCIF</div>
+        <FileStack className="mx-auto mb-2 size-6 text-muted-foreground" />
+        <div className="workbench-kicker text-foreground">{t("input.structureImport")}</div>
+        <div className="mt-1 text-muted-foreground">{t("input.dropHint")}</div>
       </div>
 
-      <div className="border border-[#2A2A2A] bg-[#111111] p-2">
-        <div className="mb-1 flex items-center gap-1 text-[9px] uppercase tracking-[0.14em] text-[#8A8A8A]">
+      <div className="workbench-panel">
+        <div className="workbench-kicker mb-1 flex items-center gap-1">
           <Dna className="size-3" />
-          Sequence · FASTA
+          {t("input.sequenceFasta")}
         </div>
         <textarea
           value={fastaDraft}
           onChange={(e) => setFastaDraft(e.target.value)}
           placeholder=">header MKFL..."
-          className="mb-1 min-h-[72px] w-full border border-[#2A2A2A] bg-[#0A0A0A] p-1.5 text-[10px] text-[#F2F2F2] placeholder:text-[#5A5A5A] focus:outline-none"
+          className="mb-1 min-h-[72px] w-full border bg-input p-1.5 text-[10px] text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         />
         <button
           type="button"
           onClick={parseFastaLocal}
-          className="w-full border border-[#2A2A2A] bg-[#0A0A0A] py-1 uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A5A5A]"
+          className="w-full border border-border bg-background py-1 uppercase tracking-wide text-muted-foreground hover:border-accent hover:text-foreground"
         >
-          Parse FASTA
+          {t("input.parseFasta")}
         </button>
         {fastaParsed ? (
-          <div className="mt-2 text-[#C8C8C8]">
-            <div className="text-[#8A8A8A]">{fastaParsed.header}</div>
+          <div className="mt-2 text-foreground">
+            <div className="text-muted-foreground">{fastaParsed.header}</div>
             <div className="line-clamp-2 break-all">{fastaParsed.sequence.slice(0, 120)}…</div>
-            <div className="mt-1 text-[#6A6A6A]">Alignment / folding pipeline — not attached</div>
+            <div className="mt-1 text-muted-foreground">{t("input.pipelineNotAttached")}</div>
           </div>
         ) : null}
       </div>
 
-      <div className="border border-[#2A2A2A] bg-[#111111] p-2 opacity-80">
-        <div className="text-[9px] uppercase tracking-[0.14em] text-[#8A8A8A]">MSA attachment</div>
-        <div className="mt-1 text-[#6A6A6A]">AIF / a3m / stockholm — drag-drop pending</div>
+      <div className="workbench-panel opacity-80">
+        <div className="workbench-kicker">{t("input.msaAttachment")}</div>
+        <div className="mt-1 text-muted-foreground">{t("input.msaHint")}</div>
       </div>
 
-      <div className="border border-[#2A2A2A] bg-[#111111] p-2 opacity-80">
-        <div className="text-[9px] uppercase tracking-[0.14em] text-[#8A8A8A]">Simulation preset</div>
-        <div className="mt-1 text-[#6A6A6A]">Relax · AF3-style · MD — placeholder slots</div>
+      <div className="workbench-panel opacity-80">
+        <div className="workbench-kicker">{t("input.simulationPreset")}</div>
+        <div className="mt-1 text-muted-foreground">{t("input.simulationHint")}</div>
       </div>
     </div>
   );

@@ -1,0 +1,57 @@
+{
+  "appName": "BIOLABS",
+  "actions": {
+    "close": "Close",
+    "launch": "Launch",
+    "save": "Save",
+    "export": "Export",
+    "settings": "Settings",
+    "reset": "Reset",
+    "refresh": "Refresh",
+    "download": "Download",
+    "clear": "Clear",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "drag": "Drag"
+  },
+  "theme": {
+    "system": "System",
+    "dark": "Dark",
+    "light": "Light"
+  },
+  "locale": {
+    "auto": "Auto (browser)",
+    "label": "UI language",
+    "hint": "Controls menus, labels, and messages. Auto follows browser language. Regional suggestions appear separately with your consent.",
+    "autoResolved": "Auto detected: {{locale}}"
+  },
+  "localeSuggestion": {
+    "ariaLabel": "Language suggestion",
+    "message": "Your region appears to be {{region}}. Switch the interface to {{language}}?",
+    "accept": "Switch to {{language}}",
+    "dismiss": "Not now"
+  },
+  "tabs": {
+    "input": "Input",
+    "structure": "Structure",
+    "display": "Display",
+    "source": "Source"
+  },
+  "dock": {
+    "data": "Data",
+    "viewport": "Viewport",
+    "inspector": "Inspector",
+    "assistant": "Assistant"
+  },
+  "loaded": "Loaded",
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you requested does not exist.",
+    "back": "Back to home"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred in this view.",
+    "retry": "Try again"
+  }
+}

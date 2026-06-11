@@ -2,40 +2,47 @@
 @import "dockview/dist/styles/dockview.css";
 
 /**
- * Biolabs workstation — dockview chrome follows light/dark via class on .workstation-dock-root.
+ * Biolabs workstation — dockview chrome follows app CSS variables (html.dark default, html.light).
+ * Always attach `dockview-theme-dark` for dockview internals; colors come from `--background` / `--card`.
  */
-.workstation-dock-root.dockview-theme-dark {
-  --dv-group-view-background-color: #0a0a0a;
-  --dv-tabs-and-actions-container-background-color: #0a0a0a;
+.workstation-dock-root {
+  color-scheme: inherit;
+  --dv-group-view-background-color: var(--background);
+  --dv-tabs-and-actions-container-background-color: var(--background);
+  --dv-activegroup-visiblepanel-tab-background-color: var(--card);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--secondary);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--card);
+  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--secondary);
+  --dv-tab-divider-color: var(--border);
+  --dv-activegroup-visiblepanel-tab-color: var(--foreground);
+  --dv-activegroup-hiddenpanel-tab-color: var(--muted-foreground);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--muted-foreground);
+  --dv-inactivegroup-hiddenpanel-tab-color: var(--muted-foreground);
   --dv-tabs-and-actions-container-height: 28px;
   --dv-tabs-and-actions-container-font-size: 9px;
-  --dv-paneview-active-outline-color: #5a6a6a;
-  --dv-sash-color: #2a2a2a;
-  --dv-active-sash-color: #4a5a5a;
-  --dv-drag-over-background-color: rgba(42, 42, 42, 0.55);
-  --dv-tabs-container-scrollbar-color: #5a5a5a;
-  --dv-icon-hover-background-color: rgba(60, 60, 60, 0.45);
+  --dv-paneview-active-outline-color: var(--ring);
+  --dv-sash-color: var(--border);
+  --dv-active-sash-color: var(--accent);
+  --dv-drag-over-background-color: color-mix(in srgb, var(--accent) 18%, transparent);
+  --dv-tabs-container-scrollbar-color: var(--muted-foreground);
+  --dv-icon-hover-background-color: color-mix(in srgb, var(--foreground) 8%, transparent);
   --dv-tab-group-chip-border-radius: 0px;
-  --dv-floating-box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px #2a2a2a;
+  --dv-floating-box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border);
 }
 
-.workstation-dock-root.dockview-theme-light {
-  --dv-group-view-background-color: #f0f0f0;
-  --dv-tabs-and-actions-container-background-color: #f0f0f0;
-  --dv-tabs-and-actions-container-height: 28px;
-  --dv-tabs-and-actions-container-font-size: 9px;
-  --dv-paneview-active-outline-color: #8a9aaa;
-  --dv-sash-color: #c8c8c8;
-  --dv-active-sash-color: #9aa8b8;
-  --dv-drag-over-background-color: rgba(90, 104, 120, 0.12);
-  --dv-tabs-container-scrollbar-color: #a0a0a0;
-  --dv-icon-hover-background-color: rgba(0, 0, 0, 0.06);
-  --dv-tab-group-chip-border-radius: 0px;
-  --dv-floating-box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px #c8c8c8;
+html.light .workstation-dock-root {
+  --dv-floating-box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--border);
 }
 
-.workstation-dock-root.dockview-theme-dark .dv-default-tab,
-.workstation-dock-root.dockview-theme-light .dv-default-tab {
+.workstation-dock-root .dv-groupview,
+.workstation-dock-root .dv-content-container,
+.workstation-dock-root .dv-view,
+.workstation-dock-root .dv-pane-container {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.workstation-dock-root .dv-default-tab {
   display: flex;
   align-items: center;
   min-width: 0;
@@ -45,12 +52,11 @@
   padding-right: 12px;
 }
 
-.workstation-dock-root.dockview-theme-dark .dv-default-tab:active,
-.workstation-dock-root.dockview-theme-light .dv-default-tab:active {
+.workstation-dock-root .dv-default-tab:active {
   cursor: grabbing;
 }
 
-.workstation-dock-root.dockview-theme-dark .dv-default-tab-content {
+.workstation-dock-root .dv-default-tab-content {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -61,24 +67,10 @@
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: #9a9a9a;
+  color: var(--muted-foreground);
 }
 
-.workstation-dock-root.dockview-theme-light .dv-default-tab-content {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding-right: 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: #5a6878;
-}
-
-.workstation-dock-root.dockview-theme-dark .dv-default-tab::after {
+.workstation-dock-root .dv-default-tab::after {
   content: "";
   flex-shrink: 0;
   width: 14px;
@@ -87,24 +79,8 @@
   opacity: 0.8;
   background: repeating-linear-gradient(
     to bottom,
-    #6a6a6a 0,
-    #6a6a6a 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
-
-.workstation-dock-root.dockview-theme-light .dv-default-tab::after {
-  content: "";
-  flex-shrink: 0;
-  width: 14px;
-  height: 9px;
-  margin-left: auto;
-  opacity: 0.85;
-  background: repeating-linear-gradient(
-    to bottom,
-    #8a8a8a 0,
-    #8a8a8a 1px,
+    color-mix(in srgb, var(--muted-foreground) 85%, transparent) 0,
+    color-mix(in srgb, var(--muted-foreground) 85%, transparent) 1px,
     transparent 1px,
     transparent 3px
   );

@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useWorkflow, type WorkflowStageId, type WorkflowStageStatus } from "@/contexts/WorkflowContext";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +46,7 @@ function stageIsLit(s: WorkflowStageStatus): boolean {
  * Primary workflow chrome — stages are AI/workflow-first; viewport is one step (Visualize).
  */
 export default function WorkflowPipelineRail() {
+  const { t } = useTranslation("workflow");
   const {
     stages,
     focusedStage,
@@ -89,7 +91,7 @@ export default function WorkflowPipelineRail() {
             <React.Fragment key={st.id}>
               <button
                 type="button"
-                title={`${st.label} — ${status}`}
+                title={`${t(`stages.${st.id}.label`)} — ${status}`}
                 onClick={() => focusStage(st.id)}
                 className={cn(
                   "flex min-w-[4.5rem] flex-col items-center gap-0.5 px-1.5 py-1 text-left transition-colors",
@@ -110,7 +112,7 @@ export default function WorkflowPipelineRail() {
                       isFocus ? "text-[#F2F2F2]" : "text-[#7A7A7A]",
                     )}
                   >
-                    {st.short}
+                    {t(`stages.${st.id}.short`)}
                   </span>
                 </div>
                 <span
@@ -119,7 +121,7 @@ export default function WorkflowPipelineRail() {
                     status === "locked" ? "text-[#4A4A4A]" : "text-[#9A9A9A]",
                   )}
                 >
-                  {st.label}
+                  {t(`stages.${st.id}.label`)}
                 </span>
               </button>
               {i < stages.length - 1 ? (

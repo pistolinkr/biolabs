@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "入力", "short": "In" },
+    "ai_pipeline": { "label": "AI パイプライン", "short": "AI" },
+    "folding": { "label": "フォールディング", "short": "Fold" },
+    "analysis": { "label": "分析", "short": "Anly" },
+    "reasoning": { "label": "推論", "short": "Rsn" },
+    "visualization": { "label": "可視化", "short": "Viz" },
+    "simulation": { "label": "シミュレーション", "short": "Sim" },
+    "engineering": { "label": "エンジニアリング", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "ワークフローパイプラインを開始するには構造を読み込んでください。",
+    "stage": "ステージ: {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "Input で座標（ファイル / RCSB / UniProt）または FASTA を読み込むと、パイプライン段階が解放されます。",
+    "resolving": "構造を解決中 — モデルが読み込まれると分析と可視化が利用可能になります。Source からリモート取得または AFDB を使用してください。",
+    "predicted": "予測モデルを読み込みました — Inspector で信頼度を確認し、チェインを分離してから、ワーカー接続時に相互作用分析を実行してください。",
+    "experimental": "実験構造 — アセンブリと高分子コンテキストを確認してください。Simulation / Engineering はバックエンド接続までオフラインです。"
+  },
+  "orchestration": {
+    "unreachable": "段階: ビューア由来。Job API に到達不可 — オーバーレイ無効。",
+    "disconnected": "段階: ビューア由来のみ。ジョブキュー未接続。",
+    "connectedEmpty": "段階: ビューア由来; job API 接続済み（キュー空）。",
+    "connectedJobs": "段階: ビューア由来 + サーバーから {{count}} 件のジョブ。"
+  },
+  "goStage": "Go {{stage}}"
+}

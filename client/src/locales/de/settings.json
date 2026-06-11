@@ -1,0 +1,75 @@
+{
+  "title": "Einstellungen",
+  "subtitle": "Biolabs-Workstation-Konfiguration",
+  "tabs": {
+    "general": "Allgemein",
+    "ai": "KI-Assistent",
+    "workspace": "Arbeitsbereich",
+    "about": "Über"
+  },
+  "general": {
+    "appearance": "Erscheinungsbild",
+    "colorTheme": "Farbschema",
+    "colorThemeHint": "Folgt dem System oder manueller Auswahl.",
+    "scientificHud": "Scientific HUD",
+    "scientificHudHint": "Koordinaten-Overlay im Viewport.",
+    "viewportNote": "Viewport-Renderoptionen (AO, Schatten) werden über die Registerkarte Display im Workbench gesteuert."
+  },
+  "workspace": {
+    "persistence": "Persistenz",
+    "autoSave": "Sitzung automatisch speichern",
+    "autoSaveHint": "Viewer-Auswahl und Anzeigeeinstellungen (localStorage).",
+    "autoSaveInterval": "Automatisches Speicherintervall",
+    "autoSaveIntervalHint": "{{minutes}} Min. (Viewer debounced bei Änderung ~500 ms)",
+    "saveNote": "Verwenden Sie die Schaltfläche Speichern in der Kopfzeile (⌘S), um einen vollständigen Workspace-Snapshot inkl. Dock-Layout und KI-Einstellungen zu schreiben. JSON über das Download-Menü exportieren."
+  },
+  "about": {
+    "kicker": "Biolabs",
+    "version": "{{version}} · Computational-Biology-Workstation",
+    "stack": "Struktur: NGL · Layout: Dockview · KI: modulare Cloud-Provider",
+    "copyright": "© 2026 Biolabs Project"
+  },
+  "ai": {
+    "serverStatus": "Serverstatus",
+    "checking": "Provider werden geprüft…",
+    "active": "Aktiv: {{provider}}{{model}}",
+    "activeModel": " · {{model}}",
+    "available": "Verfügbar: {{list}}",
+    "none": "keine",
+    "rateLimit": "Ratenlimit {{limit}}/Min. · max. Tokens {{tokens}} · Kontext {{chars}} Zeichen",
+    "notConfigured": "Kein Provider konfiguriert. Fügen Sie GEMINI_API_KEY, OPENROUTER_API_KEY oder HUGGINGFACE_API_KEY zur Server-.env-Datei hinzu und starten Sie neu.",
+    "staticDeployNote": "Vercel Static Hosting liefert nur das Frontend — kein /api/ai-Server. Für KI: Node (pnpm build && pnpm start) oder Docker deployen und Schlüssel in server .env setzen.",
+    "refreshStatus": "Status aktualisieren",
+    "testConnection": "Verbindung testen",
+    "clientPrefs": "Client-Einstellungen",
+    "preferredProvider": "Bevorzugter Provider",
+    "preferredProviderHint": "Überschreibt die Server-Autoauswahl für Ihre Anfragen.",
+    "interfaceLanguage": "Oberflächensprache",
+    "interfaceLanguageHint": "Steuert Menüs, Panel-Titel, Beschriftungen und Meldungen in der gesamten Workstation.",
+    "responseLanguage": "KI-Antwortsprache",
+    "responseLanguageHint": "Bei einer festen Sprache wechselt auch die Oberfläche. Für 中文 / Deutsch / Español usw. die Oberflächensprache oben verwenden.",
+    "responseLanguageAuto": "Auto (Oberfläche / Browser)",
+    "temperature": "Temperature",
+    "temperatureHint": "{{value}} — niedriger = sachlicher",
+    "maxTokens": "Max. Ausgabe-Tokens",
+    "maxTokensHint": "{{value}} (Server-Obergrenze {{cap}})",
+    "includeSequences": "Vollständige Sequenzen einbeziehen",
+    "includeSequencesHint": "Kettensequenzen im KI-Kontext senden (gekürzt).",
+    "compactContext": "Kompakter Kontext",
+    "compactContextHint": "Kürzere Sequenzen und Snippets zur Token-Einsparung.",
+    "autoOpenChat": "Chat bei Erklärung automatisch öffnen",
+    "autoOpenChatHint": "Assistenten-Panel bei Explain-Schaltflächen öffnen.",
+    "residuePanel": "Residuen-Analysepanel",
+    "residuePanelHint": "Verankertes Analysepanel nach Residuenwahl im Viewport anzeigen.",
+    "apiKeys": "API-Schlüssel",
+    "apiKeysHint": "Schlüssel werden nur auf dem Server (.env) gespeichert. Provider-Schlüssel niemals in Client-Einstellungen oder VITE_-Variablen eintragen.",
+    "clearChat": "Chatverlauf löschen",
+    "resetDefaults": "KI-Standards zurücksetzen",
+    "providers": {
+      "auto": "Auto (Server-Priorität)",
+      "gemini": "Gemini",
+      "openrouter": "OpenRouter",
+      "huggingface": "Hugging Face"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" suppressHydrationWarning>
 
   <head>
     <meta charset="UTF-8" />
@@ -19,14 +19,37 @@
     <script>
       (function () {
         try {
-          var key = "theme";
-          var stored = localStorage.getItem(key);
-          var dark =
-            stored === "dark" ||
-            (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-          document.documentElement.classList.toggle("dark", dark);
+          var stored = localStorage.getItem("theme");
+          var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+          var resolved =
+            stored === "dark" || stored === "light" ? stored : prefersDark ? "dark" : "light";
+          var root = document.documentElement;
+          root.classList.remove("light", "dark");
+          root.classList.add(resolved);
+          var localeRaw = localStorage.getItem("biolabs.locale.v1");
+          var localePref = "auto";
+          if (localeRaw) {
+            try {
+              localePref = JSON.parse(localeRaw).uiLocale || "auto";
+            } catch (e) {}
+          }
+          var langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"];
+          var map = { en: "en", ko: "ko", ja: "ja", zh: "zh-Hans", de: "de", fr: "fr", es: "es" };
+          var resolvedLang = "en";
+          if (localePref !== "auto" && map[localePref]) {
+            resolvedLang = map[localePref];
+          } else {
+            for (var i = 0; i < langs.length; i++) {
+              var primary = String(langs[i]).toLowerCase().split("-")[0];
+              if (map[primary] && primary !== "en") {
+                resolvedLang = map[primary];
+                break;
+              }
+            }
+          }
+          root.lang = resolvedLang;
         } catch (e) {
-          /* private mode */
+          document.documentElement.classList.add("dark");
         }
       })();
     </script>

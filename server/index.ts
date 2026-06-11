@@ -1,10 +1,15 @@
+import "dotenv/config";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import express, { type Request, type Response } from "express";
 import { createServer } from "http";
 import path from "path";
+import { createAiRouter } from "./core/ai/routes.ts";
+import { ensureEnvLoaded } from "./core/env/loadEnv.ts";
 import { getWorkflowJobsSnapshot } from "./core/workflow/jobQueue.ts";
 import { fileURLToPath } from "url";
+
+ensureEnvLoaded();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,6 +98,8 @@ async function startServer() {
   const server = createServer(app);
 
   app.use(express.json({ limit: "512kb" }));
+
+  app.use("/api/ai", createAiRouter());
 
   app.get("/api/workflow/status", (_req, res) => {
     try {

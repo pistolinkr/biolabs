@@ -1,0 +1,57 @@
+{
+  "appName": "BIOLABS",
+  "actions": {
+    "close": "닫기",
+    "launch": "실행",
+    "save": "저장",
+    "export": "보내기",
+    "settings": "설정",
+    "reset": "초기화",
+    "refresh": "새로고침",
+    "download": "다운로드",
+    "clear": "지우기",
+    "expand": "펼치기",
+    "collapse": "접기",
+    "drag": "드래그"
+  },
+  "theme": {
+    "system": "시스템",
+    "dark": "다크",
+    "light": "라이트"
+  },
+  "locale": {
+    "auto": "자동 (브라우저)",
+    "label": "UI 언어",
+    "hint": "메뉴, 레이블, 메시지를 제어합니다. 자동은 브라우저 언어를 따릅니다. 지역 기반 제안은 별도로 동의 후 표시됩니다.",
+    "autoResolved": "자동 감지: {{locale}}"
+  },
+  "localeSuggestion": {
+    "ariaLabel": "언어 제안",
+    "message": "현재 지역이 {{region}}(으)로 감지되었습니다. 인터페이스를 {{language}}로 변경하시겠습니까?",
+    "accept": "{{language}}로 변경",
+    "dismiss": "나중에"
+  },
+  "tabs": {
+    "input": "입력",
+    "structure": "구조",
+    "display": "표시",
+    "source": "소스"
+  },
+  "dock": {
+    "data": "데이터",
+    "viewport": "뷰포트",
+    "inspector": "인스펙터",
+    "assistant": "어시스턴트"
+  },
+  "loaded": "로드됨",
+  "notFound": {
+    "title": "페이지를 찾을 수 없음",
+    "description": "요청하신 페이지가 존재하지 않습니다.",
+    "back": "홈으로 돌아가기"
+  },
+  "errorBoundary": {
+    "title": "문제가 발생했습니다",
+    "description": "이 화면에서 예기치 않은 오류가 발생했습니다.",
+    "retry": "다시 시도"
+  }
+}

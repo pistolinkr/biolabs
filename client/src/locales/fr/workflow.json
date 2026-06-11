@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "Entrée", "short": "In" },
+    "ai_pipeline": { "label": "Pipeline IA", "short": "AI" },
+    "folding": { "label": "Repliement", "short": "Fold" },
+    "analysis": { "label": "Analyse", "short": "Anly" },
+    "reasoning": { "label": "Raisonnement", "short": "Rsn" },
+    "visualization": { "label": "Visualisation", "short": "Viz" },
+    "simulation": { "label": "Simulation", "short": "Sim" },
+    "engineering": { "label": "Ingénierie", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "Chargez une structure pour démarrer le pipeline de workflow.",
+    "stage": "Étape : {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "Chargez des coordonnées (fichier / RCSB / UniProt) ou collez FASTA dans Entrée — les étapes se débloquent ensuite.",
+    "resolving": "Résolution de la structure — une fois le modèle chargé, Analyse et Visualisation se débloquent. Utilisez Source pour un fetch distant ou AFDB.",
+    "predicted": "Modèle prédit chargé — vérifiez la confiance dans l'inspecteur, isolez les chaînes, puis lancez l'analyse d'interactions quand le worker est connecté.",
+    "experimental": "Structure expérimentale — inspectez les assemblages et le contexte polymère ; Simulation / Ingénierie restent hors ligne jusqu'à connexion des backends."
+  },
+  "orchestration": {
+    "unreachable": "Étapes : dérivées du viewer. API Job inaccessible — overlay désactivé.",
+    "disconnected": "Étapes : dérivées du viewer uniquement. File d'attente Job non connectée.",
+    "connectedEmpty": "Étapes : dérivées du viewer ; API Job connectée (file vide).",
+    "connectedJobs": "Étapes : dérivées du viewer + {{count}} job(s) du serveur."
+  },
+  "goStage": "Go {{stage}}"
+}

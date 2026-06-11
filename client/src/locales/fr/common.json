@@ -1,0 +1,57 @@
+{
+  "appName": "BIOLABS",
+  "actions": {
+    "close": "Fermer",
+    "launch": "Lancer",
+    "save": "Enregistrer",
+    "export": "Exporter",
+    "settings": "Paramètres",
+    "reset": "Réinitialiser",
+    "refresh": "Actualiser",
+    "download": "Télécharger",
+    "clear": "Effacer",
+    "expand": "Développer",
+    "collapse": "Réduire",
+    "drag": "Glisser"
+  },
+  "theme": {
+    "system": "Système",
+    "dark": "Sombre",
+    "light": "Clair"
+  },
+  "locale": {
+    "auto": "Auto (navigateur)",
+    "label": "Langue de l'interface",
+    "hint": "Contrôle les menus, libellés et messages. Auto utilise d'abord la langue du navigateur, puis la région du fuseau horaire. Le VPN seul ne change pas la langue.",
+    "autoResolved": "Détection auto : {{locale}}"
+  },
+  "localeSuggestion": {
+    "ariaLabel": "Suggestion de langue",
+    "message": "Votre région semble être {{region}}. Passer l'interface en {{language}} ?",
+    "accept": "Passer en {{language}}",
+    "dismiss": "Plus tard"
+  },
+  "tabs": {
+    "input": "Entrée",
+    "structure": "Structure",
+    "display": "Affichage",
+    "source": "Source"
+  },
+  "dock": {
+    "data": "Données",
+    "viewport": "Viewport",
+    "inspector": "Inspecteur",
+    "assistant": "Assistant"
+  },
+  "loaded": "Chargé",
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page demandée n'existe pas.",
+    "back": "Retour à l'accueil"
+  },
+  "errorBoundary": {
+    "title": "Une erreur s'est produite",
+    "description": "Une erreur inattendue s'est produite dans cette vue.",
+    "retry": "Réessayer"
+  }
+}

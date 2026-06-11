@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, type RefObject, useLayoutEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { GripVertical } from "lucide-react";
 import { useViewer } from "@/contexts/ViewerContext";
 
@@ -56,6 +57,7 @@ export default function ScientificHUD({
   canvasRef,
   dockInsidePanel = false,
 }: ScientificHUDProps) {
+  const { t } = useTranslation("viewport");
   const { structureModel } = useViewer();
   const [fps, setFps] = useState(60);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -73,12 +75,29 @@ export default function ScientificHUD({
     const hudEl = hudWrapRef.current;
     const bounds = boundsEl.getBoundingClientRect();
     const hudRect = hudEl.getBoundingClientRect();
-    const clamped = clampOffsetIntoBounds(bounds, hudRect, dragOffset);
-    if (Math.abs(clamped.x - dragOffset.x) > 0.01 || Math.abs(clamped.y - dragOffset.y) > 0.01) {
+    const clamped = clampOffsetIntoBounds(bounds, hudRect, dragOffsetRef.current);
+    if (Math.abs(clamped.x - dragOffsetRef.current.x) > 0.01 || Math.abs(clamped.y - dragOffsetRef.current.y) > 0.01) {
       dragOffsetRef.current = clamped;
       setDragOffset(clamped);
     }
-  }, [dragOffset, canvasRef]);
+  }, [dragOffset, canvasRef, dockInsidePanel]);
+
+  useEffect(() => {
+    const boundsEl = canvasRef?.current;
+    if (!boundsEl) return;
+    const ro = new ResizeObserver(() => {
+      if (!hudWrapRef.current) return;
+      const bounds = boundsEl.getBoundingClientRect();
+      const hudRect = hudWrapRef.current.getBoundingClientRect();
+      const clamped = clampOffsetIntoBounds(bounds, hudRect, dragOffsetRef.current);
+      if (Math.abs(clamped.x - dragOffsetRef.current.x) > 0.01 || Math.abs(clamped.y - dragOffsetRef.current.y) > 0.01) {
+        dragOffsetRef.current = clamped;
+        setDragOffset(clamped);
+      }
+    });
+    ro.observe(boundsEl);
+    return () => ro.disconnect();
+  }, [canvasRef]);
 
   useEffect(() => {
     let frameCount = 0;
@@ -151,10 +170,10 @@ export default function ScientificHUD({
   if (!visible) return null;
 
   const positionClasses = {
-    "top-left": "top-3 left-3",
-    "top-right": "top-3 right-3",
-    "bottom-left": "bottom-3 left-3",
-    "bottom-right": "bottom-3 right-3",
+    "top-left": dockInsidePanel ? "top-2 left-2" : "top-3 left-3",
+    "top-right": dockInsidePanel ? "top-2 right-2" : "top-3 right-3",
+    "bottom-left": dockInsidePanel ? "bottom-2 left-2" : "bottom-3 left-3",
+    "bottom-right": dockInsidePanel ? "bottom-2 right-2" : "bottom-3 right-3",
   };
 
   const posMode = dockInsidePanel ? 'absolute' : 'fixed';
@@ -168,12 +187,12 @@ export default function ScientificHUD({
       <div className="space-y-1 pointer-events-none border border-[#2A2A2A] bg-[#171717]/95 p-2 font-mono text-[10px] text-[#8A8A8A]">
         {/* Header — drag by top-right grip */}
         <div className="mb-1 flex items-center justify-between gap-2">
-          <div className="select-none font-medium uppercase tracking-[0.12em] text-[#F2F2F2]">HUD</div>
+          <div className="select-none font-medium uppercase tracking-[0.12em] text-[#F2F2F2]">{t("hud.title")}</div>
           <button
             type="button"
             className="pointer-events-auto -m-1 -mr-0.5 shrink-0 cursor-grab touch-none select-none p-1 text-[#8A8A8A] outline-none hover:text-[#F2F2F2] active:cursor-grabbing focus-visible:ring-1 focus-visible:ring-[#3A3A3A]"
-            aria-label="HUD move"
-            title="Drag"
+            aria-label={t("hud.drag")}
+            title={t("hud.drag")}
             onPointerDown={handleHudPointerDown}
             onPointerMove={handleHudPointerMove}
             onPointerUp={handleHudPointerUp}
@@ -185,15 +204,15 @@ export default function ScientificHUD({
 
         <div className="space-y-0.5">
           <div className="flex justify-between gap-6">
-            <span className="uppercase tracking-wide">FPS</span>
+            <span className="uppercase tracking-wide">{t("hud.fps")}</span>
             <span className="text-[#F2F2F2]">{displayMetrics.fps}</span>
           </div>
           <div className="flex justify-between gap-6">
-            <span className="uppercase tracking-wide">Atoms</span>
+            <span className="uppercase tracking-wide">{t("hud.atoms")}</span>
             <span className="text-[#F2F2F2]">{displayMetrics.atomCount.toLocaleString()}</span>
           </div>
           <div className="flex justify-between gap-6">
-            <span className="uppercase tracking-wide">Chains</span>
+            <span className="uppercase tracking-wide">{t("hud.chains")}</span>
             <span className="text-[#F2F2F2]">{displayMetrics.chainCount}</span>
           </div>
         </div>

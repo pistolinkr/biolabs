@@ -1,23 +1,24 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useViewer } from "@/contexts/ViewerContext";
 import type { VizColorSchemeId, VizRepresentationId } from "@/lib/nglRepr";
 
-const REPR: { id: VizRepresentationId; label: string }[] = [
-  { id: "cartoon", label: "Cartoon" },
-  { id: "rope", label: "Ribbon" },
-  { id: "surface", label: "Surface" },
-  { id: "ball+stick", label: "Ball+Stick" },
-  { id: "spacefill", label: "Spheres" },
-  { id: "line", label: "Wireframe" },
+const REPR: { id: VizRepresentationId; labelKey: string }[] = [
+  { id: "cartoon", labelKey: "display.repr.cartoon" },
+  { id: "rope", labelKey: "display.repr.rope" },
+  { id: "surface", labelKey: "display.repr.surface" },
+  { id: "ball+stick", labelKey: "display.repr.ballStick" },
+  { id: "spacefill", labelKey: "display.repr.spacefill" },
+  { id: "line", labelKey: "display.repr.line" },
 ];
 
-const COLORS: { id: VizColorSchemeId; label: string }[] = [
-  { id: "chainid", label: "Chain" },
-  { id: "residueindex", label: "Residue" },
-  { id: "hydrophobicity", label: "Hydrophobicity" },
-  { id: "bfactor", label: "B-factor / pLDDT" },
-  { id: "bfactor_gray", label: "Confidence (grey ramp)" },
-  { id: "electrostatic", label: "Electrostatic" },
+const COLORS: { id: VizColorSchemeId; labelKey: string }[] = [
+  { id: "chainid", labelKey: "display.colors.chainid" },
+  { id: "residueindex", labelKey: "display.colors.residueindex" },
+  { id: "hydrophobicity", labelKey: "display.colors.hydrophobicity" },
+  { id: "bfactor", labelKey: "display.colors.bfactor" },
+  { id: "bfactor_gray", labelKey: "display.colors.bfactor_gray" },
+  { id: "electrostatic", labelKey: "display.colors.electrostatic" },
 ];
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -48,6 +49,7 @@ function RowBtn({ active, label, onClick }: { active: boolean; label: string; on
 }
 
 export default function VisualizationControlPanel() {
+  const { t } = useTranslation("workbench");
   const {
     representation,
     setRepresentation,
@@ -61,49 +63,49 @@ export default function VisualizationControlPanel() {
     setMeasurementMode,
   } = useViewer();
 
+  const renderRows = [
+    ["ambientOcclusion", "display.ambientOcclusion", renderOptions.ambientOcclusion] as const,
+    ["shadows", "display.shadows", renderOptions.shadows] as const,
+    ["transparency", "display.transparency", renderOptions.transparency] as const,
+    ["edgeEnhancement", "display.edgeEnhancement", renderOptions.edgeEnhancement] as const,
+    ["depthCue", "display.depthCue", renderOptions.depthCue] as const,
+  ] as const;
+
   return (
     <div className="min-h-0 flex-1 overflow-y-hidden px-2 pb-3 pt-1">
-      <Section title="Representation">
+      <Section title={t("display.representation")}>
         <div className="grid grid-cols-2 gap-1">
           {REPR.map((r) => (
             <RowBtn
               key={r.id}
               active={representation === r.id}
-              label={r.label}
+              label={t(r.labelKey)}
               onClick={() => setRepresentation(r.id)}
             />
           ))}
         </div>
       </Section>
 
-      <Section title="Coloring">
+      <Section title={t("display.coloring")}>
         <div className="space-y-1">
           {COLORS.map((c) => (
             <RowBtn
               key={c.id}
               active={colorScheme === c.id}
-              label={c.label}
+              label={t(c.labelKey)}
               onClick={() => setColorScheme(c.id)}
             />
           ))}
         </div>
       </Section>
 
-      <Section title="Rendering">
-        {(
-          [
-            ["ambientOcclusion", "AO (stub)", renderOptions.ambientOcclusion] as const,
-            ["shadows", "Shadows (stub)", renderOptions.shadows] as const,
-            ["transparency", "Transparency", renderOptions.transparency] as const,
-            ["edgeEnhancement", "Edge enhancement (stub)", renderOptions.edgeEnhancement] as const,
-            ["depthCue", "Depth cue / fog", renderOptions.depthCue] as const,
-          ] as const
-        ).map(([key, label, val]) => (
+      <Section title={t("display.rendering")}>
+        {renderRows.map(([key, labelKey, val]) => (
           <label
             key={key}
             className="flex cursor-pointer items-center justify-between gap-2 font-mono text-[10px] text-[#B0B0B0]"
           >
-            <span>{label}</span>
+            <span>{t(labelKey)}</span>
             <input
               type="checkbox"
               checked={val}
@@ -114,9 +116,9 @@ export default function VisualizationControlPanel() {
         ))}
       </Section>
 
-      <Section title="Simulation">
+      <Section title={t("display.simulation")}>
         <label className="flex cursor-pointer items-center justify-between font-mono text-[10px] text-[#B0B0B0]">
-          <span>Spin</span>
+          <span>{t("display.spin")}</span>
           <input
             type="checkbox"
             checked={spinEnabled}
@@ -125,16 +127,16 @@ export default function VisualizationControlPanel() {
           />
         </label>
         <p className="font-mono text-[9px] leading-tight text-[#6A6A6A]">
-          Trajectory playback requires trajectory file (not loaded).
+          {t("display.trajectoryNote")}
         </p>
       </Section>
 
-      <Section title="Measurement">
+      <Section title={t("display.measurement")}>
         {(["none", "distance", "angle", "dihedral"] as const).map((m) => (
           <RowBtn
             key={m}
             active={measurementMode === m}
-            label={m.toUpperCase()}
+            label={t(`display.measureModes.${m}`)}
             onClick={() => setMeasurementMode(m)}
           />
         ))}

@@ -1,15 +1,18 @@
 import { DockviewDefaultTab, DockviewReact } from "dockview";
 import type { DockviewApi, DockviewReadyEvent, IDockviewPanelProps } from "dockview";
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef } from "react";
+import AIChatPanel from "@/components/assistant/AIChatPanel";
 import LeftWorkstationPanel from "@/components/workbench/LeftWorkstationPanel";
 import RightWorkstationPanel from "@/components/workbench/RightWorkstationPanel";
-import { useResolvedTheme } from "@/contexts/ThemeContext";
+import { useLocale } from "@/contexts/LocaleContext";
+import { i18n } from "@/i18n";
 
 const LAYOUT_STORAGE_KEY = "biolabs.dockview.layout.v1";
 
 const PANEL_LEFT = "workbench.left";
 const PANEL_CENTER = "workbench.center";
 const PANEL_RIGHT = "workbench.right";
+const PANEL_ASSISTANT = "workbench.assistant";
 
 const CenterSlotContext = createContext<React.ReactNode>(null);
 
@@ -43,9 +46,38 @@ function DockPanelRight(_props: IDockviewPanelProps) {
   );
 }
 
+function DockPanelAssistant(_props: IDockviewPanelProps) {
+  return (
+    <div className="workbench-surface flex h-full min-h-0 flex-col overflow-hidden">
+      <AIChatPanel />
+    </div>
+  );
+}
+
 function layoutHasCorePanels(api: DockviewApi): boolean {
   const ids = new Set(api.panels.map((p) => p.id));
   return ids.has(PANEL_LEFT) && ids.has(PANEL_CENTER) && ids.has(PANEL_RIGHT);
+}
+
+function dockPanelTitle(panelId: string): string {
+  switch (panelId) {
+    case PANEL_LEFT:
+      return i18n.t("dock.data", { ns: "common" });
+    case PANEL_CENTER:
+      return i18n.t("dock.viewport", { ns: "common" });
+    case PANEL_RIGHT:
+      return i18n.t("dock.inspector", { ns: "common" });
+    case PANEL_ASSISTANT:
+      return i18n.t("dock.assistant", { ns: "common" });
+    default:
+      return panelId;
+  }
+}
+
+function applyDockPanelTitles(api: DockviewApi): void {
+  for (const panel of api.panels) {
+    panel.api.setTitle(dockPanelTitle(panel.id));
+  }
 }
 
 function createDefaultWorkbenchLayout(api: DockviewApi): void {
@@ -53,21 +85,28 @@ function createDefaultWorkbenchLayout(api: DockviewApi): void {
   api.addPanel({
     id: PANEL_CENTER,
     component: PANEL_CENTER,
-    title: "Viewport",
+    title: dockPanelTitle(PANEL_CENTER),
   });
   api.addPanel({
     id: PANEL_LEFT,
     component: PANEL_LEFT,
-    title: "Data",
+    title: dockPanelTitle(PANEL_LEFT),
     position: { referencePanel: PANEL_CENTER, direction: "left" },
     initialWidth: 280,
   });
   api.addPanel({
     id: PANEL_RIGHT,
     component: PANEL_RIGHT,
-    title: "Inspector",
+    title: dockPanelTitle(PANEL_RIGHT),
     position: { referencePanel: PANEL_CENTER, direction: "right" },
     initialWidth: 320,
+  });
+  api.addPanel({
+    id: PANEL_ASSISTANT,
+    component: PANEL_ASSISTANT,
+    title: dockPanelTitle(PANEL_ASSISTANT),
+    position: { referencePanel: PANEL_RIGHT, direction: "below" },
+    initialHeight: 300,
   });
 }
 
@@ -92,6 +131,7 @@ const dockComponents = {
   [PANEL_LEFT]: DockPanelLeft,
   [PANEL_CENTER]: DockPanelCenter,
   [PANEL_RIGHT]: DockPanelRight,
+  [PANEL_ASSISTANT]: DockPanelAssistant,
 } as const;
 
 export interface WorkstationDockLayoutProps {
@@ -102,11 +142,16 @@ export interface WorkstationDockLayoutProps {
  * Photoshop-style dock: Data | Viewport | Inspector with tabs, splits, float, and persisted layout.
  */
 export default function WorkstationDockLayout({ centerContent }: WorkstationDockLayoutProps) {
-  const resolvedTheme = useResolvedTheme();
-  const dockThemeClass =
-    resolvedTheme === "light" ? "dockview-theme-light" : "dockview-theme-dark";
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const disposablesRef = useRef<Array<{ dispose: () => void }>>([]);
+  const apiRef = useRef<DockviewApi | null>(null);
+  const { resolvedLocale } = useLocale();
+
+  useEffect(() => {
+    const api = apiRef.current;
+    if (!api) return;
+    applyDockPanelTitles(api);
+  }, [resolvedLocale]);
 
   useEffect(
     () => () => {
@@ -131,10 +176,13 @@ export default function WorkstationDockLayout({ centerContent }: WorkstationDock
   const onReady = useCallback(
     (event: DockviewReadyEvent) => {
       const { api } = event;
+      apiRef.current = api;
       const restored = tryRestoreLayout(api);
       if (!restored) {
         createDefaultWorkbenchLayout(api);
         schedulePersist(api);
+      } else {
+        applyDockPanelTitles(api);
       }
       disposablesRef.current.push(api.onDidLayoutChange(() => schedulePersist(api)));
     },
@@ -149,7 +197,7 @@ export default function WorkstationDockLayout({ centerContent }: WorkstationDock
   return (
     <CenterSlotContext.Provider value={centerContent}>
       <div
-        className={`workstation-dock-root ${dockThemeClass} flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground`}
+        className="workstation-dock-root dockview-theme-dark flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground"
       >
         <DockviewReact
           className="dockview-biolabs-host h-full min-h-0 w-full flex-1"

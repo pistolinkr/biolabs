@@ -1,0 +1,39 @@
+{
+  "analysisLabel": "アシスタント分析",
+  "dragPanel": "ドラッグしてパネルを移動",
+  "expandPanel": "パネルを展開",
+  "collapsePanel": "パネルを折りたたむ",
+  "noAnalysisYet": "まだ分析がありません",
+  "analyzing": "分析中…",
+  "history": "履歴 · {{count}}",
+  "historyHint": "さらに分析した後、上にスクロールしてこのタンパク質の過去の残基に関する質問を確認できます。",
+  "current": "現在 · {{resname}} {{chain}}:{{resno}}",
+  "running": "{{label}} を実行中…",
+  "couldNotAnalyze": "この残基を分析できませんでした。",
+  "askAi": "AI に質問",
+  "explain": "説明",
+  "assistant": {
+    "title": "研究アシスタント",
+    "clearChat": "チャットをクリア",
+    "checking": "AI プロバイダーを確認中…",
+    "provider": "プロバイダー: {{provider}}{{model}}",
+    "providerModel": " · {{model}}",
+    "notConfiguredEnv": "API キーが未設定 — .env に GEMINI_API_KEY（推奨）を追加",
+    "staticHostingNote": "Vercel 静的デプロイには AI バックエンドがありません。Node/Docker + サーバー .env で /api/ai を使用してください。",
+    "context": "コンテキスト: {{protein}}{{residue}}",
+    "noProtein": "タンパク質なし",
+    "emptyState": "読み込まれた構造、選択した残基、ポリマー接触、または一般的な生物学について質問してください。すべての回答は、プラットフォームの完全なコンテキストを自動的に使用します。",
+    "you": "あなた",
+    "aiName": "Biolabs AI",
+    "thinking": "考え中…",
+    "placeholder": "この構造について質問…"
+  },
+  "toasts": {
+    "notConfigured": "AI が未設定です",
+    "notConfiguredHint": "サーバーの .env にプロバイダーキーを追加して再起動してください。",
+    "unavailable": "AI が利用できません",
+    "explainUnavailable": "説明が利用できません",
+    "connectionOk": "AI 接続 OK",
+    "connectionFailed": "接続が利用できません"
+  }
+}

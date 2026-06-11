@@ -1,0 +1,13 @@
+{
+  "AI_QUOTA_EXCEEDED": "Quota IA dépassé. Réessayez plus tard ou changez de fournisseur.",
+  "AI_RATE_LIMITED": "Trop de requêtes. Veuillez patienter un instant.",
+  "AI_PROVIDER_UNAVAILABLE": "Le fournisseur IA est temporairement indisponible.",
+  "AI_INVALID_REQUEST": "Requête IA invalide.",
+  "AI_CONTEXT_TOO_LARGE": "Le contexte est trop volumineux pour le modèle.",
+  "AI_AUTH_FAILED": "Échec de l'authentification IA sur le serveur.",
+  "AI_MODEL_NOT_FOUND": "Le modèle configuré est introuvable.",
+  "AI_UNKNOWN": "Échec de la requête IA.",
+  "requestFailed": "Échec de la requête IA.",
+  "couldNotAnalyze": "Impossible d'analyser ce résidu.",
+  "couldNotExplain": "Impossible d'expliquer cette sélection."
+}

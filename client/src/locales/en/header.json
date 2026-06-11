@@ -1,0 +1,18 @@
+{
+  "command": "Command...",
+  "commandPalette": "Command palette",
+  "saveWorkspace": "Save workspace (⌘S)",
+  "exportMenu": "Export",
+  "settings": "Settings",
+  "saveSuccess": "Workspace saved",
+  "saveSuccessWithProtein": "{{source}} · {{id}}",
+  "saveSuccessGeneric": "Layout and preferences stored locally",
+  "export": {
+    "snapshot": "Workspace snapshot (JSON)",
+    "structure": "Structure coordinates",
+    "screenshot": "Viewport PNG",
+    "comingSoon": "{{label}} — coming soon",
+    "jsonDownloaded": "Workspace JSON downloaded",
+    "footerHint": "Exports use loaded platform state"
+  }
+}

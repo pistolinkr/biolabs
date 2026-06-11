@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "title": "次世代バイオシミュレーション",
+    "subtitle": "構造解析、分子動力学、インタラクティブなタンパク質可視化のための計算生物学オペレーティングシステムです。",
+    "enterWorkspace": "ワークスペースに入る"
+  },
+  "capabilities": "コア機能",
+  "features": {
+    "visualization": {
+      "title": "タンパク質可視化",
+      "description": "AlphaFold 統合による高度な分子構造ビューア"
+    },
+    "simulation": {
+      "title": "バイオシミュレーション",
+      "description": "リアルタイム分子動力学と相互作用シミュレーション"
+    },
+    "layers": {
+      "title": "レイヤーシステム",
+      "description": "複雑な分子系向けの Photoshop 風レイヤー管理"
+    },
+    "hud": {
+      "title": "Scientific HUD",
+      "description": "リアルタイム指標、エネルギー計算、分析ツール"
+    }
+  },
+  "footer": {
+    "version": "biolabs v2.1",
+    "tagline": "Working with the supervision of G.Gear Vanguard Service."
+  }
+}

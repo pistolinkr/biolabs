@@ -1,0 +1,120 @@
+{
+  "idle": "Viewport idle",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "Updating structure display…",
+  "hud": {
+    "title": "HUD",
+    "drag": "Drag",
+    "fps": "FPS",
+    "atoms": "Atoms",
+    "chains": "Chains"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": {
+      "distance": "Dist",
+      "angle": "Ang",
+      "dihedral": "Dih"
+    },
+    "qualityLevels": {
+      "low": "Low",
+      "medium": "Med",
+      "high": "High"
+    },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "Read",
+    "tips": {
+      "context": "Distance-based polymer context (viewport pick or sequence)",
+      "interactions": "Protein–nucleic distance lines in the picked context (requires DNA/RNA + residue pick).",
+      "nucleicAccent": "Thin backbone lines on nucleic residues in the picked context.",
+      "readable": "Readable preset: cartoon + chain colors + clear isolate",
+      "reset": "Reset view",
+      "fit": "Fit all",
+      "fitSelection": "Fit isolate/selection",
+      "measure": "Cycle distance / angle / dihedral. Pick atoms in the viewport; click the last atom again to confirm.",
+      "quality": "Cycle renderer quality (Low / Med / High). Rebuilds structure meshes.",
+      "clearIsolate": "Clear chain isolate"
+    }
+  },
+  "rail": {
+    "resetCamera": "Reset camera",
+    "fitStructure": "Fit structure",
+    "fitSelection": "Fit selection / isolate",
+    "screenshot": "Screenshot PNG",
+    "exportCoords": "Export coordinates (remote)",
+    "fullscreen": "Fullscreen",
+    "spin": "Spin",
+    "depthCue": "Depth cue (fog)",
+    "aiAnalysisOn": "AI analysis panel (on)",
+    "aiAnalysisOff": "AI analysis panel (off)"
+  },
+  "bottomStrip": {
+    "struct": "Struct",
+    "pick": "Pick",
+    "measure": "Measure",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "pick 2 atoms · confirm on 2nd click",
+      "angle": "pick 3 atoms · confirm on 3rd click",
+      "dihedral": "pick 4 atoms · confirm on 4th click"
+    },
+    "overlayNeedsPick": "Ixn/Nt · pick a residue to show overlays",
+    "overlayNoNucleic": "Ixn/Nt · no DNA/RNA in structure",
+    "overlayIxn": "Ixn · {{count}} pair(s)",
+    "overlayNt": "Nt · {{count}} nucleic res",
+    "noStructure": "No structure loaded",
+    "loading": "{{label}} · loading…",
+    "pickHint": "Pick: click atom / residue in viewport",
+    "selection": "Selection · {{key}}",
+    "pickDetail": "CHAIN {{chain}} · RES {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · {{atoms}} atoms · {{residues}} res · {{chains}} chains"
+  },
+  "toasts": {
+    "visibilitySkipped": "Selection update skipped.",
+    "measurement": "{{mode}} — use NGL picking in viewport",
+    "measurementActive": {
+      "distance": "Distance: pick 2 atoms, then click the 2nd atom again to confirm.",
+      "angle": "Angle: pick 3 atoms, then click the 3rd atom again to confirm.",
+      "dihedral": "Dihedral: pick 4 atoms, then click the 4th atom again to confirm."
+    },
+    "qualityChanged": "Renderer quality set to {{quality}}",
+    "fullscreenNotMounted": "Fullscreen target not mounted.",
+    "fullscreenBlocked": "Request was blocked or unsupported.",
+    "aoOn": "Flag on (NGL parameter wiring pending)",
+    "aoOff": "Off",
+    "exportNoStructure": "No structure loaded.",
+    "exportStarted": "Structure download started",
+    "exportFailed": "Export failed",
+    "screenshotOk": "Viewport PNG",
+    "screenshotFailed": "Screenshot failed",
+    "contactsOn": "On (heuristic pairs)",
+    "contactsOff": "Off",
+    "overlayNeedsPick": "Pick a viewport residue first — overlays only appear around the active context.",
+    "overlayNoNucleic": "No DNA/RNA chains in this structure — interaction and nucleic overlays need nucleic polymers.",
+    "overlayNoPairsInContext": "No protein–nucleic heavy-atom pairs within the current context radius.",
+    "overlayLinesOn": "Showing distance lines for {{count}} candidate pair(s) in context.",
+    "overlayLinesOff": "Distance lines hidden (context highlight remains).",
+    "nucleicAccentOnDetail": "Backbone accent on {{count}} nucleic residue(s) in context.",
+    "nucleicAccentNoContext": "No nucleic residues in the current context radius.",
+    "nucleicAccentOn": "Thin line on nucleic",
+    "nucleicAccentOff": "Nucleic backbone accent off"
+  },
+  "toastTitles": {
+    "visibility": "Visibility",
+    "measurement": "Measurement",
+    "quality": "Renderer quality",
+    "viewport": "Viewport",
+    "fullscreen": "Fullscreen",
+    "ambientOcclusion": "Ambient occlusion",
+    "export": "Export",
+    "contextContacts": "Context contacts overlay",
+    "nucleicAccent": "Nucleic backbone accent"
+  }
+}

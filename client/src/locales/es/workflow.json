@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "Entrada", "short": "In" },
+    "ai_pipeline": { "label": "Pipeline de IA", "short": "AI" },
+    "folding": { "label": "Plegamiento", "short": "Fold" },
+    "analysis": { "label": "Análisis", "short": "Anly" },
+    "reasoning": { "label": "Razonamiento", "short": "Rsn" },
+    "visualization": { "label": "Visualización", "short": "Viz" },
+    "simulation": { "label": "Simulación", "short": "Sim" },
+    "engineering": { "label": "Ingeniería", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "Cargue una estructura para iniciar el pipeline del flujo de trabajo.",
+    "stage": "Etapa: {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "Cargue coordenadas (archivo / RCSB / UniProt) o pegue FASTA en Entrada — las etapas se desbloquean después.",
+    "resolving": "Resolviendo estructura — cuando el modelo cargue, se desbloquean Análisis y Visualización. Use Fuente para fetch remoto o AFDB.",
+    "predicted": "Modelo predicho cargado — revise confianza en Inspector, aísle cadenas y ejecute análisis de interacciones cuando el worker esté conectado.",
+    "experimental": "Estructura experimental — inspeccione ensamblajes y contexto polimérico; Simulación / Ingeniería permanecen offline hasta conectar backends."
+  },
+  "orchestration": {
+    "unreachable": "Etapas: derivadas del visor. API Job inalcanzable — overlay desactivado.",
+    "disconnected": "Etapas: solo derivadas del visor. Cola Job no conectada.",
+    "connectedEmpty": "Etapas: derivadas del visor; API Job conectada (cola vacía).",
+    "connectedJobs": "Etapas: derivadas del visor + {{count}} job(s) del servidor."
+  },
+  "goStage": "Go {{stage}}"
+}

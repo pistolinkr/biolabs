@@ -23,6 +23,7 @@ import {
   type WorkflowStageStatus,
 } from "@/core/workflow/stageTypes";
 import { useViewer } from "@/contexts/ViewerContext";
+import { useTranslation } from "react-i18next";
 
 export type { LeftWorkbenchTab, WorkflowStageId, WorkflowStageStatus };
 export { WORKFLOW_STAGES };
@@ -105,17 +106,12 @@ function buildHint(
   hasSelection: boolean,
   hasStructureModel: boolean,
   isPredicted: boolean,
+  t: (key: string) => string,
 ): string {
-  if (!hasSelection) {
-    return "Load coordinates (file / RCSB / UniProt) or paste FASTA in Input — pipeline stages unlock after a target exists.";
-  }
-  if (!hasStructureModel) {
-    return "Structure resolving — when the model lands, Analysis and Visualization unlock. Use Source for remote fetch or AFDB.";
-  }
-  if (isPredicted) {
-    return "Predicted model loaded — review confidence in Inspector, isolate chains, then run interaction analysis when the worker is attached.";
-  }
-  return "Experimental structure — inspect assemblies & polymer context; Simulation / Engineering remain offline until backends are wired.";
+  if (!hasSelection) return t("hints.noSelection");
+  if (!hasStructureModel) return t("hints.resolving");
+  if (isPredicted) return t("hints.predicted");
+  return t("hints.experimental");
 }
 
 export function WorkflowProvider({ children }: { children: ReactNode }) {
@@ -123,6 +119,7 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
 }
 
 function WorkflowProviderInner({ children }: { children: ReactNode }) {
+  const { t, i18n } = useTranslation("workflow");
   const { proteinSelection, structureModel } = useViewer();
   const hasSelection = proteinSelection != null;
   const hasStructureModel = structureModel != null;
@@ -211,22 +208,22 @@ function WorkflowProviderInner({ children }: { children: ReactNode }) {
   );
 
   const contextualHint = useMemo(
-    () => buildHint(hasSelection, hasStructureModel, isPredicted),
-    [hasSelection, hasStructureModel, isPredicted],
+    () => buildHint(hasSelection, hasStructureModel, isPredicted, t),
+    [hasSelection, hasStructureModel, isPredicted, t, i18n.language],
   );
 
   const workflowSourceSummary = useMemo(() => {
     if (!orch.connected && orch.lastPollError) {
-      return "Stages: viewer-derived. Job API unreachable — overlay disabled.";
+      return t("orchestration.unreachable");
     }
     if (!orch.connected) {
-      return "Stages: viewer-derived only. Job queue not connected.";
+      return t("orchestration.disconnected");
     }
     if (orch.jobs.length === 0) {
-      return "Stages: viewer-derived; job API connected (queue empty).";
+      return t("orchestration.connectedEmpty");
     }
-    return `Stages: viewer-derived + ${orch.jobs.length} job(s) from server.`;
-  }, [orch.connected, orch.lastPollError, orch.jobs.length]);
+    return t("orchestration.connectedJobs", { count: orch.jobs.length });
+  }, [orch.connected, orch.lastPollError, orch.jobs.length, t, i18n.language]);
 
   const [focusedStage, setFocusedStageState] = useState<WorkflowStageId>("input");
   const [leftTabRequest, setLeftTabRequest] = useState<{

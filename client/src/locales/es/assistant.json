@@ -1,0 +1,39 @@
+{
+  "analysisLabel": "Análisis del asistente",
+  "dragPanel": "Arrastrar para mover el panel",
+  "expandPanel": "Expandir panel",
+  "collapsePanel": "Contraer panel",
+  "noAnalysisYet": "Aún no hay análisis",
+  "analyzing": "Analizando…",
+  "history": "Historial · {{count}}",
+  "historyHint": "Tras más análisis, desplácese hacia arriba para revisar preguntas anteriores sobre residuos de esta proteína.",
+  "current": "Actual · {{resname}} {{chain}}:{{resno}}",
+  "running": "Ejecutando {{label}}…",
+  "couldNotAnalyze": "No se pudo analizar este residuo.",
+  "askAi": "Preguntar a la IA",
+  "explain": "Explicar",
+  "assistant": {
+    "title": "Asistente de investigación",
+    "clearChat": "Borrar chat",
+    "checking": "Comprobando proveedor de IA…",
+    "provider": "Proveedor: {{provider}}{{model}}",
+    "providerModel": " · {{model}}",
+    "notConfiguredEnv": "No hay clave API configurada — añada GEMINI_API_KEY (recomendado) a .env",
+    "staticHostingNote": "El despliegue estático en Vercel no incluye backend de IA. Node/Docker + .env del servidor para /api/ai.",
+    "context": "Contexto: {{protein}}{{residue}}",
+    "noProtein": "sin proteína",
+    "emptyState": "Pregunte sobre la estructura cargada, el residuo seleccionado, los contactos de polímero o biología general. Cada respuesta utiliza automáticamente el contexto completo de la plataforma.",
+    "you": "Usted",
+    "aiName": "Biolabs AI",
+    "thinking": "Pensando…",
+    "placeholder": "Pregunte sobre esta estructura…"
+  },
+  "toasts": {
+    "notConfigured": "IA no configurada",
+    "notConfiguredHint": "Añada claves de proveedor al .env del servidor y reinicie.",
+    "unavailable": "IA no disponible",
+    "explainUnavailable": "Explicación no disponible",
+    "connectionOk": "Conexión de IA OK",
+    "connectionFailed": "Conexión no disponible"
+  }
+}

@@ -3,6 +3,8 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { config as loadDotenv } from "dotenv";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
@@ -12,6 +14,14 @@ import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 // =============================================================================
 
 const PROJECT_ROOT = import.meta.dirname;
+
+// Load server-side secrets for dev middleware (/api/ai/*).
+loadDotenv({ path: path.join(PROJECT_ROOT, ".env") });
+loadDotenv({ path: path.join(PROJECT_ROOT, ".env.local"), override: true });
+
+const AI_HANDLERS_URL = pathToFileURL(
+  path.join(PROJECT_ROOT, "server/core/ai/handlers.ts"),
+).href;
 const LOG_DIR = path.join(PROJECT_ROOT, ".manus-logs");
 const MAX_LOG_SIZE_BYTES = 1 * 1024 * 1024; // 1MB per log file
 const TRIM_TARGET_BYTES = Math.floor(MAX_LOG_SIZE_BYTES * 0.6); // Trim to 60% to avoid constant re-trimming
@@ -150,6 +160,60 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+/** Dev-only: AI assistant routes (mirrors production Express /api/ai). */
+function vitePluginAiAssistantDev(): Plugin {
+  return {
+    name: "biolabs-ai-assistant-dev",
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use(async (req, res, next) => {
+        const url = req.url?.split("?")[0] ?? "";
+        if (!url.startsWith("/api/ai")) return next();
+
+        try {
+          const { handleAiChat, handleAiStatus } = await import(AI_HANDLERS_URL);
+
+          if (req.method === "GET" && url === "/api/ai/status") {
+            const { status, json } = handleAiStatus();
+            res.writeHead(status, {
+              "Content-Type": "application/json; charset=utf-8",
+              "Cache-Control": "no-store",
+            });
+            res.end(JSON.stringify(json));
+            return;
+          }
+
+          if (req.method === "POST" && url === "/api/ai/chat") {
+            let body = "";
+            req.on("data", (chunk) => {
+              body += chunk.toString();
+            });
+            req.on("end", async () => {
+              try {
+                const parsed = body ? JSON.parse(body) : {};
+                const { status, json } = await handleAiChat(parsed);
+                res.writeHead(status, {
+                  "Content-Type": "application/json; charset=utf-8",
+                  "Cache-Control": "no-store",
+                });
+                res.end(JSON.stringify(json));
+              } catch (e) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ error: e instanceof Error ? e.message : "Invalid JSON" }));
+              }
+            });
+            return;
+          }
+
+          next();
+        } catch (e) {
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: e instanceof Error ? e.message : "AI dev middleware error" }));
+        }
+      });
+    },
+  };
+}
+
 /** Dev-only: same shape as production GET /api/workflow/status when queue is empty. */
 function vitePluginWorkflowStatusDev(): Plugin {
   return {
@@ -237,6 +301,7 @@ const plugins = [
   vitePluginManusRuntime(),
   vitePluginManusDebugCollector(),
   vitePluginWorkflowStatusDev(),
+  vitePluginAiAssistantDev(),
   vitePluginStorageProxy(),
 ];
 

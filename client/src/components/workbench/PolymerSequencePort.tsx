@@ -1,19 +1,46 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { StructureHierarchyModel } from "@/contexts/ViewerContext";
 import type { BiomolecularEntityKind } from "@/lib/biomolecularEntities";
-import { useViewer } from "@/contexts/ViewerContext";
+import { useViewer, type SequencePolymerKind } from "@/contexts/ViewerContext";
+import { parseChainResidueKey } from "@/lib/nglSequenceNeighborhood";
 import { cn } from "@/lib/utils";
 
 const WINDOW_RESIDUES = 420;
 const APPROX_CHAR_PX = 9;
 
+function scrollSequenceStripToOrdinal(
+  scroller: HTMLDivElement | null,
+  stripOrdinal: number,
+  seqLength: number,
+  useVirtual: boolean,
+  setSliceStart: React.Dispatch<React.SetStateAction<number>>,
+): void {
+  if (!scroller || stripOrdinal < 1 || stripOrdinal > seqLength) return;
+  const o = stripOrdinal - 1;
+  const targetLeft = Math.max(0, o * APPROX_CHAR_PX - Math.floor(scroller.clientWidth / 2) + APPROX_CHAR_PX / 2);
+  scroller.scrollLeft = Math.min(targetLeft, Math.max(0, scroller.scrollWidth - scroller.clientWidth));
+  if (useVirtual) {
+    const start = Math.min(
+      Math.max(0, seqLength - WINDOW_RESIDUES),
+      Math.max(0, Math.floor(scroller.scrollLeft / APPROX_CHAR_PX)),
+    );
+    setSliceStart(start);
+  }
+}
+
+function selectionMatchesVariant(
+  variant: "protein" | "nucleic",
+  selectedSequencePolymerKind: SequencePolymerKind | null,
+  viewportPickPolymerKind: SequencePolymerKind | null,
+): boolean {
+  if (selectedSequencePolymerKind) return selectedSequencePolymerKind === variant;
+  return viewportPickPolymerKind === variant;
+}
+
 function kindMatchesVariant(variant: "protein" | "nucleic", k: BiomolecularEntityKind): boolean {
   if (variant === "protein") return k === "protein";
   return k === "dna" || k === "rna";
-}
-
-function sequencePanelTitle(variant: "protein" | "nucleic"): string {
-  return variant === "protein" ? "Amino acid sequence (1-letter)" : "DNA / RNA (1-letter)";
 }
 
 export interface PolymerSequencePortProps {
@@ -25,8 +52,11 @@ export interface PolymerSequencePortProps {
  * RCSB-style horizontal sequence port — protein or nucleic — with virtualized window for long polymers.
  */
 export default function PolymerSequencePort({ variant, structureModel }: PolymerSequencePortProps) {
+  const { t } = useTranslation("workbench");
   const {
     selectedResidueKey,
+    selectedSequencePolymerKind,
+    viewportPickPolymerKind,
     setSelectedResidueFromSequence,
     setViewportPickDetail,
     hoverChainId,
@@ -36,7 +66,8 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
   const [chainOverride, setChainOverride] = useState<string | null>(null);
   const [focusResidueQuery, setFocusResidueQuery] = useState("");
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const panelTitle = sequencePanelTitle(variant);
+  const panelTitle =
+    variant === "protein" ? t("sequence.proteinTitle") : t("sequence.nucleicTitle");
 
   const eligibleChains = useMemo(() => {
     if (!structureModel?.chains.length) return [];
@@ -86,7 +117,33 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
     scrollerRef.current?.scrollTo({ left: 0 });
   }, [seq, effectiveChainId]);
 
-  /** Snap nucleic strip to polymer context from viewport (nearest nucleic in radius). */
+  /** Viewport pick → switch chain tab for the matching polymer strip. */
+  useEffect(() => {
+    if (!viewportPickPolymerKind || viewportPickPolymerKind !== variant) return;
+    if (!selectedResidueKey) return;
+    const parsed = parseChainResidueKey(selectedResidueKey);
+    if (!parsed || !eligibleChains.some((c) => c.id === parsed.chain)) return;
+    setChainOverride(parsed.chain);
+  }, [viewportPickPolymerKind, variant, selectedResidueKey, eligibleChains]);
+
+  /** Scroll strip to selection (viewport pick or sequence click). */
+  useEffect(() => {
+    if (!seq.length || !selectedResidueKey) return;
+    if (!selectionMatchesVariant(variant, selectedSequencePolymerKind, viewportPickPolymerKind)) return;
+    const parsed = parseChainResidueKey(selectedResidueKey);
+    if (!parsed || parsed.chain !== effectiveChainId) return;
+    scrollSequenceStripToOrdinal(scrollerRef.current, parsed.index, seq.length, useVirtual, setSliceStart);
+  }, [
+    selectedResidueKey,
+    selectedSequencePolymerKind,
+    viewportPickPolymerKind,
+    variant,
+    effectiveChainId,
+    seq.length,
+    useVirtual,
+  ]);
+
+  /** Context radius sync — nucleic strip follows nearest nucleic in neighborhood. */
   useEffect(() => {
     if (variant !== "nucleic") return;
     const nn = polymerContextSnapshot?.nearestNucleic;
@@ -98,26 +155,8 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
     if (variant !== "nucleic" || !polymerContextSnapshot?.nearestNucleic || !seq.length) return;
     const { chainId, stripOrdinal } = polymerContextSnapshot.nearestNucleic;
     if (effectiveChainId !== chainId) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-    const o = Math.max(0, stripOrdinal - 1);
-    const targetLeft = Math.max(0, o * APPROX_CHAR_PX - Math.floor(el.clientWidth / 2) + APPROX_CHAR_PX / 2);
-    el.scrollLeft = Math.min(targetLeft, Math.max(0, el.scrollWidth - el.clientWidth));
-    if (useVirtual) {
-      const start = Math.min(
-        Math.max(0, seq.length - WINDOW_RESIDUES),
-        Math.max(0, Math.floor(el.scrollLeft / APPROX_CHAR_PX)),
-      );
-      setSliceStart(start);
-    }
-  }, [
-    variant,
-    polymerContextSnapshot,
-    effectiveChainId,
-    seq,
-    seq.length,
-    useVirtual,
-  ]);
+    scrollSequenceStripToOrdinal(scrollerRef.current, stripOrdinal, seq.length, useVirtual, setSliceStart);
+  }, [variant, polymerContextSnapshot, effectiveChainId, seq.length, useVirtual]);
 
   const onScroll = useCallback(() => {
     const el = scrollerRef.current;
@@ -142,11 +181,28 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
     return null;
   }, [focusResidueQuery, seq]);
 
+  const isStripResidueHighlighted = useCallback(
+    (globalIdx: number) => {
+      if (hoverIdx === globalIdx || filteredIdx === globalIdx) return true;
+      if (!selectedResidueKey || `${effectiveChainId}:${globalIdx + 1}` !== selectedResidueKey) return false;
+      return selectionMatchesVariant(variant, selectedSequencePolymerKind, viewportPickPolymerKind);
+    },
+    [
+      hoverIdx,
+      filteredIdx,
+      selectedResidueKey,
+      effectiveChainId,
+      variant,
+      selectedSequencePolymerKind,
+      viewportPickPolymerKind,
+    ],
+  );
+
   if (!structureModel) {
     return (
-      <div className="shrink-0 border-t border-[#2A2A2A] bg-[#0C0C0C] px-3 py-2">
-        <div className="font-mono text-[11px] font-medium text-[#D8D8D8]">{panelTitle}</div>
-        <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
+      <div className="shrink-0 border-t border-border bg-background px-3 py-2">
+        <div className="font-mono text-[11px] font-medium text-foreground">{panelTitle}</div>
+        <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
           Load a structure to show the 1-letter sequence
         </div>
       </div>
@@ -203,14 +259,14 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
   return (
     <div
       className={cn(
-        "flex min-h-[88px] shrink-0 flex-col border-t border-[#2A2A2A] bg-[#111111]",
+        "flex min-h-[88px] shrink-0 flex-col border-t border-border bg-card",
         hoverChainId && hoverChainId === effectiveChainId && "ring-1 ring-[#6A737C] ring-inset",
       )}
       aria-label={variant === "protein" ? "Amino acid sequence panel" : "Nucleic acid sequence panel"}
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-[#2A2A2A] px-3 py-1.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-border px-3 py-1.5">
         <div className="flex min-w-0 flex-col gap-0 leading-tight">
-          <span className="font-mono text-[11px] font-medium text-[#F2F2F2]">{panelTitle}</span>
+          <span className="font-mono text-[11px] font-medium text-foreground">{panelTitle}</span>
         </div>
         {eligibleChains.length > 1 ? (
           <label className="flex items-center gap-1 font-mono text-[9px] text-[#8A8A8A]">
@@ -218,7 +274,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
             <select
               value={effectiveChainId}
               onChange={(e) => setChainOverride(e.target.value)}
-              className="max-w-[10rem] border border-[#2A2A2A] bg-[#0A0A0A] px-1 py-0.5 font-mono text-[10px] text-[#F2F2F2] focus:outline-none"
+              className="max-w-[10rem] border border-border bg-input px-1 py-0.5 font-mono text-[10px] text-foreground focus:outline-none"
             >
               {eligibleChains.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -228,7 +284,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
             </select>
           </label>
         ) : (
-          <span className="font-mono text-[9px] uppercase tracking-wider text-[#8A8A8A]">
+          <span className="font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
             SEQ {effectiveChainId}
           </span>
         )}
@@ -236,7 +292,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
           value={focusResidueQuery}
           onChange={(e) => setFocusResidueQuery(e.target.value)}
           placeholder="RES #"
-          className="w-16 border border-[#2A2A2A] bg-[#0A0A0A] px-1 py-0.5 font-mono text-[10px] text-[#F2F2F2] focus:outline-none"
+          className="w-16 border border-border bg-input px-1 py-0.5 font-mono text-[10px] text-foreground focus:outline-none"
           title="Jump to residue number"
         />
         {useVirtual ? (
@@ -262,10 +318,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
             <div className="absolute top-0 flex gap-px" style={{ left: start * APPROX_CHAR_PX }}>
               {slice.split("").map((ch: string, i: number) => {
                 const globalIdx = start + i;
-                const hi =
-                  hoverIdx === globalIdx ||
-                  filteredIdx === globalIdx ||
-                  selectedResidueKey === `${effectiveChainId}:${globalIdx + 1}`;
+                const hi = isStripResidueHighlighted(globalIdx);
                 return (
                   <button
                     key={globalIdx}
@@ -296,10 +349,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
           <div className={cn("flex min-w-max gap-px font-mono text-[12px] leading-none tracking-tight", glyphClass)}>
             {slice.split("").map((ch: string, i: number) => {
               const globalIdx = i;
-              const hi =
-                hoverIdx === globalIdx ||
-                filteredIdx === globalIdx ||
-                selectedResidueKey === `${effectiveChainId}:${globalIdx + 1}`;
+              const hi = isStripResidueHighlighted(globalIdx);
               return (
                 <button
                   key={globalIdx}
@@ -327,8 +377,8 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
           </div>
         )}
       </div>
-      <div className="border-t border-[#1A1A1A] px-3 py-1 font-mono text-[8px] text-[#5A5A5A]">
-        Click a residue to select and focus the viewport · domain / secondary-structure overlay planned
+      <div className="border-t border-border px-3 py-1 font-mono text-[8px] text-muted-foreground">
+        Click a residue to focus the viewport · viewport picks scroll and highlight here
       </div>
     </div>
   );

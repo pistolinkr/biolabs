@@ -1,5 +1,7 @@
 import { ChevronDown, ChevronRight, Eye, EyeOff } from "lucide-react";
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import ContextExplainButton from "@/components/assistant/ContextExplainButton";
 import { useViewer, type ChainModel } from "@/contexts/ViewerContext";
 import {
   entityKindLabel,
@@ -12,6 +14,7 @@ import {
  * Structure hierarchy grouped by biomolecular entity kind (OpenFold-style lanes).
  */
 export default function StructureHierarchyPanel() {
+  const { t } = useTranslation("workbench");
   const {
     structureModel,
     proteinSelection,
@@ -25,7 +28,7 @@ export default function StructureHierarchyPanel() {
   const [chainOpen, setChainOpen] = useState<Record<string, boolean>>({});
   const [groupOpen, setGroupOpen] = useState<Record<string, boolean>>({});
 
-  const title = structureModel?.title ?? proteinSelection?.label ?? "— No structure";
+  const title = structureModel?.title ?? proteinSelection?.label ?? t("hierarchy.noStructure");
   const chains = structureModel?.chains ?? [];
 
   const filtered = useMemo(() => {
@@ -46,7 +49,7 @@ export default function StructureHierarchyPanel() {
   if (!proteinSelection && !structureModel) {
     return (
       <div className="border-b border-[#2A2A2A] px-2 py-3 font-mono text-[10px] uppercase tracking-wide text-[#8A8A8A]">
-        Load an entry to populate hierarchy
+        {t("hierarchy.emptyLoad")}
       </div>
     );
   }
@@ -59,7 +62,7 @@ export default function StructureHierarchyPanel() {
         className="flex w-full items-center gap-1 border-b border-[#2A2A2A] bg-[#111111] px-2 py-1.5 text-left font-mono text-[10px] uppercase tracking-widest text-[#8A8A8A] hover:bg-[#171717]"
       >
         {open ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
-        Chain hierarchy
+        {t("hierarchy.title")}
       </button>
       {open ? (
         <div className="flex min-h-0 flex-1 flex-col gap-1 overflow-hidden p-2">
@@ -67,7 +70,7 @@ export default function StructureHierarchyPanel() {
           <input
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            placeholder="FILTER CHAIN…"
+            placeholder={t("hierarchy.filterPlaceholder")}
             className="border border-[#2A2A2A] bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] uppercase text-[#F2F2F2] placeholder:text-[#5A5A5A] focus:outline-none focus:border-[#5A5A5A]"
           />
           <div className="min-h-0 flex-1 overflow-y-auto font-mono text-[10px] leading-snug">
@@ -104,32 +107,38 @@ export default function StructureHierarchyPanel() {
                               >
                                 {co ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
                               </button>
-                              <span className="text-[#F2F2F2]">CHAIN {c.id}</span>
+                              <span className="text-[#F2F2F2]">{t("hierarchy.chain", { id: c.id })}</span>
                               <span className="text-[#6A6A6A]">{entityKindLabel(c.entityKind)}</span>
                               {isolateChainId === c.id ? (
                                 <span className="text-[#8A8A8A]">[ISO]</span>
                               ) : null}
                               <button
                                 type="button"
-                                title="Isolate chain"
+                                title={t("hierarchy.isolate")}
                                 className="ml-auto border border-transparent px-1 text-[9px] uppercase text-[#8A8A8A] hover:border-[#2A2A2A] hover:text-[#F2F2F2]"
                                 onClick={() => setIsolateChainId(isolateChainId === c.id ? null : c.id)}
                               >
-                                Iso
+                                {t("hierarchy.isolateShort")}
                               </button>
                               <button
                                 type="button"
-                                title="Toggle visibility"
+                                title={t("hierarchy.toggleVisibility")}
                                 className="text-[#8A8A8A] hover:text-[#F2F2F2]"
                                 onClick={() => setChainVisibilityNGL(c.id, !c.visible)}
                               >
                                 {c.visible ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
                               </button>
+                              <ContextExplainButton
+                                intent="chain"
+                                prompt={`Explain chain ${c.id} (${entityKindLabel(c.entityKind)}, ${c.residueCount} residues) in the loaded structure.`}
+                                label="AI"
+                                className="shrink-0"
+                              />
                             </div>
                             {co ? (
                               <div className="mt-1 pl-5 text-[#8A8A8A]">
-                                <div>RESIDUES {c.residueCount}</div>
-                                <div>ATOMS {c.atomCount}</div>
+                                <div>{t("hierarchy.residuesLabel", { count: c.residueCount })}</div>
+                                <div>{t("hierarchy.atomsLabel", { count: c.atomCount })}</div>
                               </div>
                             ) : null}
                           </div>

@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { Stage, StructureComponent } from "ngl";
 import { toast } from "sonner";
+import { i18n } from "@/i18n";
 import type { ProteinSelection } from "@/lib/proteinApis";
 import { proteinSelectionKey } from "@/lib/proteinApis";
 import { downloadStructureCoordinates } from "@/lib/structureExport";
@@ -18,8 +19,16 @@ import {
   nglResetView,
   nglScreenshotToFile,
 } from "@/lib/nglViewportActions";
+import { clearViewportMeasurements } from "@/lib/nglMeasurement";
+import {
+  hasActivePolymerPick,
+  resolvePolymerOverlayToastKey,
+  structureHasNucleicChains,
+  type PolymerOverlayToastKind,
+} from "@/lib/polymerOverlayFeedback";
 import type { BiomolecularEntityKind } from "@/lib/biomolecularEntities";
 import type { VizColorSchemeId, VizRepresentationId } from "@/lib/nglRepr";
+import type { StripSelectionFromPick } from "@/lib/nglSequenceNeighborhood";
 
 export interface ChainModel {
   id: string;
@@ -52,7 +61,7 @@ export interface ViewerRenderOptions {
 
 export type MeasurementMode = "none" | "distance" | "angle" | "dihedral";
 
-export type NglQualityPreset = "medium" | "high";
+export type NglQualityPreset = "low" | "medium" | "high";
 
 export type SequencePolymerKind = "protein" | "nucleic";
 
@@ -102,6 +111,11 @@ export interface PolymerContextSnapshot {
   proximityGraphEdges: PolymerProximityGraphEdge[];
   /** Stable key for memoizing derived UI (structure title + selection fingerprint). */
   contextFingerprint: string;
+}
+
+export interface ViewportPickAnchor {
+  x: number;
+  y: number;
 }
 
 export interface ViewportPickDetail {
@@ -166,7 +180,14 @@ interface ViewerContextValue {
   setNucleicBackboneAccentEnabled: (v: boolean) => void;
 
   viewportPickDetail: ViewportPickDetail | null;
+  /** Canvas-local pointer position for the latest viewport pick. */
+  viewportPickAnchor: ViewportPickAnchor | null;
+  setViewportPickAnchor: (a: ViewportPickAnchor | null) => void;
+  /** Polymer type of the latest viewport pick (for sequence-strip sync). */
+  viewportPickPolymerKind: SequencePolymerKind | null;
   setViewportPickDetail: (p: ViewportPickDetail | null) => void;
+  /** Viewport click → sequence strip index + polymer kind (does not trigger sequence-origin camera). */
+  applyViewportResiduePick: (detail: ViewportPickDetail, strip: StripSelectionFromPick | null) => void;
 
   nglQuality: NglQualityPreset;
   setNglQuality: (q: NglQualityPreset) => void;
@@ -215,6 +236,9 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   const [hoverChainId, setHoverChainIdState] = useState<string | null>(null);
   const [reprGeneration, setReprGeneration] = useState(0);
   const [viewportPickDetail, setViewportPickDetailState] = useState<ViewportPickDetail | null>(null);
+  const [viewportPickAnchor, setViewportPickAnchorState] = useState<ViewportPickAnchor | null>(null);
+  const [viewportPickPolymerKind, setViewportPickPolymerKindState] =
+    useState<SequencePolymerKind | null>(null);
   const [nglQuality, setNglQualityState] = useState<NglQualityPreset>("medium");
   const [contextContactRadiusAngstrom, setContextContactRadiusAngstromState] =
     useState<ContextContactRadiusAngstrom>(6);
@@ -226,6 +250,34 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   const structureComponentRef = useRef<StructureComponent | null>(null);
   const viewportShellRef = useRef<HTMLDivElement | null>(null);
   const colorBeforeConfidenceRef = useRef<VizColorSchemeId | null>(null);
+  const structureModelRef = useRef(structureModel);
+  const viewportPickDetailRef = useRef(viewportPickDetail);
+  const selectedResidueKeyRef = useRef(selectedResidueKey);
+  const polymerContextSnapshotRef = useRef(polymerContextSnapshot);
+  structureModelRef.current = structureModel;
+  viewportPickDetailRef.current = viewportPickDetail;
+  selectedResidueKeyRef.current = selectedResidueKey;
+  polymerContextSnapshotRef.current = polymerContextSnapshot;
+
+  const toastPolymerOverlay = useCallback((kind: PolymerOverlayToastKind, enabling: boolean) => {
+    const model = structureModelRef.current;
+    const hasPick = hasActivePolymerPick(
+      viewportPickDetailRef.current,
+      selectedResidueKeyRef.current,
+    );
+    const snapshot = polymerContextSnapshotRef.current;
+    const toastKey = resolvePolymerOverlayToastKey(kind, enabling, model, hasPick, snapshot);
+    const titleKey = kind === "ixn" ? "toastTitles.contextContacts" : "toastTitles.nucleicAccent";
+    const toastParams =
+      toastKey === "toasts.overlayLinesOn"
+        ? { count: snapshot?.candidateHeavyContactCount ?? 0 }
+        : toastKey === "toasts.nucleicAccentOnDetail"
+          ? { count: snapshot?.nucleicResidueCount ?? 0 }
+          : undefined;
+    toast.message(i18n.t(titleKey, { ns: "viewport" }), {
+      description: i18n.t(toastKey, { ns: "viewport", ...toastParams }),
+    });
+  }, []);
 
   const registerStage = useCallback((s: Stage | null) => {
     stageRef.current = s;
@@ -259,9 +311,30 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
     setHoverChainIdState(id);
   }, []);
 
+  const setViewportPickAnchor = useCallback((a: ViewportPickAnchor | null) => {
+    setViewportPickAnchorState(a);
+  }, []);
+
   const setViewportPickDetail = useCallback((p: ViewportPickDetail | null) => {
     setViewportPickDetailState(p);
+    setViewportPickPolymerKindState(null);
+    if (!p) setViewportPickAnchorState(null);
   }, []);
+
+  const applyViewportResiduePick = useCallback(
+    (detail: ViewportPickDetail, strip: StripSelectionFromPick | null) => {
+      setViewportPickDetailState(detail);
+      setSelectedSequencePolymerKindState(null);
+      if (strip) {
+        setViewportPickPolymerKindState(strip.polymerKind);
+        setSelectedResidueKeyState(`${strip.chainId}:${strip.stripOrdinal}`);
+      } else {
+        setViewportPickPolymerKindState(null);
+        setSelectedResidueKeyState(`${detail.chain}:${detail.resno}`);
+      }
+    },
+    [],
+  );
 
   const setNglQuality = useCallback((q: NglQualityPreset) => {
     setNglQualityState(q);
@@ -310,7 +383,9 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
               sc.setSelection(show.map((c) => `:${c.id}`).join(" or "));
             }
           } catch {
-            toast.message("Visibility", { description: "Selection update skipped." });
+            toast.message(i18n.t("toastTitles.visibility", { ns: "viewport" }), {
+              description: i18n.t("toasts.visibilitySkipped", { ns: "viewport" }),
+            });
           }
         }
         requestReprRefresh();
@@ -336,9 +411,12 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setMeasurementMode = useCallback((m: MeasurementMode) => {
+    clearViewportMeasurements(structureComponentRef.current);
     setMeasurementModeState(m);
     if (m !== "none") {
-      toast.message("Measurement", { description: `${m} — use NGL picking in viewport` });
+      toast.message(i18n.t("toastTitles.measurement", { ns: "viewport" }), {
+        description: i18n.t(`toasts.measurementActive.${m}`, { ns: "viewport" }),
+      });
     }
   }, []);
 
@@ -346,6 +424,7 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   React.useEffect(() => {
     setIsolateChainIdState(null);
     setViewportPickDetailState(null);
+    setViewportPickPolymerKindState(null);
     setSelectedResidueKeyState(null);
     setSelectedSequencePolymerKindState(null);
     setPolymerContextSnapshotState(null);
@@ -368,6 +447,10 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
   const setSelectedResidueFromSequence = useCallback((key: string | null, kind: SequencePolymerKind | null) => {
     setSelectedResidueKeyState(key);
     setSelectedSequencePolymerKindState(kind);
+    if (key) {
+      setViewportPickDetailState(null);
+      setViewportPickPolymerKindState(null);
+    }
   }, []);
 
   const runViewerCommand = useCallback(
@@ -467,12 +550,30 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
           setColorScheme("chainid");
           break;
         case "view.quality.toggle":
-          setNglQualityState((q) => (q === "medium" ? "high" : "medium"));
+          setNglQualityState((q) => {
+            const order: NglQualityPreset[] = ["low", "medium", "high"];
+            const next = order[(order.indexOf(q) + 1) % order.length];
+            try {
+              stageRef.current?.setQuality(next);
+            } catch {
+              /* */
+            }
+            toast.message(i18n.t("toastTitles.quality", { ns: "viewport" }), {
+              description: i18n.t("toasts.qualityChanged", {
+                ns: "viewport",
+                quality: i18n.t(`toolbar.qualityLevels.${next}`, { ns: "viewport" }),
+              }),
+            });
+            return next;
+          });
+          requestReprRefresh();
           break;
         case "view.fullscreen.toggle": {
           const el = viewportShellRef.current;
           if (!el) {
-            toast.message("Viewport", { description: "Fullscreen target not mounted." });
+            toast.message(i18n.t("toastTitles.viewport", { ns: "viewport" }), {
+              description: i18n.t("toasts.fullscreenNotMounted", { ns: "viewport" }),
+            });
             break;
           }
           void (async () => {
@@ -480,7 +581,9 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
               if (document.fullscreenElement) await document.exitFullscreen();
               else await el.requestFullscreen();
             } catch {
-              toast.message("Fullscreen", { description: "Request was blocked or unsupported." });
+              toast.message(i18n.t("toastTitles.fullscreen", { ns: "viewport" }), {
+                description: i18n.t("toasts.fullscreenBlocked", { ns: "viewport" }),
+              });
             }
           })();
           break;
@@ -488,8 +591,10 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
         case "render.ao.toggle":
           setRenderOptionsState((o) => {
             const ambientOcclusion = !o.ambientOcclusion;
-            toast.message("Ambient occlusion", {
-              description: ambientOcclusion ? "Flag on (NGL parameter wiring pending)" : "Off",
+            toast.message(i18n.t("toastTitles.ambientOcclusion", { ns: "viewport" }), {
+              description: ambientOcclusion
+                ? i18n.t("toasts.aoOn", { ns: "viewport" })
+                : i18n.t("toasts.aoOff", { ns: "viewport" }),
             });
             return { ...o, ambientOcclusion };
           });
@@ -499,38 +604,38 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
             try {
               const sel = proteinSelection;
               if (!sel) {
-                toast.message("Export", { description: "No structure loaded." });
+                toast.message(i18n.t("toastTitles.export", { ns: "viewport" }), {
+                  description: i18n.t("toasts.exportNoStructure", { ns: "viewport" }),
+                });
                 return;
               }
               await downloadStructureCoordinates(sel);
-              toast.success("Structure download started");
+              toast.success(i18n.t("toasts.exportStarted", { ns: "viewport" }));
             } catch (e) {
-              toast.error(e instanceof Error ? e.message : "Export failed");
+              toast.error(e instanceof Error ? e.message : i18n.t("toasts.exportFailed", { ns: "viewport" }));
             }
           })();
           break;
         case "screenshot": {
           void nglScreenshotToFile(st).then((ok) => {
-            if (ok) toast.success("Viewport PNG");
-            else toast.error("Screenshot failed");
+            if (ok) toast.success(i18n.t("toasts.screenshotOk", { ns: "viewport" }));
+            else toast.error(i18n.t("toasts.screenshotFailed", { ns: "viewport" }));
           });
           break;
         }
         case "analysis.interactions":
           setPolymerInteractionOverlayEnabledState((o) => {
             const n = !o;
-            toast.message("Context contacts overlay", { description: n ? "On (heuristic pairs)" : "Off" });
+            toastPolymerOverlay("ixn", n);
             return n;
           });
-          requestReprRefresh();
           break;
         case "view.preset.nucleic.accent":
           setNucleicBackboneAccentEnabledState((a) => {
             const n = !a;
-            toast.message("Nucleic backbone accent", { description: n ? "Thin line on nucleic" : "Off" });
+            toastPolymerOverlay("nucleic", n);
             return n;
           });
-          requestReprRefresh();
           break;
         default:
           break;
@@ -558,6 +663,7 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       selectedResidueKey,
       proteinSelection,
       requestReprRefresh,
+      toastPolymerOverlay,
     ],
   );
 
@@ -630,7 +736,11 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       selectedSequencePolymerKind,
       setSelectedResidueFromSequence,
       viewportPickDetail,
+      viewportPickAnchor,
+      setViewportPickAnchor,
+      viewportPickPolymerKind,
       setViewportPickDetail,
+      applyViewportResiduePick,
       contextContactRadiusAngstrom,
       setContextContactRadiusAngstrom,
       polymerContextSnapshot,
@@ -666,6 +776,7 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       selectedResidueKey,
       selectedSequencePolymerKind,
       viewportPickDetail,
+      viewportPickAnchor,
       contextContactRadiusAngstrom,
       polymerContextSnapshot,
       polymerInteractionOverlayEnabled,
@@ -687,6 +798,8 @@ export function ViewerProvider({ children }: { children: ReactNode }) {
       setSelectedResidueKey,
       setSelectedResidueFromSequence,
       setViewportPickDetail,
+      setViewportPickAnchor,
+      applyViewportResiduePick,
       setContextContactRadiusAngstrom,
       setPolymerContextSnapshot,
       setPolymerInteractionOverlayEnabled,

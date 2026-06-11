@@ -1,0 +1,30 @@
+{
+  "stages": {
+    "input": { "label": "입력", "short": "In" },
+    "ai_pipeline": { "label": "AI 파이프라인", "short": "AI" },
+    "folding": { "label": "폴딩", "short": "Fold" },
+    "analysis": { "label": "분석", "short": "Anly" },
+    "reasoning": { "label": "추론", "short": "Rsn" },
+    "visualization": { "label": "시각화", "short": "Viz" },
+    "simulation": { "label": "시뮬레이션", "short": "Sim" },
+    "engineering": { "label": "엔지니어링", "short": "Eng" }
+  },
+  "banner": {
+    "noProtein": "워크플로 파이프라인을 시작하려면 구조를 로드하세요.",
+    "stage": "단계: {{label}}",
+    "ctxLabel": "Ctx"
+  },
+  "hints": {
+    "noSelection": "입력 탭에서 좌표(파일 / RCSB / UniProt) 또는 FASTA를 로드하면 파이프라인 단계가 활성화됩니다.",
+    "resolving": "구조 해석 중 — 모델이 로드되면 분석과 시각화가 활성화됩니다. 소스에서 원격 fetch 또는 AFDB를 사용하세요.",
+    "predicted": "예측 모델 로드됨 — 인스펙터에서 신뢰도를 확인하고 체인을 분리한 뒤, 워커 연결 시 상호작용 분석을 실행하세요.",
+    "experimental": "실험 구조 — 어셈블리와 고분자 컨텍스트를 검토하세요. 시뮬레이션/엔지니어링은 백엔드 연결 전까지 오프라인입니다."
+  },
+  "orchestration": {
+    "unreachable": "단계: 뷰어 기반. Job API 연결 불가 — 오버레이 비활성.",
+    "disconnected": "단계: 뷰어만. Job 큐 미연결.",
+    "connectedEmpty": "단계: 뷰어 기반; Job API 연결됨(큐 비어 있음).",
+    "connectedJobs": "단계: 뷰어 기반 + 서버에서 {{count}}개 job."
+  },
+  "goStage": "Go {{stage}}"
+}

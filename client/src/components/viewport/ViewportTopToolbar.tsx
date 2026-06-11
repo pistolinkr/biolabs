@@ -1,5 +1,6 @@
 import { Layers, Palette, Ruler, Sparkles, Monitor } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useViewer, type ContextContactRadiusAngstrom, type MeasurementMode } from "@/contexts/ViewerContext";
 import type { VizColorSchemeId, VizRepresentationId } from "@/lib/nglRepr";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ function Seg({
 
 /** RCSB-like dense top bar — representation, coloring, camera, measure, quality. */
 export default function ViewportTopToolbar() {
+  const { t } = useTranslation("viewport");
   const {
     representation,
     setRepresentation,
@@ -110,14 +112,14 @@ export default function ViewportTopToolbar() {
           <div className="flex shrink-0 items-center gap-1 pr-2">
             <span
               className="shrink-0 font-mono text-[8px] uppercase tracking-wide text-[#6A6A6A]"
-              title="Distance-based polymer context (viewport pick or sequence)"
+              title={t("toolbar.tips.context")}
             >
-              Ctx
+              {t("toolbar.contacts")}
             </span>
             {CONTACT_RADIUS_PRESETS.map((r) => (
               <Seg
                 key={r}
-                title={`Polymer context radius ${r} Å`}
+                title={`${t("toolbar.tips.context")} ${r} Å`}
                 label={`${r}Å`}
                 active={contextContactRadiusAngstrom === r}
                 onClick={() => setContextContactRadiusAngstrom(r)}
@@ -127,13 +129,13 @@ export default function ViewportTopToolbar() {
           <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
           <div className="flex shrink-0 items-center gap-1 pr-2">
             <Seg
-              title="Toggle heuristic protein–nucleic distance lines in context"
+              title={t("toolbar.tips.interactions")}
               label="Ixn"
               active={polymerInteractionOverlayEnabled}
               onClick={() => runViewerCommand("analysis.interactions")}
             />
             <Seg
-              title="Toggle thin nucleic backbone line accent"
+              title={t("toolbar.tips.nucleicAccent")}
               label="Nt"
               active={nucleicBackboneAccentEnabled}
               onClick={() => runViewerCommand("view.preset.nucleic.accent")}
@@ -142,23 +144,17 @@ export default function ViewportTopToolbar() {
           <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
           <button
             type="button"
-            title="Readable preset: cartoon + chain colors + clear isolate"
+            title={t("toolbar.tips.readable")}
             onClick={() => runViewerCommand("view.preset.readable")}
             className="mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border border-[#2A2A2A] bg-[#111111] px-2 py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A6A6A] hover:text-[#F2F2F2]"
           >
             <Sparkles className="size-3 shrink-0" strokeWidth={1.25} />
-            Read
+            {t("toolbar.read")}
           </button>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <div className="flex shrink-0 items-center gap-1">
-            <Seg title="Reset view" label="Rst" active={false} onClick={() => runViewerCommand("view.reset")} />
-            <Seg title="Fit all" label="Fit" active={false} onClick={() => runViewerCommand("view.fit.structure")} />
-            <Seg title="Fit isolate/selection" label="Sel" active={false} onClick={() => runViewerCommand("view.fit.selection")} />
-          </div>
           <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
           <button
             type="button"
-            title="Cycle measurement — pick in viewport"
+            title={t("toolbar.tips.measure")}
             onClick={cycleMeasure}
             className={cn(
               "mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border px-2 py-1 font-mono text-[9px] uppercase",
@@ -168,17 +164,22 @@ export default function ViewportTopToolbar() {
             )}
           >
             <Ruler className="size-3 shrink-0" strokeWidth={1.25} />
-            {measurementMode === "none" ? "Meas" : measurementMode}
+            {measurementMode === "none" ? t("toolbar.measure") : t(`toolbar.measureModes.${measurementMode}`)}
           </button>
           <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
           <button
             type="button"
-            title="Renderer quality"
+            title={t("toolbar.tips.quality")}
             onClick={() => runViewerCommand("view.quality.toggle")}
-            className="mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border border-[#2A2A2A] bg-[#111111] px-2 py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A6A6A] hover:text-[#F2F2F2]"
+            className={cn(
+              "mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border px-2 py-1 font-mono text-[9px] uppercase tracking-wide",
+              nglQuality !== "medium"
+                ? "border-[#5A6A6A] bg-[#1C1C1C] text-[#F2F2F2]"
+                : "border-[#2A2A2A] bg-[#111111] text-[#9A9A9A] hover:border-[#5A6A6A] hover:text-[#F2F2F2]",
+            )}
           >
             <Monitor className="size-3 shrink-0" strokeWidth={1.25} />
-            {nglQuality}
+            {t(`toolbar.qualityLevels.${nglQuality}`)}
           </button>
           {isolateChainId ? (
             <>
@@ -187,14 +188,14 @@ export default function ViewportTopToolbar() {
                 type="button"
                 onClick={() => setIsolateChainId(null)}
                 className="mx-0.5 max-w-[7rem] shrink-0 truncate border border-[#5A5040] bg-[#141414] px-2 py-1 font-mono text-[9px] uppercase text-[#E0D8C8] hover:border-[#8A7A6A]"
-                title="Clear chain isolate"
+                title={t("toolbar.tips.clearIsolate")}
               >
                 ISO {isolateChainId} ×
               </button>
             </>
           ) : null}
           <span className="shrink-0 self-center whitespace-nowrap pl-3 pr-0.5 font-mono text-[8px] uppercase tracking-widest text-[#5A5A5A]">
-            ⌘K · palette
+            {t("toolbar.palette")}
           </span>
         </div>
       </div>

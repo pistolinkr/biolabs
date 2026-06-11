@@ -1,0 +1,57 @@
+{
+  "appName": "BIOLABS",
+  "actions": {
+    "close": "Schließen",
+    "launch": "Starten",
+    "save": "Speichern",
+    "export": "Exportieren",
+    "settings": "Einstellungen",
+    "reset": "Zurücksetzen",
+    "refresh": "Aktualisieren",
+    "download": "Herunterladen",
+    "clear": "Löschen",
+    "expand": "Erweitern",
+    "collapse": "Einklappen",
+    "drag": "Ziehen"
+  },
+  "theme": {
+    "system": "System",
+    "dark": "Dunkel",
+    "light": "Hell"
+  },
+  "locale": {
+    "auto": "Automatisch (Browser)",
+    "label": "UI-Sprache",
+    "hint": "Steuert Menüs, Beschriftungen und Meldungen. Automatisch nutzt zuerst die Browser-Sprache, dann die Zeitzone-Region. VPN allein ändert die Sprache nicht.",
+    "autoResolved": "Automatisch erkannt: {{locale}}"
+  },
+  "localeSuggestion": {
+    "ariaLabel": "Sprachvorschlag",
+    "message": "Ihre Region scheint {{region}} zu sein. Oberfläche auf {{language}} umstellen?",
+    "accept": "Zu {{language}} wechseln",
+    "dismiss": "Nicht jetzt"
+  },
+  "tabs": {
+    "input": "Eingabe",
+    "structure": "Struktur",
+    "display": "Darstellung",
+    "source": "Quelle"
+  },
+  "dock": {
+    "data": "Daten",
+    "viewport": "Viewport",
+    "inspector": "Inspektor",
+    "assistant": "Assistent"
+  },
+  "loaded": "Geladen",
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "description": "Die angeforderte Seite existiert nicht.",
+    "back": "Zur Startseite"
+  },
+  "errorBoundary": {
+    "title": "Etwas ist schiefgelaufen",
+    "description": "In dieser Ansicht ist ein unerwarteter Fehler aufgetreten.",
+    "retry": "Erneut versuchen"
+  }
+}

@@ -1,12 +1,13 @@
-import { Stage, StructureComponent } from "ngl";
+import { Stage, StructureComponent, type PickingProxy } from "ngl";
 import { startTransition, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useViewer, type ContextContactRadiusAngstrom, type SequencePolymerKind, type ViewportPickDetail } from "@/contexts/ViewerContext";
 import { resolveStructure } from "@/lib/structureSources";
 import { buildHierarchyFromStructure } from "@/lib/structureModelFromNgl";
 import { applyMainRepresentation } from "@/lib/nglRepr";
+import { handleViewportMeasurementPick } from "@/lib/nglMeasurement";
 import { applyRelativeDepthFog } from "@/lib/nglViewportTune";
-import { applyPolymerContextHighlight } from "@/lib/nglSequenceNeighborhood";
+import { applyPolymerContextHighlight, resolveStripSelectionFromPick } from "@/lib/nglSequenceNeighborhood";
 import { nglFitSelection } from "@/lib/nglViewportActions";
 import { viewportBackgroundColor } from "@/lib/themeColors";
 import { useResolvedTheme } from "@/contexts/ThemeContext";
@@ -59,6 +60,8 @@ export default function StructureViewport({ className = "" }: { className?: stri
     nglQuality,
     setSelectedResidueKey,
     setViewportPickDetail,
+    setViewportPickAnchor,
+    applyViewportResiduePick,
     selectedResidueKey,
     selectedSequencePolymerKind,
     viewportPickDetail,
@@ -67,6 +70,7 @@ export default function StructureViewport({ className = "" }: { className?: stri
     structureModel,
     polymerInteractionOverlayEnabled,
     nucleicBackboneAccentEnabled,
+    measurementMode,
   } = useViewer();
   const resolvedTheme = useResolvedTheme();
 
@@ -146,6 +150,10 @@ export default function StructureViewport({ className = "" }: { className?: stri
     if (!stage) return;
     const onPick = (pickingProxy: unknown) => {
       try {
+        if (measurementMode !== "none") {
+          handleViewportMeasurementPick(stage, pickingProxy as PickingProxy | null, measurementMode);
+          return;
+        }
         if (!pickingProxy) {
           setViewportPickDetail(null);
           setSelectedResidueKey(null);
@@ -163,8 +171,9 @@ export default function StructureViewport({ className = "" }: { className?: stri
           setSelectedResidueKey(null);
           return;
         }
-        setViewportPickDetail(d);
-        setSelectedResidueKey(`${d.chain}:${d.resno}`);
+        const sc = structureComponentRef.current;
+        const stripSel = sc ? resolveStripSelectionFromPick(sc, d.chain, d.resno) : null;
+        applyViewportResiduePick(d, stripSel);
       } catch {
         setViewportPickDetail(null);
         setSelectedResidueKey(null);
@@ -178,17 +187,18 @@ export default function StructureViewport({ className = "" }: { className?: stri
         /* */
       }
     };
-  }, [setSelectedResidueKey, setViewportPickDetail]);
+  }, [applyViewportResiduePick, measurementMode, setSelectedResidueKey, setViewportPickDetail, setViewportPickAnchor, structureComponentRef]);
 
   useEffect(() => {
     const stage = localStageRef.current;
     if (!stage) return;
     try {
-      stage.setParameters({ quality: nglQuality } as never);
+      stage.setQuality(nglQuality);
+      requestReprRefresh();
     } catch {
       /* */
     }
-  }, [nglQuality]);
+  }, [nglQuality, requestReprRefresh]);
 
   useEffect(() => {
     const stage = localStageRef.current;
@@ -452,7 +462,14 @@ export default function StructureViewport({ className = "" }: { className?: stri
 
   return (
     <div className={`relative h-full w-full min-h-0 min-w-0 overflow-hidden ${className}`}>
-      <div ref={hostRef} className="absolute inset-0 h-full w-full min-h-0 touch-none overflow-hidden" />
+      <div
+        ref={hostRef}
+        className="absolute inset-0 h-full w-full min-h-0 touch-none overflow-hidden"
+        onPointerDown={(e) => {
+          if (e.button !== 0) return;
+          setViewportPickAnchor({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+        }}
+      />
 
       {selection === null && overlay.kind === "idle" ? (
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 px-4 text-center font-mono">

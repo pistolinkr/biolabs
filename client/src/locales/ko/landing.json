@@ -1,0 +1,30 @@
+{
+  "hero": {
+    "title": "차세대 생물 시뮬레이션",
+    "subtitle": "구조 분석, 분자 동역학, 대화형 단백질 시각화를 위한 계산 생물학 운영 체제입니다.",
+    "enterWorkspace": "워크스페이스 입장"
+  },
+  "capabilities": "핵심 기능",
+  "features": {
+    "visualization": {
+      "title": "단백질 시각화",
+      "description": "AlphaFold 통합을 갖춘 고급 분자 구조 뷰어"
+    },
+    "simulation": {
+      "title": "생물 시뮬레이션",
+      "description": "실시간 분자 동역학 및 상호작용 시뮬레이션"
+    },
+    "layers": {
+      "title": "레이어 시스템",
+      "description": "복잡한 분자 시스템을 위한 포토샵 스타일 레이어 관리"
+    },
+    "hud": {
+      "title": "Scientific HUD",
+      "description": "실시간 지표, 에너지 계산 및 분석 도구"
+    }
+  },
+  "footer": {
+    "version": "biolabs v2.1",
+    "tagline": "Working with the supervision of G.Gear Vanguard Service."
+  }
+}

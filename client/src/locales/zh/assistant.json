@@ -1,0 +1,39 @@
+{
+  "analysisLabel": "助手分析",
+  "dragPanel": "拖动以移动面板",
+  "expandPanel": "展开面板",
+  "collapsePanel": "折叠面板",
+  "noAnalysisYet": "尚无分析",
+  "analyzing": "分析中…",
+  "history": "历史 · {{count}}",
+  "historyHint": "进行更多分析后向上滚动，可查看此蛋白质先前的残基问题。",
+  "current": "当前 · {{resname}} {{chain}}:{{resno}}",
+  "running": "正在运行 {{label}}…",
+  "couldNotAnalyze": "无法分析此残基。",
+  "askAi": "询问 AI",
+  "explain": "解释",
+  "assistant": {
+    "title": "研究助手",
+    "clearChat": "清空对话",
+    "checking": "正在检查 AI 提供商…",
+    "provider": "提供商：{{provider}}{{model}}",
+    "providerModel": " · {{model}}",
+    "notConfiguredEnv": "未配置 API 密钥 — 请在 .env 中添加 GEMINI_API_KEY（推荐）",
+    "staticHostingNote": "Vercel 静态部署无 AI 后端。请使用 Node/Docker + 服务器 .env 运行 /api/ai。",
+    "context": "上下文：{{protein}}{{residue}}",
+    "noProtein": "无蛋白质",
+    "emptyState": "询问已加载的结构、所选残基、聚合物接触或一般生物学问题。每个回答都会自动使用完整的平台上下文。",
+    "you": "您",
+    "aiName": "Biolabs AI",
+    "thinking": "思考中…",
+    "placeholder": "询问此结构…"
+  },
+  "toasts": {
+    "notConfigured": "AI 未配置",
+    "notConfiguredHint": "在服务器 .env 中添加提供商密钥并重启。",
+    "unavailable": "AI 不可用",
+    "explainUnavailable": "解释功能不可用",
+    "connectionOk": "AI 连接正常",
+    "connectionFailed": "连接不可用"
+  }
+}

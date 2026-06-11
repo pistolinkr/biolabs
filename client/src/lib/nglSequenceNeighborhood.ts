@@ -68,14 +68,16 @@ export function removeNucleicPresetRepresentations(sc: StructureComponent): void
   }
 }
 
-export function applyNucleicBackboneAccent(sc: StructureComponent): void {
+export function applyNucleicBackboneAccent(sc: StructureComponent, sele = "nucleic"): void {
+  const s = sele.trim();
+  if (!s) return;
   try {
     sc.addRepresentation("line", {
-      sele: "nucleic",
+      sele: s,
       name: `${NUC_PRESET_PREFIX}Line`,
-      color: "#6A6A6A",
-      linewidth: 1,
-      opacity: 0.55,
+      color: "#8A9AAA",
+      linewidth: 2,
+      opacity: 0.85,
     } as never);
   } catch {
     /* */
@@ -162,6 +164,25 @@ export function resolveStripIndexToReferenceCoords(
   return found;
 }
 
+/** Count standard amino-acid polymer position (1-based) for a PDB `resno` on a chain. */
+export function proteinStripOrdinalForResno(
+  sc: StructureComponent,
+  chainId: string,
+  pdbResno: number,
+): number | null {
+  let n = 0;
+  let found: number | null = null;
+  sc.structure.eachChain((cp) => {
+    if (cp.chainname !== chainId) return;
+    cp.eachResidue((rp) => {
+      if (!rp.isStandardAminoacid()) return;
+      n += 1;
+      if (rp.resno === pdbResno) found = n;
+    });
+  });
+  return found;
+}
+
 /** Count nucleic polymer position (1-based) for a PDB `resno` on a chain. */
 export function nucleicStripOrdinalForResno(
   sc: StructureComponent,
@@ -179,6 +200,29 @@ export function nucleicStripOrdinalForResno(
     });
   });
   return found;
+}
+
+export interface StripSelectionFromPick {
+  chainId: string;
+  stripOrdinal: number;
+  polymerKind: SequencePolymerKind;
+}
+
+/** Map viewport PDB pick → sequence-strip chain + 1-based strip index. */
+export function resolveStripSelectionFromPick(
+  sc: StructureComponent,
+  chainId: string,
+  pdbResno: number,
+): StripSelectionFromPick | null {
+  const proteinOrd = proteinStripOrdinalForResno(sc, chainId, pdbResno);
+  if (proteinOrd != null) {
+    return { chainId, stripOrdinal: proteinOrd, polymerKind: "protein" };
+  }
+  const nucleicOrd = nucleicStripOrdinalForResno(sc, chainId, pdbResno);
+  if (nucleicOrd != null) {
+    return { chainId, stripOrdinal: nucleicOrd, polymerKind: "nucleic" };
+  }
+  return null;
 }
 
 function collectNeighborResiduesBrute(
@@ -424,9 +468,9 @@ export function applyInteractionDistanceOverlay(sc: StructureComponent, pairs: C
       atomPair,
       labelVisible: false,
       labelUnit: "angstrom",
-      color: "#8A8A8A",
-      linewidth: 1,
-      lineOpacity: 0.42,
+      color: "#C8B070",
+      linewidth: 2,
+      lineOpacity: 0.62,
       useCylinder: false,
     } as never);
   } catch {
@@ -786,7 +830,11 @@ export function applyPolymerContextHighlight(
     applyInteractionDistanceOverlay(sc, pairCandidates);
   }
   if (opts.nucleicBackboneAccent) {
-    applyNucleicBackboneAccent(sc);
+    const nucleicRefs = refs.filter((r) => classifyNeighborRef(sc, r) === "nucleic");
+    const nucleicSele = neighborSelectionStringFromRefs(nucleicRefs);
+    if (nucleicSele.trim()) {
+      applyNucleicBackboneAccent(sc, nucleicSele);
+    }
   }
   if (opts.moveCamera && stage && snap) {
     const extentR = boundingRadiusFromContext(sc, refs, center);

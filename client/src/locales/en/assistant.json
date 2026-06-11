@@ -1,0 +1,39 @@
+{
+  "analysisLabel": "Assistant analysis",
+  "dragPanel": "Drag to move panel",
+  "expandPanel": "Expand panel",
+  "collapsePanel": "Collapse panel",
+  "noAnalysisYet": "No analysis yet",
+  "analyzing": "Analyzing…",
+  "history": "History · {{count}}",
+  "historyHint": "Scroll up after more analyses to review prior residue questions for this protein.",
+  "current": "Current · {{resname}} {{chain}}:{{resno}}",
+  "running": "Running {{label}}…",
+  "couldNotAnalyze": "Could not analyze this residue.",
+  "askAi": "Ask AI",
+  "explain": "Explain",
+  "assistant": {
+    "title": "Research assistant",
+    "clearChat": "Clear chat",
+    "checking": "Checking AI provider…",
+    "provider": "Provider: {{provider}}{{model}}",
+    "providerModel": " · {{model}}",
+    "notConfiguredEnv": "No API key configured — add GEMINI_API_KEY (recommended) to .env",
+    "staticHostingNote": "Vercel static deploy has no AI backend. Use Node or Docker with server .env for /api/ai.",
+    "context": "Context: {{protein}}{{residue}}",
+    "noProtein": "no protein",
+    "emptyState": "Ask about the loaded structure, selected residue, polymer contacts, or general biology. Every answer uses the full platform context automatically.",
+    "you": "You",
+    "aiName": "Biolabs AI",
+    "thinking": "Thinking…",
+    "placeholder": "Ask about this structure…"
+  },
+  "toasts": {
+    "notConfigured": "AI not configured",
+    "notConfiguredHint": "Add provider keys to server .env and restart.",
+    "unavailable": "AI unavailable",
+    "explainUnavailable": "Explain unavailable",
+    "connectionOk": "AI connection OK",
+    "connectionFailed": "Connection unavailable"
+  }
+}

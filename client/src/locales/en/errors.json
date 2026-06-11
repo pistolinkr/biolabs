@@ -1,0 +1,13 @@
+{
+  "AI_QUOTA_EXCEEDED": "AI quota exceeded. Try again later or switch provider.",
+  "AI_RATE_LIMITED": "Too many requests. Please wait a moment.",
+  "AI_PROVIDER_UNAVAILABLE": "AI provider is temporarily unavailable.",
+  "AI_INVALID_REQUEST": "Invalid AI request.",
+  "AI_CONTEXT_TOO_LARGE": "Context is too large for the model.",
+  "AI_AUTH_FAILED": "AI authentication failed on the server.",
+  "AI_MODEL_NOT_FOUND": "Configured model was not found.",
+  "AI_UNKNOWN": "AI request failed.",
+  "requestFailed": "AI request failed.",
+  "couldNotAnalyze": "Could not analyze this residue.",
+  "couldNotExplain": "Could not explain this selection."
+}

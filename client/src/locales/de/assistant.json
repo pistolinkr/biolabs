@@ -1,0 +1,39 @@
+{
+  "analysisLabel": "Assistentenanalyse",
+  "dragPanel": "Ziehen, um Panel zu verschieben",
+  "expandPanel": "Panel erweitern",
+  "collapsePanel": "Panel einklappen",
+  "noAnalysisYet": "Noch keine Analyse",
+  "analyzing": "Analysiere…",
+  "history": "Verlauf · {{count}}",
+  "historyHint": "Nach weiteren Analysen nach oben scrollen, um frühere Residuenfragen für dieses Protein einzusehen.",
+  "current": "Aktuell · {{resname}} {{chain}}:{{resno}}",
+  "running": "{{label}} wird ausgeführt…",
+  "couldNotAnalyze": "Diese Residue konnte nicht analysiert werden.",
+  "askAi": "KI fragen",
+  "explain": "Erklären",
+  "assistant": {
+    "title": "Forschungsassistent",
+    "clearChat": "Chat leeren",
+    "checking": "KI-Anbieter wird geprüft…",
+    "provider": "Anbieter: {{provider}}{{model}}",
+    "providerModel": " · {{model}}",
+    "notConfiguredEnv": "Kein API-Schlüssel konfiguriert — GEMINI_API_KEY (empfohlen) in .env hinzufügen",
+    "staticHostingNote": "Vercel Static Deploy hat kein AI-Backend. Node/Docker + server .env für /api/ai.",
+    "context": "Kontext: {{protein}}{{residue}}",
+    "noProtein": "kein Protein",
+    "emptyState": "Fragen Sie zur geladenen Struktur, ausgewählten Residue, Polymerkontakten oder allgemeiner Biologie. Jede Antwort nutzt automatisch den vollständigen Plattformkontext.",
+    "you": "Sie",
+    "aiName": "Biolabs AI",
+    "thinking": "Denke nach…",
+    "placeholder": "Fragen zu dieser Struktur stellen…"
+  },
+  "toasts": {
+    "notConfigured": "KI nicht konfiguriert",
+    "notConfiguredHint": "Provider-Schlüssel zur Server-.env hinzufügen und neu starten.",
+    "unavailable": "KI nicht verfügbar",
+    "explainUnavailable": "Erklärung nicht verfügbar",
+    "connectionOk": "KI-Verbindung OK",
+    "connectionFailed": "Verbindung nicht verfügbar"
+  }
+}

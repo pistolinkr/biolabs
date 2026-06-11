@@ -1,0 +1,101 @@
+{
+  "idle": "ビューポート待機中",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "構造表示を更新中…",
+  "hud": {
+    "title": "HUD",
+    "drag": "ドラッグ",
+    "fps": "FPS",
+    "atoms": "原子",
+    "chains": "チェーン"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": { "distance": "距離", "angle": "角", "dihedral": "二面" },
+    "qualityLevels": { "low": "低", "medium": "中", "high": "高" },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "読取",
+    "tips": {
+      "context": "距離ベースのポリマーコンテキスト（ビューポート選択または配列）",
+      "interactions": "コンテキスト内のヒューリスティックなタンパク質–核酸距離線を切り替え",
+      "nucleicAccent": "細い核酸バックボーン線アクセントを切り替え",
+      "readable": "読みやすいプリセット：カートゥーン + チェーン色 + 明瞭な分離",
+      "reset": "ビューをリセット",
+      "fit": "全体にフィット",
+      "fitSelection": "分離/選択にフィット",
+      "measure": "距離/角度/二面角を循環。ビューポートで原子を選び、最後の原子を再クリックで確定。",
+      "quality": "レンダー品質を循環（低/中/高）。構造メッシュを再構築します。",
+      "clearIsolate": "チェーン分離を解除"
+    }
+  },
+  "rail": {
+    "resetCamera": "カメラをリセット",
+    "fitStructure": "構造にフィット",
+    "fitSelection": "選択 / 分離にフィット",
+    "screenshot": "スクリーンショット PNG",
+    "exportCoords": "座標をエクスポート（リモート）",
+    "fullscreen": "フルスクリーン",
+    "spin": "回転",
+    "depthCue": "深度キュー（フォグ）",
+    "aiAnalysisOn": "AI 分析パネル（オン）",
+    "aiAnalysisOff": "AI 分析パネル（オフ）"
+  },
+  "bottomStrip": {
+    "struct": "構造",
+    "pick": "選択",
+    "measure": "測定",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "原子2つ · 2番目を再クリックで確定",
+      "angle": "原子3つ · 3番目を再クリックで確定",
+      "dihedral": "原子4つ · 4番目を再クリックで確定"
+    },
+    "noStructure": "構造が読み込まれていません",
+    "loading": "{{label}} · 読み込み中…",
+    "pickHint": "選択：ビューポートで原子 / 残基をクリック",
+    "selection": "選択 · {{key}}",
+    "pickDetail": "チェーン {{chain}} · 残基 {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · {{atoms}} 原子 · {{residues}} 残基 · {{chains}} チェーン"
+  },
+  "toasts": {
+    "visibilitySkipped": "選択の更新をスキップしました。",
+    "measurement": "{{mode}} — ビューポートで NGL ピッキングを使用",
+    "measurementActive": {
+      "distance": "距離：原子2つを選び、2番目を再クリックで確定。",
+      "angle": "角度：原子3つを選び、3番目を再クリックで確定。",
+      "dihedral": "二面角：原子4つを選び、4番目を再クリックで確定。"
+    },
+    "qualityChanged": "レンダー品質: {{quality}}",
+    "fullscreenNotMounted": "フルスクリーン対象がマウントされていません。",
+    "fullscreenBlocked": "リクエストがブロックされたか、サポートされていません。",
+    "aoOn": "フラグ ON（NGL パラメーター接続待ち）",
+    "aoOff": "オフ",
+    "exportNoStructure": "構造が読み込まれていません。",
+    "exportStarted": "構造のダウンロードを開始しました",
+    "exportFailed": "エクスポートに失敗しました",
+    "screenshotOk": "ビューポート PNG",
+    "screenshotFailed": "スクリーンショットに失敗しました",
+    "contactsOn": "オン（ヒューリスティックペア）",
+    "contactsOff": "オフ",
+    "nucleicAccentOn": "核酸に細線を表示",
+    "nucleicAccentOff": "オフ"
+  },
+  "toastTitles": {
+    "visibility": "可視性",
+    "measurement": "測定",
+    "quality": "レンダー品質",
+    "viewport": "ビューポート",
+    "fullscreen": "フルスクリーン",
+    "ambientOcclusion": "アンビエントオクルージョン",
+    "export": "エクスポート",
+    "contextContacts": "コンテキスト接触オーバーレイ",
+    "nucleicAccent": "核酸バックボーンアクセント"
+  }
+}

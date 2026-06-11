@@ -1,0 +1,13 @@
+{
+  "AI_QUOTA_EXCEEDED": "AI のクォータを超過しました。後でもう一度試すか、プロバイダーを変更してください。",
+  "AI_RATE_LIMITED": "リクエストが多すぎます。しばらくお待ちください。",
+  "AI_PROVIDER_UNAVAILABLE": "AI プロバイダーは一時的に利用できません。",
+  "AI_INVALID_REQUEST": "無効な AI リクエストです。",
+  "AI_CONTEXT_TOO_LARGE": "コンテキストがモデルに対して大きすぎます。",
+  "AI_AUTH_FAILED": "サーバーで AI 認証に失敗しました。",
+  "AI_MODEL_NOT_FOUND": "設定されたモデルが見つかりませんでした。",
+  "AI_UNKNOWN": "AI リクエストに失敗しました。",
+  "requestFailed": "AI リクエストに失敗しました。",
+  "couldNotAnalyze": "この残基を分析できませんでした。",
+  "couldNotExplain": "この選択を説明できませんでした。"
+}

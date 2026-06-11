@@ -1,5 +1,6 @@
 import { Search, RefreshCw, Upload } from "lucide-react";
 import React, { startTransition, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   type ProteinSearchHit,
   type ProteinSearchSource,
@@ -14,6 +15,7 @@ import { useViewer } from "@/contexts/ViewerContext";
 const STRUCTURE_ACCEPT = ".pdb,.cif,.mmcif,.ent";
 
 export default function ProteinSourcePanel() {
+  const { t } = useTranslation("workbench");
   const { setProteinSelection } = useViewer();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const initial = loadSourceSearchFromSession();
@@ -43,7 +45,7 @@ export default function ProteinSourcePanel() {
         setHits(next);
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed");
+      setError(err instanceof Error ? err.message : t("source.searchFailed"));
     } finally {
       setLoading(false);
     }
@@ -63,7 +65,7 @@ export default function ProteinSourcePanel() {
       !lower.endsWith(".mmcif") &&
       !lower.endsWith(".ent")
     ) {
-      setError("Choose a .pdb / .cif / .mmcif / .ent file");
+      setError(t("source.fileTypeError"));
       return;
     }
     setError(null);
@@ -80,7 +82,7 @@ export default function ProteinSourcePanel() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="space-y-2 border-b border-[#2A2A2A] p-2">
+      <div className="shrink-0 space-y-2 border-b border-[#2A2A2A] p-2">
         <div className="flex gap-1">
           {(
             [
@@ -112,7 +114,7 @@ export default function ProteinSourcePanel() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={searchSource === "rcsb" ? "PDB ID / text" : "ACCESSION / TEXT"}
+              placeholder={searchSource === "rcsb" ? t("source.rcsbPlaceholder") : t("source.uniprotPlaceholder")}
               className="w-full border border-[#2A2A2A] bg-[#0A0A0A] py-1.5 pl-7 pr-2 font-mono text-[10px] uppercase text-[#F2F2F2] placeholder:text-[#5A5A5A] focus:outline-none focus:border-[#5A5A5A]"
             />
           </div>
@@ -121,7 +123,7 @@ export default function ProteinSourcePanel() {
             disabled={loading}
             className="border border-[#2A2A2A] bg-[#111111] px-2 font-mono text-[10px] uppercase text-[#F2F2F2] hover:border-[#5A5A5A] disabled:opacity-50"
           >
-            {loading ? <RefreshCw className="size-3 animate-spin" /> : "Run"}
+            {loading ? <RefreshCw className="size-3 animate-spin" /> : t("source.run")}
           </button>
         </form>
         {error ? (
@@ -146,48 +148,46 @@ export default function ProteinSourcePanel() {
           className="flex w-full items-center justify-center gap-1 border border-[#2A2A2A] bg-[#111111] py-1 font-mono text-[10px] uppercase text-[#8A8A8A] hover:border-[#5A5A5A] hover:text-[#C8C8C8]"
         >
           <Upload className="size-3" />
-          Import file
+          {t("source.importFile")}
         </button>
       </div>
       {hits.length ? (
-        <div className="min-h-0 flex-1 overflow-hidden">
-          <div className="space-y-1 overflow-hidden p-2">
-            <div className="font-mono text-[9px] uppercase tracking-widest text-[#8A8A8A]">
-              Results {hits.length}
-            </div>
-            {hits.map((hit) => (
-              <div key={`${hit.source}-${hit.id}`} className="border border-[#2A2A2A] bg-[#111111]">
-                <button
-                  type="button"
-                  onClick={() => handleSelectHit(hit)}
-                  className="w-full px-2 py-1.5 text-left hover:bg-[#171717]"
-                >
-                  <div className="truncate font-mono text-[10px] text-[#F2F2F2]">{hit.title}</div>
-                  {hit.subtitle ? (
-                    <div className="truncate font-mono text-[9px] text-[#8A8A8A]">{hit.subtitle}</div>
-                  ) : null}
-                </button>
-                {hit.source === "uniprot" && hit.pdbIds?.length ? (
-                  <div className="flex gap-1 border-t border-[#2A2A2A] px-2 py-1">
-                    <button
-                      type="button"
-                      className="flex-1 border border-[#2A2A2A] py-0.5 font-mono text-[9px] uppercase text-[#B0B0B0] hover:border-[#5A5A5A]"
-                      onClick={() => handleSelectHit(hit, "experimental")}
-                    >
-                      PDB
-                    </button>
-                    <button
-                      type="button"
-                      className="flex-1 border border-[#2A2A2A] py-0.5 font-mono text-[9px] uppercase text-[#B0B0B0] hover:border-[#5A5A5A]"
-                      onClick={() => handleSelectHit(hit, "alphafold")}
-                    >
-                      AlphaFold
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            ))}
+        <div className="min-h-0 flex-1 overflow-y-auto space-y-1 p-2">
+          <div className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-[#8A8A8A]">
+            {t("source.results", { count: hits.length })}
           </div>
+          {hits.map((hit) => (
+            <div key={`${hit.source}-${hit.id}`} className="border border-[#2A2A2A] bg-[#111111]">
+              <button
+                type="button"
+                onClick={() => handleSelectHit(hit)}
+                className="w-full px-2 py-1.5 text-left hover:bg-[#171717]"
+              >
+                <div className="truncate font-mono text-[10px] text-[#F2F2F2]">{hit.title}</div>
+                {hit.subtitle ? (
+                  <div className="truncate font-mono text-[9px] text-[#8A8A8A]">{hit.subtitle}</div>
+                ) : null}
+              </button>
+              {hit.source === "uniprot" && hit.pdbIds?.length ? (
+                <div className="flex gap-1 border-t border-[#2A2A2A] px-2 py-1">
+                  <button
+                    type="button"
+                    className="flex-1 border border-[#2A2A2A] py-0.5 font-mono text-[9px] uppercase text-[#B0B0B0] hover:border-[#5A5A5A]"
+                    onClick={() => handleSelectHit(hit, "experimental")}
+                  >
+                    PDB
+                  </button>
+                  <button
+                    type="button"
+                    className="flex-1 border border-[#2A2A2A] py-0.5 font-mono text-[9px] uppercase text-[#B0B0B0] hover:border-[#5A5A5A]"
+                    onClick={() => handleSelectHit(hit, "alphafold")}
+                  >
+                    AlphaFold
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          ))}
         </div>
       ) : null}
     </div>

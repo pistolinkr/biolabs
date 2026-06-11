@@ -1,0 +1,120 @@
+{
+  "idle": "뷰포트 대기 중",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "구조 표시 업데이트 중…",
+  "hud": {
+    "title": "HUD",
+    "drag": "드래그",
+    "fps": "FPS",
+    "atoms": "원자",
+    "chains": "체인"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": {
+      "distance": "거리",
+      "angle": "각",
+      "dihedral": "이면"
+    },
+    "qualityLevels": {
+      "low": "낮음",
+      "medium": "보통",
+      "high": "높음"
+    },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "읽기",
+    "tips": {
+      "context": "거리 기반 고분자 컨텍스트 (뷰포트 선택 또는 서열)",
+      "interactions": "선택 컨텍스트의 단백질–핵산 거리선 (DNA/RNA + 잔기 선택 필요)",
+      "nucleicAccent": "선택 컨텍스트 내 핵산 백본 얇은 선",
+      "readable": "가독성 프리셋: 카툰 + 체인 색상 + 깔끔한 격리",
+      "reset": "뷰 재설정",
+      "fit": "전체 맞춤",
+      "fitSelection": "격리/선택 맞춤",
+      "measure": "거리/각/이면각 순환. 뷰포트에서 원자를 선택하고 마지막 원자를 다시 클릭해 확인합니다.",
+      "quality": "렌더 품질 순환 (낮음/보통/높음). 구조 메시를 다시 빌드합니다.",
+      "clearIsolate": "체인 격리 해제"
+    }
+  },
+  "rail": {
+    "resetCamera": "카메라 재설정",
+    "fitStructure": "구조 맞춤",
+    "fitSelection": "선택 / 격리 맞춤",
+    "screenshot": "스크린샷 PNG",
+    "exportCoords": "좌표 내보내기 (원격)",
+    "fullscreen": "전체 화면",
+    "spin": "회전",
+    "depthCue": "깊이 단서 (안개)",
+    "aiAnalysisOn": "AI 분석 패널 (켜짐)",
+    "aiAnalysisOff": "AI 분석 패널 (꺼짐)"
+  },
+  "bottomStrip": {
+    "struct": "구조",
+    "pick": "선택",
+    "measure": "측정",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "원자 2개 선택 · 2번째 클릭으로 확인",
+      "angle": "원자 3개 선택 · 3번째 클릭으로 확인",
+      "dihedral": "원자 4개 선택 · 4번째 클릭으로 확인"
+    },
+    "overlayNeedsPick": "Ixn/Nt · 오버레이를 보려면 잔기를 선택하세요",
+    "overlayNoNucleic": "Ixn/Nt · 구조에 DNA/RNA 없음",
+    "overlayIxn": "Ixn · {{count}}쌍",
+    "overlayNt": "Nt · 핵산 {{count}}잔기",
+    "noStructure": "로드된 구조 없음",
+    "loading": "{{label}} · 로딩 중…",
+    "pickHint": "선택: 뷰포트에서 원자 / 잔기 클릭",
+    "selection": "선택 · {{key}}",
+    "pickDetail": "체인 {{chain}} · 잔기 {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · 원자 {{atoms}}개 · 잔기 {{residues}}개 · 체인 {{chains}}개"
+  },
+  "toasts": {
+    "visibilitySkipped": "선택 업데이트가 건너뛰어졌습니다.",
+    "measurement": "{{mode}} — 뷰포트에서 NGL 피킹을 사용하세요",
+    "measurementActive": {
+      "distance": "거리: 원자 2개를 선택한 뒤 2번째 원자를 다시 클릭해 확인하세요.",
+      "angle": "각: 원자 3개를 선택한 뒤 3번째 원자를 다시 클릭해 확인하세요.",
+      "dihedral": "이면각: 원자 4개를 선택한 뒤 4번째 원자를 다시 클릭해 확인하세요."
+    },
+    "qualityChanged": "렌더 품질: {{quality}}",
+    "fullscreenNotMounted": "전체 화면 대상이 마운트되지 않았습니다.",
+    "fullscreenBlocked": "요청이 차단되었거나 지원되지 않습니다.",
+    "aoOn": "플래그 켜짐 (NGL 파라미터 연결 대기 중)",
+    "aoOff": "끔",
+    "exportNoStructure": "로드된 구조가 없습니다.",
+    "exportStarted": "구조 다운로드 시작됨",
+    "exportFailed": "보내기 실패",
+    "screenshotOk": "뷰포트 PNG",
+    "screenshotFailed": "스크린샷 실패",
+    "contactsOn": "켜짐 (휴리스틱 쌍)",
+    "contactsOff": "끔",
+    "overlayNeedsPick": "먼저 뷰포트에서 잔기를 선택하세요 — 오버레이는 활성 컨텍스트 주변에만 표시됩니다.",
+    "overlayNoNucleic": "이 구조에 DNA/RNA 체인이 없습니다.",
+    "overlayNoPairsInContext": "현재 컨텍스트 반경 내 단백질–핵산 중원자 쌍이 없습니다.",
+    "overlayLinesOn": "컨텍스트에서 {{count}}개 후보 쌍의 거리선을 표시합니다.",
+    "overlayLinesOff": "거리선을 숨겼습니다 (컨텍스트 강조는 유지).",
+    "nucleicAccentOnDetail": "컨텍스트 내 {{count}}개 핵산 잔기에 백본 강조를 표시합니다.",
+    "nucleicAccentNoContext": "현재 컨텍스트 반경에 핵산 잔기가 없습니다.",
+    "nucleicAccentOn": "핵산에 얇은 선 표시",
+    "nucleicAccentOff": "핵산 백본 강조 끔"
+  },
+  "toastTitles": {
+    "visibility": "가시성",
+    "measurement": "측정",
+    "quality": "렌더 품질",
+    "viewport": "뷰포트",
+    "fullscreen": "전체 화면",
+    "ambientOcclusion": "앰비언트 오클루전",
+    "export": "보내기",
+    "contextContacts": "컨텍스트 접촉 오버레이",
+    "nucleicAccent": "핵산 백본 강조"
+  }
+}

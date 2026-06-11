@@ -1,0 +1,101 @@
+{
+  "idle": "Viewport im Leerlauf",
+  "idleHint": "NGL · RCSB / UniProt / AlphaFold DB",
+  "updatingDisplay": "Strukturdarstellung wird aktualisiert…",
+  "hud": {
+    "title": "HUD",
+    "drag": "Ziehen",
+    "fps": "FPS",
+    "atoms": "Atome",
+    "chains": "Ketten"
+  },
+  "toolbar": {
+    "repr": "Repr",
+    "color": "Color",
+    "measure": "Meas",
+    "quality": "Med",
+    "qualityHigh": "High",
+    "measureModes": { "distance": "Dist", "angle": "Wink", "dihedral": "Dihed" },
+    "qualityLevels": { "low": "Niedrig", "medium": "Mittel", "high": "Hoch" },
+    "palette": "⌘K · Palette",
+    "contacts": "Ctx",
+    "overlay": "Ovl",
+    "accent": "Nb",
+    "read": "Lesbar",
+    "tips": {
+      "context": "Distanzbasierter Polymerkontext (Viewport-Auswahl oder Sequenz)",
+      "interactions": "Heuristische Protein–Nukleinsäure-Distanzlinien im Kontext umschalten",
+      "nucleicAccent": "Dünnen Nukleinsäure-Rückgratlinienakzent umschalten",
+      "readable": "Lesbares Preset: Cartoon + Kettenfarben + klare Isolierung",
+      "reset": "Ansicht zurücksetzen",
+      "fit": "Alles einpassen",
+      "fitSelection": "Isolierung/Auswahl einpassen",
+      "measure": "Abstand/Winkel/Dihedral zyklisch. Atome im Viewport wählen; letztes Atom erneut klicken zum Bestätigen.",
+      "quality": "Renderqualität zyklisch (Niedrig/Mittel/Hoch). Baut Struktur-Meshes neu.",
+      "clearIsolate": "Kettenisolierung aufheben"
+    }
+  },
+  "rail": {
+    "resetCamera": "Kamera zurücksetzen",
+    "fitStructure": "Struktur einpassen",
+    "fitSelection": "Auswahl / Isolierung einpassen",
+    "screenshot": "Screenshot PNG",
+    "exportCoords": "Koordinaten exportieren (remote)",
+    "fullscreen": "Vollbild",
+    "spin": "Drehen",
+    "depthCue": "Tiefenhinweis (Nebel)",
+    "aiAnalysisOn": "KI-Analysepanel (an)",
+    "aiAnalysisOff": "KI-Analysepanel (aus)"
+  },
+  "bottomStrip": {
+    "struct": "Struktur",
+    "pick": "Auswahl",
+    "measure": "Messen",
+    "measureHint": "{{mode}} · {{hint}}",
+    "measureHints": {
+      "distance": "2 Atome · 2. Klick bestätigt",
+      "angle": "3 Atome · 3. Klick bestätigt",
+      "dihedral": "4 Atome · 4. Klick bestätigt"
+    },
+    "noStructure": "Keine Struktur geladen",
+    "loading": "{{label}} · wird geladen…",
+    "pickHint": "Auswahl: Atom / Residue im Viewport anklicken",
+    "selection": "Auswahl · {{key}}",
+    "pickDetail": "KETTE {{chain}} · RES {{resno}} · {{resname}}",
+    "structDetail": "{{title}} · {{atoms}} Atome · {{residues}} Res · {{chains}} Ketten"
+  },
+  "toasts": {
+    "visibilitySkipped": "Auswahlaktualisierung übersprungen.",
+    "measurement": "{{mode}} — NGL-Picking im Viewport verwenden",
+    "measurementActive": {
+      "distance": "Abstand: 2 Atome wählen, dann das 2. Atom erneut klicken.",
+      "angle": "Winkel: 3 Atome wählen, dann das 3. Atom erneut klicken.",
+      "dihedral": "Dihedral: 4 Atome wählen, dann das 4. Atom erneut klicken."
+    },
+    "qualityChanged": "Renderqualität: {{quality}}",
+    "fullscreenNotMounted": "Vollbildziel nicht eingebunden.",
+    "fullscreenBlocked": "Anfrage wurde blockiert oder nicht unterstützt.",
+    "aoOn": "Flag an (NGL-Parameterverknüpfung ausstehend)",
+    "aoOff": "Aus",
+    "exportNoStructure": "Keine Struktur geladen.",
+    "exportStarted": "Strukturdownload gestartet",
+    "exportFailed": "Export fehlgeschlagen",
+    "screenshotOk": "Viewport PNG",
+    "screenshotFailed": "Screenshot fehlgeschlagen",
+    "contactsOn": "An (heuristische Paare)",
+    "contactsOff": "Aus",
+    "nucleicAccentOn": "Dünne Linie auf Nukleinsäure",
+    "nucleicAccentOff": "Aus"
+  },
+  "toastTitles": {
+    "visibility": "Sichtbarkeit",
+    "measurement": "Messung",
+    "quality": "Renderqualität",
+    "viewport": "Viewport",
+    "fullscreen": "Vollbild",
+    "ambientOcclusion": "Ambient Occlusion",
+    "export": "Export",
+    "contextContacts": "Kontextkontakte-Overlay",
+    "nucleicAccent": "Nukleinsäure-Rückgrat-Akzent"
+  }
+}

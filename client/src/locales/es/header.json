@@ -1,0 +1,18 @@
+{
+  "command": "Comando...",
+  "commandPalette": "Paleta de comandos",
+  "saveWorkspace": "Guardar espacio de trabajo (⌘S)",
+  "exportMenu": "Exportar",
+  "settings": "Configuración",
+  "saveSuccess": "Espacio de trabajo guardado",
+  "saveSuccessWithProtein": "{{source}} · {{id}}",
+  "saveSuccessGeneric": "Diseño y preferencias almacenados localmente",
+  "export": {
+    "snapshot": "Instantánea del espacio de trabajo (JSON)",
+    "structure": "Coordenadas de estructura",
+    "screenshot": "Viewport PNG",
+    "comingSoon": "{{label}} — próximamente",
+    "jsonDownloaded": "JSON del espacio de trabajo descargado",
+    "footerHint": "Las exportaciones usan el estado cargado de la plataforma"
+  }
+}

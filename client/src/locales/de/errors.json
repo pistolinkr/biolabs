@@ -1,0 +1,13 @@
+{
+  "AI_QUOTA_EXCEEDED": "KI-Kontingent überschritten. Versuchen Sie es später erneut oder wechseln Sie den Provider.",
+  "AI_RATE_LIMITED": "Zu viele Anfragen. Bitte warten Sie einen Moment.",
+  "AI_PROVIDER_UNAVAILABLE": "KI-Provider ist vorübergehend nicht verfügbar.",
+  "AI_INVALID_REQUEST": "Ungültige KI-Anfrage.",
+  "AI_CONTEXT_TOO_LARGE": "Kontext ist für das Modell zu groß.",
+  "AI_AUTH_FAILED": "KI-Authentifizierung auf dem Server fehlgeschlagen.",
+  "AI_MODEL_NOT_FOUND": "Konfiguriertes Modell wurde nicht gefunden.",
+  "AI_UNKNOWN": "KI-Anfrage fehlgeschlagen.",
+  "requestFailed": "KI-Anfrage fehlgeschlagen.",
+  "couldNotAnalyze": "Diese Residue konnte nicht analysiert werden.",
+  "couldNotExplain": "Diese Auswahl konnte nicht erklärt werden."
+}

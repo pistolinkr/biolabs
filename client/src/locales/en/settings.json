@@ -1,0 +1,75 @@
+{
+  "title": "Settings",
+  "subtitle": "Biolabs workstation configuration",
+  "tabs": {
+    "general": "General",
+    "ai": "AI Assistant",
+    "workspace": "Workspace",
+    "about": "About"
+  },
+  "general": {
+    "appearance": "Appearance",
+    "colorTheme": "Color theme",
+    "colorThemeHint": "Follows system or manual selection.",
+    "scientificHud": "Scientific HUD",
+    "scientificHudHint": "Coordinate readout overlay on viewport.",
+    "viewportNote": "Viewport render options (AO, shadows) are controlled from the Display workbench tab."
+  },
+  "workspace": {
+    "persistence": "Persistence",
+    "autoSave": "Auto-save session",
+    "autoSaveHint": "Viewer selection and display prefs (localStorage).",
+    "autoSaveInterval": "Auto-save interval",
+    "autoSaveIntervalHint": "{{minutes}} min (viewer debounces ~500ms on change)",
+    "saveNote": "Use the header Save button (⌘S) to write a full workspace snapshot including dock layout and AI preferences. Export JSON via the Download menu."
+  },
+  "about": {
+    "kicker": "Biolabs",
+    "version": "{{version}} · Computational biology workstation",
+    "stack": "Structure: NGL · Layout: Dockview · AI: modular cloud providers",
+    "copyright": "© 2026 Biolabs Project"
+  },
+  "ai": {
+    "serverStatus": "Server status",
+    "checking": "Checking providers…",
+    "active": "Active: {{provider}}{{model}}",
+    "activeModel": " · {{model}}",
+    "available": "Available: {{list}}",
+    "none": "none",
+    "rateLimit": "Rate limit {{limit}}/min · max tokens {{tokens}} · context {{chars}} chars",
+    "notConfigured": "No provider configured. Add GEMINI_API_KEY, OPENROUTER_API_KEY, or HUGGINGFACE_API_KEY to the server .env file and restart.",
+    "staticDeployNote": "Vercel static hosting serves the frontend only — there is no /api/ai server. For AI, deploy with Node (pnpm build && pnpm start) or Docker and add provider keys to server .env.",
+    "refreshStatus": "Refresh status",
+    "testConnection": "Test connection",
+    "clientPrefs": "Client preferences",
+    "preferredProvider": "Preferred provider",
+    "preferredProviderHint": "Overrides server auto-selection for your requests.",
+    "interfaceLanguage": "Interface language",
+    "interfaceLanguageHint": "Controls menus, panel titles, labels, and messages across the workstation.",
+    "responseLanguage": "AI response language",
+    "responseLanguageHint": "When set to a specific language, the interface switches to match. For 中文 / Deutsch / Español etc., use Interface language above.",
+    "responseLanguageAuto": "Auto (match interface / browser)",
+    "temperature": "Temperature",
+    "temperatureHint": "{{value}} — lower = more factual",
+    "maxTokens": "Max output tokens",
+    "maxTokensHint": "{{value}} (server cap {{cap}})",
+    "includeSequences": "Include full sequences",
+    "includeSequencesHint": "Send chain sequences in AI context (truncated).",
+    "compactContext": "Compact context",
+    "compactContextHint": "Shorter sequences and snippets to save tokens.",
+    "autoOpenChat": "Auto-open chat on explain",
+    "autoOpenChatHint": "Open assistant panel when using Explain buttons.",
+    "residuePanel": "Residue analysis panel",
+    "residuePanelHint": "Show anchored analysis panel after residue pick in the viewport.",
+    "apiKeys": "API keys",
+    "apiKeysHint": "Keys are stored only on the server (.env). Never put provider keys in client settings or VITE_ variables.",
+    "clearChat": "Clear chat history",
+    "resetDefaults": "Reset AI defaults",
+    "providers": {
+      "auto": "Auto (server priority)",
+      "gemini": "Gemini",
+      "openrouter": "OpenRouter",
+      "huggingface": "Hugging Face"
+    }
+  }
+}

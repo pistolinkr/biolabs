@@ -1,0 +1,18 @@
+{
+  "command": "명령...",
+  "commandPalette": "명령 팔레트",
+  "saveWorkspace": "워크스페이스 저장 (⌘S)",
+  "exportMenu": "보내기",
+  "settings": "설정",
+  "saveSuccess": "워크스페이스 저장됨",
+  "saveSuccessWithProtein": "{{source}} · {{id}}",
+  "saveSuccessGeneric": "레이아웃 및 설정이 로컬에 저장됨",
+  "export": {
+    "snapshot": "워크스페이스 스냅샷 (JSON)",
+    "structure": "구조 좌표",
+    "screenshot": "뷰포트 PNG",
+    "comingSoon": "{{label}} — 준비 중",
+    "jsonDownloaded": "워크스페이스 JSON 다운로드됨",
+    "footerHint": "내보내기는 로드된 플랫폼 상태를 사용합니다"
+  }
+}

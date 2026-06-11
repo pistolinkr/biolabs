@@ -34,3 +34,14 @@ export const WORKFLOW_STAGES: {
   { id: "simulation", label: "Simulation", short: "Sim" },
   { id: "engineering", label: "Engineering", short: "Eng" },
 ];
+
+export type WorkflowStageMeta = (typeof WORKFLOW_STAGES)[number];
+
+/** Localized stage labels for UI components. */
+export function getWorkflowStages(t: (key: string) => string): WorkflowStageMeta[] {
+  return WORKFLOW_STAGES.map((stage) => ({
+    id: stage.id,
+    label: t(`stages.${stage.id}.label`),
+    short: t(`stages.${stage.id}.short`),
+  }));
+}

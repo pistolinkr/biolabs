@@ -1,0 +1,13 @@
+{
+  "AI_QUOTA_EXCEEDED": "AI 配额已超出。请稍后重试或切换提供商。",
+  "AI_RATE_LIMITED": "请求过多。请稍候。",
+  "AI_PROVIDER_UNAVAILABLE": "AI 提供商暂时不可用。",
+  "AI_INVALID_REQUEST": "无效的 AI 请求。",
+  "AI_CONTEXT_TOO_LARGE": "上下文对于模型来说过大。",
+  "AI_AUTH_FAILED": "服务器上 AI 身份验证失败。",
+  "AI_MODEL_NOT_FOUND": "未找到配置的模型。",
+  "AI_UNKNOWN": "AI 请求失败。",
+  "requestFailed": "AI 请求失败。",
+  "couldNotAnalyze": "无法分析此残基。",
+  "couldNotExplain": "无法解释此选择。"
+}
