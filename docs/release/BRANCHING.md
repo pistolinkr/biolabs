@@ -41,6 +41,8 @@ git push origin v2.1.0
    - Output: `dist/public`
 5. Optional domain: `v21.yourdomain.com`
 
+See [VERCEL_SETUP_v2.1.md](./VERCEL_SETUP_v2.1.md) for dashboard steps if CLI is unavailable (billing/permissions).
+
 Repeat for each new line (`biolabs-v2.2` → `release/v2.2`, etc.).
 
 ### Optional: skip builds on non-production branches
