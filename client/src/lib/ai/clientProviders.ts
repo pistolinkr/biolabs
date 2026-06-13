@@ -275,7 +275,6 @@ export function buildClientAiStatus(keys: AiClientApiKeys): AiStatusResponse {
     active_provider: available[0] ?? null,
     available_providers: available,
     models,
-    rate_limit_per_minute: 20,
     max_output_tokens: CLIENT_MAX_OUTPUT_TOKENS,
     max_context_chars: CLIENT_MAX_CONTEXT_CHARS,
     server_provider: "auto",

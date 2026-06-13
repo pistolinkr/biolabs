@@ -36,12 +36,6 @@ function parseModelList(
   return Array.from(new Set(out));
 }
 
-function readPositiveInt(raw: string | undefined, fallback: number): number {
-  const n = Number(cleanEnvValue(raw));
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-}
-
-/** Like readPositiveInt but allows 0 (e.g. "disable retries"). */
 function readNonNegativeInt(raw: string | undefined, fallback: number): number {
   const cleaned = cleanEnvValue(raw);
   if (cleaned === null) return fallback;
@@ -49,19 +43,9 @@ function readNonNegativeInt(raw: string | undefined, fallback: number): number {
   return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
 }
 
-/** Parse a positive (possibly fractional) number, e.g. an intent weight. */
-function readPositiveFloat(raw: string | undefined, fallback: number): number {
+function readPositiveInt(raw: string | undefined, fallback: number): number {
   const n = Number(cleanEnvValue(raw));
-  return Number.isFinite(n) && n > 0 ? n : fallback;
-}
-
-/** Parse a boolean flag: "1"/"true"/"yes"/"on" → true, otherwise the fallback. */
-function readBool(raw: string | undefined, fallback: boolean): boolean {
-  const cleaned = cleanEnvValue(raw)?.toLowerCase();
-  if (cleaned === null || cleaned === undefined) return fallback;
-  if (["1", "true", "yes", "on"].includes(cleaned)) return true;
-  if (["0", "false", "no", "off"].includes(cleaned)) return false;
-  return fallback;
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
 }
 
 function readProvider(): AiProviderId {
@@ -87,21 +71,9 @@ export interface AiServerConfig {
   huggingFaceModels: string[];
   maxContextChars: number;
   maxOutputTokens: number;
-  rateLimitPerMinute: number;
-  /** Per-provider call management / budget. */
-  providerRpm: number;
-  providerDailyLimit: number;
   retryPerModel: number;
   cooldownBaseMs: number;
   cooldownMaxMs: number;
-  /** Global intent-weighted call policy (across all providers). */
-  globalRpm: number;
-  globalDaily: number;
-  maxConcurrent: number;
-  /** When true, throttled providers are NOT bypassed as a last resort. */
-  strictLimits: boolean;
-  /** Per-intent unit weights; falls back to 1 for unlisted intents. */
-  intentWeights: Record<string, number>;
 }
 
 export function loadAiConfig(): AiServerConfig {
@@ -134,29 +106,10 @@ export function loadAiConfig(): AiServerConfig {
     huggingFaceModels,
     maxContextChars: Number(process.env.AI_MAX_CONTEXT_CHARS ?? 24_000),
     maxOutputTokens: Number(process.env.AI_MAX_OUTPUT_TOKENS ?? 2048),
-    rateLimitPerMinute: readPositiveInt(process.env.AI_RATE_LIMIT_PER_MIN, 20),
-    providerRpm: readPositiveInt(process.env.AI_PROVIDER_RPM, 15),
-    providerDailyLimit: readPositiveInt(process.env.AI_PROVIDER_DAILY, 1000),
     retryPerModel: readNonNegativeInt(process.env.AI_RETRY_PER_MODEL, 1),
     cooldownBaseMs: readPositiveInt(process.env.AI_COOLDOWN_BASE_MS, 60_000),
     cooldownMaxMs: readPositiveInt(process.env.AI_COOLDOWN_MAX_MS, 600_000),
-    globalRpm: readPositiveInt(process.env.AI_GLOBAL_RPM, 30),
-    globalDaily: readPositiveInt(process.env.AI_GLOBAL_DAILY, 500),
-    maxConcurrent: readPositiveInt(process.env.AI_MAX_CONCURRENT, 2),
-    strictLimits: readBool(process.env.AI_STRICT_LIMITS, true),
-    intentWeights: {
-      structure: readPositiveFloat(process.env.AI_INTENT_WEIGHT_STRUCTURE, 2),
-      agent: readPositiveFloat(process.env.AI_INTENT_WEIGHT_AGENT, 2),
-      residue: readPositiveFloat(process.env.AI_INTENT_WEIGHT_RESIDUE, 1),
-      analysis: readPositiveFloat(process.env.AI_INTENT_WEIGHT_ANALYSIS, 1),
-      test: readPositiveFloat(process.env.AI_INTENT_WEIGHT_TEST, 0.5),
-    },
   };
-}
-
-/** Resolve the weighted unit cost of a call for the given intent. */
-export function intentWeight(config: AiServerConfig, intent: string): number {
-  return config.intentWeights[intent] ?? 1;
 }
 
 /** Ordered model fallback chain for a given provider id. */

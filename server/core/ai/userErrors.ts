@@ -9,9 +9,6 @@ export type AiErrorCode =
   | "AI_ALL_PROVIDERS_FAILED"
   | "AI_REQUEST_INVALID"
   | "AI_EMPTY_RESPONSE"
-  | "AI_RATE_LIMITED"
-  | "AI_DAILY_BUDGET_EXCEEDED"
-  | "AI_CONCURRENCY_LIMIT"
   | "AI_UNKNOWN";
 
 const USER_MESSAGES: Record<AiErrorCode, string> = {
@@ -22,17 +19,12 @@ const USER_MESSAGES: Record<AiErrorCode, string> = {
   AI_ALL_PROVIDERS_FAILED: "All configured providers failed. Check Settings → AI Assistant.",
   AI_REQUEST_INVALID: "Invalid AI request.",
   AI_EMPTY_RESPONSE: "Provider returned an empty response.",
-  AI_RATE_LIMITED: "Too many AI requests. Please wait a moment and retry.",
-  AI_DAILY_BUDGET_EXCEEDED: "Daily AI usage limit reached. Try again later.",
-  AI_CONCURRENCY_LIMIT: "Another AI request is still running. Wait for it to finish.",
   AI_UNKNOWN: "AI request failed.",
 };
 
 export interface AiUserErrorPayload {
   error: string;
   code: AiErrorCode;
-  /** Suggested wait before retrying, set on rate/budget blocks. */
-  retry_after_ms?: number;
 }
 
 export function userMessageForCode(code: AiErrorCode): string {
@@ -103,15 +95,6 @@ export function sanitizeAiError(error: unknown, logPrefix = "[biolabs-ai]"): AiU
 export function invalidRequest(code: AiErrorCode, detail?: string): AiUserErrorPayload {
   if (detail) console.warn("[biolabs-ai] invalid request:", detail);
   return { code, error: userMessageForCode(code) };
-}
-
-/** Build a structured rate/budget block payload with a retry hint. */
-export function rateLimited(code: AiErrorCode, retryAfterMs?: number): AiUserErrorPayload {
-  return {
-    code,
-    error: userMessageForCode(code),
-    ...(retryAfterMs && retryAfterMs > 0 ? { retry_after_ms: retryAfterMs } : {}),
-  };
 }
 
 export function providerFailureLog(provider: AiProviderId, error: unknown): void {

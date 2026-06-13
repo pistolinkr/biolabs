@@ -36,7 +36,7 @@
     "activeModel": " · {{model}}",
     "available": "Disponible: {{list}}",
     "none": "ninguno",
-    "rateLimit": "Límite de velocidad {{limit}}/min · tokens máx. {{tokens}} · contexto {{chars}} caracteres",
+    "outputLimits": "Tokens máx. {{tokens}} · contexto {{chars}} caracteres",
     "notConfigured": "Ningún proveedor configurado. Añada GEMINI_API_KEY, OPENROUTER_API_KEY o HUGGINGFACE_API_KEY al archivo .env del servidor y reinicie.",
     "staticDeployNote": "El hosting estático de Vercel sirve solo el frontend — no hay servidor /api/ai. Para IA: despliegue con Node (pnpm build && pnpm start) o Docker y añada claves al .env del servidor.",
     "refreshStatus": "Actualizar estado",

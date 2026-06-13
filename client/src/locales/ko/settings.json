@@ -57,7 +57,7 @@
     "activeModel": " · {{model}}",
     "available": "사용 가능: {{list}}",
     "none": "없음",
-    "rateLimit": "속도 제한 {{limit}}/분 · 최대 토큰 {{tokens}} · 컨텍스트 {{chars}}자",
+    "outputLimits": "최대 토큰 {{tokens}} · 컨텍스트 {{chars}}자",
     "notConfigured": "프로바이더가 구성되지 않았습니다. 서버 .env 파일에 GEMINI_API_KEY, OPENROUTER_API_KEY 또는 HUGGINGFACE_API_KEY를 추가하고 재시작하세요.",
     "staticDeployNote": "Vercel 정적 호스팅은 프론트엔드만 제공하며 /api/ai 서버가 없습니다. AI를 사용하려면 Node(pnpm build && pnpm start) 또는 Docker로 배포하고 서버 .env에 API 키를 추가하세요.",
     "refreshStatus": "상태 새로고침",
@@ -67,17 +67,7 @@
     "health": {
       "ready": "정상",
       "cooldown": "쿨다운 중",
-      "usage": "오늘 {{today}}/{{daily}} · 이번 분 {{rpm}}/{{rpmLimit}}",
       "models": "폴백 체인: {{list}}"
-    },
-    "callBudget": "호출 예산",
-    "callBudgetHint": "모든 프로바이더가 공유하는 인텐트 가중치 한도입니다.",
-    "budget": {
-      "daily": "오늘 {{used}}/{{limit}} 유닛",
-      "rpm": "이번 분 {{used}}/{{limit}} 유닛",
-      "concurrent": "처리 중 {{used}}/{{limit}}",
-      "nextCall": "{{seconds}}초 후 다음 호출 가능",
-      "strict": "엄격 제한 활성화"
     },
     "clientPrefs": "클라이언트 설정",
     "preferredProvider": "선호 프로바이더",

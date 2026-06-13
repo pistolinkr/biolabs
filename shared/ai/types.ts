@@ -60,16 +60,11 @@ export type AiErrorCode =
   | "AI_ALL_PROVIDERS_FAILED"
   | "AI_REQUEST_INVALID"
   | "AI_EMPTY_RESPONSE"
-  | "AI_RATE_LIMITED"
-  | "AI_DAILY_BUDGET_EXCEEDED"
-  | "AI_CONCURRENCY_LIMIT"
   | "AI_UNKNOWN";
 
 export interface AiUserErrorPayload {
   error: string;
   code: AiErrorCode;
-  /** Suggested wait before retrying, set on rate/budget blocks. */
-  retry_after_ms?: number;
 }
 
 export interface AiGenerationOptions {
@@ -95,8 +90,8 @@ export interface AiAttempt {
   ok?: boolean;
   /** Error code when the attempt failed. */
   code?: AiErrorCode;
-  /** Set when the candidate was skipped before calling (budget/cooldown). */
-  skipped?: "cooldown" | "rpm" | "daily";
+  /** Set when the candidate was skipped before calling (cooldown). */
+  skipped?: "cooldown";
 }
 
 export interface AiChatResponse {
@@ -110,32 +105,11 @@ export interface AiChatResponse {
   fell_back?: boolean;
 }
 
-/** Live health/usage of a single provider for the status panel. */
+/** Live health of a single provider for the status panel. */
 export interface AiProviderHealth {
   id: AiProviderId;
   models: string[];
   cooldown_until: number | null;
-  requests_last_minute: number;
-  requests_today: number;
-  rpm_limit: number;
-  daily_limit: number;
-}
-
-/** Global call budget across all providers (intent-weighted). */
-export interface AiCallBudget {
-  /** Weighted units used in the rolling RPM window. */
-  rpm_used: number;
-  rpm_limit: number;
-  /** Weighted units used today. */
-  daily_used: number;
-  daily_limit: number;
-  /** Requests currently being processed upstream. */
-  concurrent_in_flight: number;
-  concurrent_limit: number;
-  /** Suggested wait before the next call is allowed (0 when ready). */
-  retry_after_ms: number;
-  /** When true, throttled providers are not bypassed as a last resort. */
-  strict: boolean;
 }
 
 export interface AiStatusResponse {
@@ -143,16 +117,13 @@ export interface AiStatusResponse {
   active_provider: AiProviderId | null;
   available_providers: AiProviderId[];
   models: Partial<Record<AiProviderId, string>>;
-  rate_limit_per_minute: number;
   max_output_tokens: number;
   max_context_chars: number;
   server_provider: AiProviderId;
   /** Per-provider model fallback chains. */
   model_chains?: Partial<Record<AiProviderId, string[]>>;
-  /** Per-provider live health (cooldown + usage). */
+  /** Per-provider live health (cooldown). */
   provider_health?: AiProviderHealth[];
-  /** Global intent-weighted call budget. */
-  call_budget?: AiCallBudget;
 }
 
 /** Agent action types — model returns these in AiAgentPlan.actions. */

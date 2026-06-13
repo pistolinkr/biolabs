@@ -46,8 +46,6 @@
     "aiName": "Biolabs AI",
     "thinking": "생각 중…",
     "placeholder": "이 구조에 대해 질문하세요…",
-    "rateLimitedPlaceholder": "요청 제한 중 — 잠시 기다려 주세요…",
-    "rateLimitedWait": "AI 호출이 제한되었습니다. {{seconds}}초 후 다시 호출할 수 있습니다.",
     "executingActions": "플랫폼 동작 실행 중…"
   },
   "agent": {

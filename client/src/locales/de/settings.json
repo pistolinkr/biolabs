@@ -36,7 +36,7 @@
     "activeModel": " · {{model}}",
     "available": "Verfügbar: {{list}}",
     "none": "keine",
-    "rateLimit": "Ratenlimit {{limit}}/Min. · max. Tokens {{tokens}} · Kontext {{chars}} Zeichen",
+    "outputLimits": "Max. Tokens {{tokens}} · Kontext {{chars}} Zeichen",
     "notConfigured": "Kein Provider konfiguriert. Fügen Sie GEMINI_API_KEY, OPENROUTER_API_KEY oder HUGGINGFACE_API_KEY zur Server-.env-Datei hinzu und starten Sie neu.",
     "staticDeployNote": "Vercel Static Hosting liefert nur das Frontend — kein /api/ai-Server. Für KI: Node (pnpm build && pnpm start) oder Docker deployen und Schlüssel in server .env setzen.",
     "refreshStatus": "Status aktualisieren",

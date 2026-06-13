@@ -17,13 +17,6 @@ import {
   completeWithClientKeys,
 } from "@/lib/ai/clientProviders";
 import { AiRequestError } from "@/lib/ai/userErrors";
-import {
-  assertCallAllowed,
-  beginCall,
-  noteServerRetryAfter,
-  recordCall,
-  type AssertParams,
-} from "@/lib/ai/callGate";
 
 const CHAT_URL = "/api/ai/chat";
 const STATUS_URL = "/api/ai/status";
@@ -115,52 +108,30 @@ export async function sendAiChat(params: {
   transport?: AiTransportMode;
   clientKeys?: AiClientApiKeys;
 }): Promise<AiChatResponse> {
-  const lastUser = [...params.messages].reverse().find((m) => m.role === "user");
-  const gateParams: AssertParams = {
-    intent: params.intent ?? "general",
-    contextFingerprint: params.context.context_fingerprint,
-    prompt: lastUser?.content ?? "",
+  if (params.transport === "client" && params.clientKeys) {
+    return sendAiChatClient({ ...params, clientKeys: params.clientKeys });
+  }
+
+  const body: AiChatRequest = {
+    messages: params.messages,
+    context: params.context,
+    intent: params.intent,
+    provider: params.provider,
+    generation: params.generation,
   };
 
-  assertCallAllowed(gateParams);
-  const release = beginCall();
+  const res = await fetch(CHAT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-  try {
-    if (params.transport === "client" && params.clientKeys) {
-      const response = await sendAiChatClient({ ...params, clientKeys: params.clientKeys });
-      recordCall(gateParams);
-      return response;
-    }
+  const data = await readAiJson<AiChatResponse>(res);
 
-    const body: AiChatRequest = {
-      messages: params.messages,
-      context: params.context,
-      intent: params.intent,
-      provider: params.provider,
-      generation: params.generation,
-    };
-
-    const res = await fetch(CHAT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-
-    const data = await readAiJson<AiChatResponse>(res);
-
-    if (!res.ok || !("message" in data)) {
-      const payload = data as AiUserErrorPayload;
-      noteServerRetryAfter(payload.retry_after_ms);
-      throw new AiRequestError(
-        payload.code ?? "AI_UNKNOWN",
-        payload.error ?? "AI request failed.",
-        payload.retry_after_ms,
-      );
-    }
-
-    recordCall(gateParams);
-    return data;
-  } finally {
-    release();
+  if (!res.ok || !("message" in data)) {
+    const payload = data as AiUserErrorPayload;
+    throw new AiRequestError(payload.code ?? "AI_UNKNOWN", payload.error ?? "AI request failed.");
   }
+
+  return data;
 }

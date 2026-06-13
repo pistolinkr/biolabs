@@ -13,16 +13,13 @@ export default function AIChatPanel() {
     statusLoading,
     isSending,
     aiConfigured,
-    usingClientKeys,
     sendMessage,
     clearMessages,
   } = useAssistant();
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const retryAfterMs = usingClientKeys ? 0 : (status?.call_budget?.retry_after_ms ?? 0);
-  const budgetBlocked = retryAfterMs > 0;
-  const inputDisabled = isSending || !aiConfigured || budgetBlocked;
+  const inputDisabled = isSending || !aiConfigured;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,12 +52,6 @@ export default function AIChatPanel() {
       {!statusLoading && !aiConfigured ? (
         <div className="border-b border-border px-2 py-1.5 font-mono text-[8px] leading-snug text-muted-foreground">
           {t("assistant.notConfiguredEnv")}
-        </div>
-      ) : null}
-
-      {budgetBlocked ? (
-        <div className="border-b border-amber-500/40 px-2 py-1.5 font-mono text-[8px] leading-snug text-amber-600 dark:text-amber-300">
-          {t("assistant.rateLimitedWait", { seconds: Math.ceil(retryAfterMs / 1000) })}
         </div>
       ) : null}
 
@@ -104,7 +95,7 @@ export default function AIChatPanel() {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={2}
-            placeholder={budgetBlocked ? t("assistant.rateLimitedPlaceholder") : t("assistant.placeholder")}
+            placeholder={t("assistant.placeholder")}
             disabled={inputDisabled}
             className="min-h-[52px] flex-1 resize-none border border-border bg-background px-2 py-1.5 font-mono text-[11px] text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             onKeyDown={(e) => {

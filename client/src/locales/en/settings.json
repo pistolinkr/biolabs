@@ -57,7 +57,7 @@
     "activeModel": " · {{model}}",
     "available": "Available: {{list}}",
     "none": "none",
-    "rateLimit": "Rate limit {{limit}}/min · max tokens {{tokens}} · context {{chars}} chars",
+    "outputLimits": "Max tokens {{tokens}} · context {{chars}} chars",
     "notConfigured": "No provider configured. Add GEMINI_API_KEY, OPENROUTER_API_KEY, or HUGGINGFACE_API_KEY to the server .env file and restart.",
     "staticDeployNote": "Vercel static hosting serves the frontend only — there is no /api/ai server. For AI, deploy with Node (pnpm build && pnpm start) or Docker and add provider keys to server .env.",
     "refreshStatus": "Refresh status",
@@ -67,17 +67,7 @@
     "health": {
       "ready": "Ready",
       "cooldown": "Cooling down",
-      "usage": "Today {{today}}/{{daily}} · this minute {{rpm}}/{{rpmLimit}}",
       "models": "Fallback chain: {{list}}"
-    },
-    "callBudget": "Call budget",
-    "callBudgetHint": "Intent-weighted limit shared across all providers.",
-    "budget": {
-      "daily": "Today {{used}}/{{limit}} units",
-      "rpm": "This minute {{used}}/{{limit}} units",
-      "concurrent": "In flight {{used}}/{{limit}}",
-      "nextCall": "Next call available in {{seconds}}s",
-      "strict": "Strict limits on"
     },
     "clientPrefs": "Client preferences",
     "preferredProvider": "Preferred provider",

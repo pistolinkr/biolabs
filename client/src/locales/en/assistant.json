@@ -46,8 +46,6 @@
     "aiName": "Biolabs AI",
     "thinking": "Thinking…",
     "placeholder": "Ask about this structure…",
-    "rateLimitedPlaceholder": "Rate limited — please wait…",
-    "rateLimitedWait": "AI is rate-limited. Next call available in {{seconds}}s.",
     "executingActions": "Running platform actions…"
   },
   "agent": {

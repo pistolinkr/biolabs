@@ -36,7 +36,7 @@
     "activeModel": " · {{model}}",
     "available": "可用: {{list}}",
     "none": "无",
-    "rateLimit": "速率限制 {{limit}}/分钟 · 最大令牌 {{tokens}} · 上下文 {{chars}} 字符",
+    "outputLimits": "最大令牌 {{tokens}} · 上下文 {{chars}} 字符",
     "notConfigured": "未配置提供商。请在服务器 .env 文件中添加 GEMINI_API_KEY、OPENROUTER_API_KEY 或 HUGGINGFACE_API_KEY 并重启。",
     "staticDeployNote": "Vercel 静态托管仅提供前端 — 无 /api/ai 服务器。要使用 AI，请用 Node（pnpm build && pnpm start）或 Docker 部署，并在服务器 .env 中添加密钥。",
     "refreshStatus": "刷新状态",

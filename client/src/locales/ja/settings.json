@@ -36,7 +36,7 @@
     "activeModel": " · {{model}}",
     "available": "利用可能: {{list}}",
     "none": "なし",
-    "rateLimit": "レート制限 {{limit}}/分 · 最大トークン {{tokens}} · コンテキスト {{chars}} 文字",
+    "outputLimits": "最大トークン {{tokens}} · コンテキスト {{chars}} 文字",
     "notConfigured": "プロバイダーが設定されていません。サーバーの .env ファイルに GEMINI_API_KEY、OPENROUTER_API_KEY、または HUGGINGFACE_API_KEY を追加して再起動してください。",
     "staticDeployNote": "Vercel の静的ホスティングはフロントエンドのみです — /api/ai サーバーはありません。AI を使うには Node（pnpm build && pnpm start）または Docker でデプロイし、サーバー .env にキーを追加してください。",
     "refreshStatus": "ステータスを更新",

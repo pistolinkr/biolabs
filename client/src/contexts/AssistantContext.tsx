@@ -33,7 +33,6 @@ import { buildAiPlatformContext } from "@/lib/ai/contextBuilder";
 import { boostAgentPlan, executeAgentPlan, parseAgentPlan } from "@/lib/ai/agentActions";
 import { acceptLanguageForSearch } from "@/lib/proteinSearchQuery";
 import { fetchAiStatus, sendAiChat } from "@/lib/ai/assistantApi";
-import { configureCallGate } from "@/lib/ai/callGate";
 import { AiRequestError, formatAiUserNotice, noticeFromUnknownError } from "@/lib/ai/userErrors";
 import type {
   AgentStepResult,
@@ -139,7 +138,6 @@ const FALLBACK_AI_STATUS: AiStatusResponse = {
   active_provider: null,
   available_providers: [],
   models: {},
-  rate_limit_per_minute: 20,
   max_output_tokens: 2048,
   max_context_chars: 24000,
   server_provider: "auto",
@@ -261,9 +259,6 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       }
       serverStatusRef.current = serverStatus;
       setStatus(resolveAiStatus(serverStatus, aiKeysSettings));
-      if (serverStatus?.call_budget) {
-        configureCallGate({ maxConcurrent: serverStatus.call_budget.concurrent_limit });
-      }
     } finally {
       setStatusLoading(false);
     }

@@ -1,8 +1,5 @@
 {
   "AI_QUOTA_EXCEEDED": "AI のクォータを超過しました。後でもう一度試すか、プロバイダーを変更してください。",
-  "AI_RATE_LIMITED": "リクエストが多すぎます。しばらくお待ちください。",
-  "AI_DAILY_BUDGET_EXCEEDED": "本日の AI 利用上限に達しました。明日再度試すか、設定で上限を引き上げてください。",
-  "AI_CONCURRENCY_LIMIT": "別の AI リクエストを処理中です。完了するまでお待ちください。",
   "AI_PROVIDER_UNAVAILABLE": "AI プロバイダーは一時的に利用できません。",
   "AI_INVALID_REQUEST": "無効な AI リクエストです。",
   "AI_CONTEXT_TOO_LARGE": "コンテキストがモデルに対して大きすぎます。",

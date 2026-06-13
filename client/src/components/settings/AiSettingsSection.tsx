@@ -134,8 +134,7 @@ export default function AiSettingsSection({
               })}
             </div>
             <div className="text-muted-foreground">
-              {t("ai.rateLimit", {
-                limit: status.rate_limit_per_minute,
+              {t("ai.outputLimits", {
                 tokens: status.max_output_tokens,
                 chars: status.max_context_chars.toLocaleString(),
               })}
@@ -166,42 +165,6 @@ export default function AiSettingsSection({
         </div>
       </div>
 
-      {status?.configured && !usingClientKeys && status.call_budget ? (
-        <div className="workbench-panel-inset p-3">
-          <div className="workbench-kicker mb-1">{t("ai.callBudget")}</div>
-          <p className="mb-2 font-mono text-[9px] leading-snug text-muted-foreground">
-            {t("ai.callBudgetHint")}
-          </p>
-          <div className="space-y-1 font-mono text-[10px] text-foreground">
-            <div className="text-muted-foreground">
-              {t("ai.budget.daily", {
-                used: status.call_budget.daily_used,
-                limit: status.call_budget.daily_limit,
-              })}
-            </div>
-            <div className="text-muted-foreground">
-              {t("ai.budget.rpm", {
-                used: status.call_budget.rpm_used,
-                limit: status.call_budget.rpm_limit,
-              })}
-            </div>
-            <div className="text-muted-foreground">
-              {t("ai.budget.concurrent", {
-                used: status.call_budget.concurrent_in_flight,
-                limit: status.call_budget.concurrent_limit,
-              })}
-            </div>
-            {status.call_budget.retry_after_ms > 0 ? (
-              <div className="text-amber-600 dark:text-amber-300">
-                {t("ai.budget.nextCall", {
-                  seconds: Math.ceil(status.call_budget.retry_after_ms / 1000),
-                })}
-              </div>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
       {status?.configured && !usingClientKeys && status.provider_health && status.provider_health.length > 0 ? (
         <div className="workbench-panel-inset p-3">
           <div className="workbench-kicker mb-1">{t("ai.providerHealth")}</div>
@@ -225,14 +188,6 @@ export default function AiSettingsSection({
                     >
                       {cooling ? t("ai.health.cooldown") : t("ai.health.ready")}
                     </span>
-                  </div>
-                  <div className="mt-0.5 text-muted-foreground">
-                    {t("ai.health.usage", {
-                      today: h.requests_today,
-                      daily: h.daily_limit,
-                      rpm: h.requests_last_minute,
-                      rpmLimit: h.rpm_limit,
-                    })}
                   </div>
                   {h.models.length > 0 ? (
                     <div className="mt-0.5 truncate text-muted-foreground/80" title={h.models.join(", ")}>
