@@ -48,7 +48,7 @@
     "kicker": "Biolabs",
     "version": "{{version}} · 계산 생물학 워크스테이션",
     "stack": "구조: NGL · 레이아웃: Dockview · AI: 모듈형 클라우드 프로바이더",
-    "copyright": "© 2026 Biolabs Project"
+    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team."
   },
   "ai": {
     "serverStatus": "서버 상태",
