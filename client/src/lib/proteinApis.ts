@@ -65,7 +65,10 @@ function getPdbIds(entry: Record<string, unknown>): string[] {
   return ids.slice(0, 8);
 }
 
-export async function searchUniProt(query: string): Promise<ProteinSearchHit[]> {
+export async function searchUniProt(
+  query: string,
+  options?: { acceptLanguage?: string },
+): Promise<ProteinSearchHit[]> {
   const q = query.trim();
   if (!q) return [];
 
@@ -77,9 +80,12 @@ export async function searchUniProt(query: string): Promise<ProteinSearchHit[]> 
   });
 
   const url = uniprotUrl(`/uniprotkb/search?${params.toString()}`);
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-  });
+  const headers: Record<string, string> = { Accept: "application/json" };
+  if (options?.acceptLanguage) {
+    headers["Accept-Language"] = options.acceptLanguage;
+  }
+
+  const res = await fetch(url, { headers });
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");

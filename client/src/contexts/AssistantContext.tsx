@@ -4,6 +4,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -11,21 +12,46 @@ import { toast } from "sonner";
 import { i18n } from "@/i18n";
 import { useViewer } from "@/contexts/ViewerContext";
 import { useWorkflow } from "@/contexts/WorkflowContext";
-import { buildAiPlatformContext } from "@/lib/ai/contextBuilder";
+import { proteinSelectionKey } from "@/lib/proteinApis";
+import { STRUCTURE_ANALYSIS_PROMPT } from "@/lib/ai/structureAnalysisPrompt";
+import { appendStructureAnalysisHistory } from "@/lib/ai/structureAnalysisHistory";
 import {
   DEFAULT_AI_CLIENT_SETTINGS,
   loadAiClientSettings,
   saveAiClientSettings,
   type AiClientSettings,
 } from "@/lib/ai/aiSettingsStorage";
+import { buildAiPlatformContext } from "@/lib/ai/contextBuilder";
+import { boostAgentPlan, executeAgentPlan, parseAgentPlan } from "@/lib/ai/agentActions";
+import { acceptLanguageForSearch } from "@/lib/proteinSearchQuery";
 import { fetchAiStatus, sendAiChat } from "@/lib/ai/assistantApi";
+import { configureCallGate } from "@/lib/ai/callGate";
 import { AiRequestError, formatAiUserNotice, noticeFromUnknownError } from "@/lib/ai/userErrors";
-import type { AiChatMessage, AiExplainIntent, AiPlatformContext, AiStatusResponse } from "@shared/ai/types";
+import type {
+  AgentStepResult,
+  AiChatMessage,
+  AiExplainIntent,
+  AiPlatformContext,
+  AiProviderId,
+  AiStatusResponse,
+} from "@shared/ai/types";
 
 export interface AssistantUiMessage extends AiChatMessage {
   id: string;
   pending?: boolean;
   error?: boolean;
+  agentSteps?: AgentStepResult[];
+  agentExecuting?: boolean;
+  /** True when the answer was served by a fallback provider/model. */
+  fellBack?: boolean;
+  /** Provider/model that actually produced this answer. */
+  servedBy?: { provider: AiProviderId; model: string };
+}
+
+interface RoutingMeta {
+  fellBack: boolean;
+  provider: AiProviderId;
+  model: string;
 }
 
 export interface ContextExtensionSlice {
@@ -34,6 +60,18 @@ export interface ContextExtensionSlice {
   input_drafts?: string | null;
   annotations?: string | null;
   platform_generated_analysis?: string | null;
+}
+
+export interface StructureAnalysisActive {
+  entryId: string;
+  phase: "loading" | "ready" | "error";
+  content: string | null;
+}
+
+export interface StructureAnalysisState {
+  /** Opens the viewport analysis panel (e.g. agent or re-run). */
+  panelOpen: boolean;
+  active: StructureAnalysisActive | null;
 }
 
 interface AssistantContextValue {
@@ -46,6 +84,12 @@ interface AssistantContextValue {
   lastContext: AiPlatformContext | null;
   buildContext: () => AiPlatformContext;
   sendMessage: (text: string, intent?: AiExplainIntent) => Promise<void>;
+  runAgentQuery: (text: string) => Promise<{
+    ok: boolean;
+    reply?: string;
+    steps?: AgentStepResult[];
+    error?: string;
+  }>;
   explain: (params: {
     intent: AiExplainIntent;
     prompt: string;
@@ -71,6 +115,9 @@ interface AssistantContextValue {
   resetAiSettings: () => void;
   refreshAiStatus: () => Promise<void>;
   testAiConnection: () => Promise<boolean>;
+  structureAnalysis: StructureAnalysisState;
+  analyzeStructure: () => Promise<void>;
+  closeStructureAnalysis: () => void;
 }
 
 const AssistantContext = createContext<AssistantContextValue | null>(null);
@@ -93,7 +140,19 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   const [lastContext, setLastContext] = useState<AiPlatformContext | null>(null);
   const [extensions, setExtensions] = useState<ContextExtensionSlice[]>([]);
   const [explainPopover, setExplainPopover] = useState<AssistantContextValue["explainPopover"]>(null);
+  const [structureAnalysis, setStructureAnalysis] = useState<StructureAnalysisState>({
+    panelOpen: false,
+    active: null,
+  });
   const [aiSettings, setAiSettings] = useState<AiClientSettings>(() => loadAiClientSettings());
+
+  const viewerRef = useRef(viewer);
+  useEffect(() => {
+    viewerRef.current = viewer;
+  }, [viewer]);
+
+  /** Routing trail of the most recent runChat call (for fallback UI hints). */
+  const lastRoutingRef = useRef<RoutingMeta | null>(null);
 
   const mergedExtensions = useMemo(() => {
     const out: ContextExtensionSlice = {};
@@ -153,6 +212,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     try {
       const s = await fetchAiStatus();
       setStatus(s);
+      if (s.call_budget) {
+        configureCallGate({ maxConcurrent: s.call_budget.concurrent_limit });
+      }
     } catch {
       setStatus({
         configured: false,
@@ -160,7 +222,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         available_providers: [],
         models: {},
         rate_limit_per_minute: 20,
-        max_output_tokens: 1024,
+        max_output_tokens: 2048,
         max_context_chars: 24000,
         server_provider: "auto",
       });
@@ -206,6 +268,13 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         { role: "user", content: userText },
       ];
 
+      const serverCap = status?.max_output_tokens ?? aiSettings.maxOutputTokens;
+      const explainIntent =
+        intent !== "general" && intent !== "agent";
+      const requestedTokens = explainIntent
+        ? Math.max(aiSettings.maxOutputTokens, 2048)
+        : aiSettings.maxOutputTokens;
+
       const response = await sendAiChat({
         messages: chatHistory,
         context,
@@ -213,52 +282,18 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         provider: aiSettings.preferredProvider,
         generation: {
           temperature: aiSettings.temperature,
-          maxOutputTokens: Math.min(
-            aiSettings.maxOutputTokens,
-            status?.max_output_tokens ?? aiSettings.maxOutputTokens,
-          ),
+          maxOutputTokens: Math.min(requestedTokens, serverCap),
           responseLanguage: aiSettings.responseLanguage,
         },
       });
+      lastRoutingRef.current = {
+        fellBack: Boolean(response.fell_back),
+        provider: response.provider,
+        model: response.model,
+      };
       return response.message;
     },
     [buildContext, status?.configured, status?.max_output_tokens, aiSettings],
-  );
-
-  const sendMessage = useCallback(
-    async (text: string, intent: AiExplainIntent = "general") => {
-      const trimmed = text.trim();
-      if (!trimmed || isSending) return;
-
-      const userMsg: AssistantUiMessage = { id: nextId(), role: "user", content: trimmed };
-      const pendingId = nextId();
-      setMessages((prev) => [...prev, userMsg, { id: pendingId, role: "assistant", content: "", pending: true }]);
-      setIsSending(true);
-
-      try {
-        const answer = await runChat(trimmed, intent, messages);
-        if (!answer) {
-          setMessages((prev) => prev.filter((m) => m.id !== pendingId));
-          return;
-        }
-        setMessages((prev) =>
-          prev.map((m) => (m.id === pendingId ? { ...m, content: answer, pending: false } : m)),
-        );
-      } catch (e) {
-        const notice = e instanceof AiRequestError
-          ? formatAiUserNotice(e.code, e.message)
-          : noticeFromUnknownError(e);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === pendingId ? { ...m, content: notice, pending: false, error: true } : m,
-          ),
-        );
-        toast.error(i18n.t("toasts.unavailable", { ns: "assistant" }), { description: notice });
-      } finally {
-        setIsSending(false);
-      }
-    },
-    [isSending, messages, runChat],
   );
 
   const explain = useCallback(
@@ -358,6 +393,282 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     }
   }, [status?.configured, buildContext, aiSettings.preferredProvider]);
 
+  const closeStructureAnalysis = useCallback(() => {
+    setStructureAnalysis((prev) => ({ ...prev, panelOpen: false }));
+  }, []);
+
+  const analyzeStructure = useCallback(async () => {
+    const selection = viewer.proteinSelection;
+    if (!selection || !viewer.structureModel) {
+      toast.message(i18n.t("toastTitles.viewport", { ns: "viewport" }), {
+        description: i18n.t("toasts.noStructure", { ns: "viewport" }),
+      });
+      return;
+    }
+    if (!status?.configured) {
+      toast.error(i18n.t("toasts.notConfigured", { ns: "assistant" }), {
+        description: formatAiUserNotice("AI_NOT_CONFIGURED", i18n.t("toasts.notConfiguredHint", { ns: "assistant" })),
+      });
+      return;
+    }
+
+    const proteinKey = proteinSelectionKey(selection);
+    const proteinLabel =
+      selection.label.length > 80 ? `${selection.label.slice(0, 77)}…` : selection.label;
+    const entryId = `sa-${Date.now()}`;
+    const promptLabel = i18n.t("structureAnalysis.runLabel", { ns: "assistant" });
+
+    setStructureAnalysis({
+      panelOpen: true,
+      active: { entryId, phase: "loading", content: null },
+    });
+
+    const answer = await explain({
+      intent: "structure",
+      prompt: STRUCTURE_ANALYSIS_PROMPT,
+      popoverOnly: true,
+      globalPopover: false,
+    });
+
+    if (!answer) {
+      const notice = formatAiUserNotice("AI_UNKNOWN", i18n.t("structureAnalysis.failed", { ns: "assistant" }));
+      appendStructureAnalysisHistory(proteinKey, {
+        id: entryId,
+        proteinKey,
+        proteinLabel,
+        prompt: promptLabel,
+        answer: notice,
+        error: true,
+        createdAt: new Date().toISOString(),
+      });
+      setStructureAnalysis({
+        panelOpen: true,
+        active: { entryId, phase: "error", content: notice },
+      });
+      return;
+    }
+
+    const isError = answer.includes("(AI_");
+    appendStructureAnalysisHistory(proteinKey, {
+      id: entryId,
+      proteinKey,
+      proteinLabel,
+      prompt: promptLabel,
+      answer,
+      error: isError,
+      createdAt: new Date().toISOString(),
+    });
+    setStructureAnalysis({
+      panelOpen: true,
+      active: {
+        entryId,
+        phase: isError ? "error" : "ready",
+        content: answer,
+      },
+    });
+  }, [
+    viewer.proteinSelection,
+    viewer.structureModel,
+    status?.configured,
+    explain,
+  ]);
+
+  const runAgent = useCallback(
+    async (userText: string, history: AssistantUiMessage[], pendingId: string) => {
+      const raw = await runChat(userText, "agent", history);
+      if (!raw) {
+        setMessages((prev) => prev.filter((m) => m.id !== pendingId));
+        return;
+      }
+      const routing = lastRoutingRef.current;
+
+      const plan = boostAgentPlan(userText, parseAgentPlan(raw));
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === pendingId
+            ? {
+                ...m,
+                content: plan.reply,
+                pending: false,
+                agentExecuting: plan.actions.length > 0,
+                agentSteps: plan.actions.length > 0 ? [] : undefined,
+                fellBack: routing?.fellBack,
+                servedBy: routing
+                  ? { provider: routing.provider, model: routing.model }
+                  : undefined,
+              }
+            : m,
+        ),
+      );
+
+      if (!plan.actions.length) return;
+
+      const uiLocale = i18n.language?.split("-")[0] ?? "en";
+      const acceptLanguage = acceptLanguageForSearch(uiLocale);
+
+      const explainResidue = async (params: { chain: string; resno: number; prompt?: string }) => {
+        const prompt =
+          params.prompt ??
+          `Explain the biological function and structural role of residue ${params.chain}:${params.resno} in the loaded structure.`;
+        return runChat(prompt, "residue", []);
+      };
+
+      try {
+        const { appendReply } = await executeAgentPlan(plan, {
+          getViewer: () => ({
+            proteinSelection: viewerRef.current.proteinSelection,
+            structureModel: viewerRef.current.structureModel,
+          }),
+          setProteinSelection: viewerRef.current.setProteinSelection,
+          setRepresentation: viewerRef.current.setRepresentation,
+          setColorScheme: viewerRef.current.setColorScheme,
+          setIsolateChainId: viewerRef.current.setIsolateChainId,
+          setSpinEnabled: viewerRef.current.setSpinEnabled,
+          setSelectedResidueKey: viewerRef.current.setSelectedResidueKey,
+          runViewerCommand: viewerRef.current.runViewerCommand,
+          analyzeStructure,
+          explainResidue,
+          acceptLanguage,
+          t: (key, opts) => i18n.t(key, { ns: "assistant", ...opts }),
+          onStepUpdate: (steps) => {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === pendingId ? { ...m, agentSteps: steps, agentExecuting: true } : m,
+              ),
+            );
+          },
+        });
+
+        if (appendReply) {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === pendingId ? { ...m, content: `${plan.reply}\n\n${appendReply}` } : m,
+            ),
+          );
+        }
+      } finally {
+        setMessages((prev) =>
+          prev.map((m) => (m.id === pendingId ? { ...m, agentExecuting: false } : m)),
+        );
+      }
+    },
+    [runChat, analyzeStructure],
+  );
+
+  const runAgentQuery = useCallback(
+    async (text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return { ok: false, error: "empty" };
+      if (!status?.configured) {
+        return { ok: false, error: formatAiUserNotice("AI_NOT_CONFIGURED") };
+      }
+
+      try {
+        const raw = await runChat(trimmed, "agent", []);
+        if (!raw) return { ok: false, error: "no_response" };
+
+        const plan = boostAgentPlan(trimmed, parseAgentPlan(raw));
+        if (!plan.actions.length) {
+          return { ok: true, reply: plan.reply, steps: [] };
+        }
+
+        const uiLocale = i18n.language?.split("-")[0] ?? "en";
+        const acceptLanguage = acceptLanguageForSearch(uiLocale);
+        const explainResidue = async (params: { chain: string; resno: number; prompt?: string }) => {
+          const prompt =
+            params.prompt ??
+            `Explain the biological function and structural role of residue ${params.chain}:${params.resno} in the loaded structure.`;
+          return runChat(prompt, "residue", []);
+        };
+
+        const { steps, appendReply } = await executeAgentPlan(plan, {
+          getViewer: () => ({
+            proteinSelection: viewerRef.current.proteinSelection,
+            structureModel: viewerRef.current.structureModel,
+          }),
+          setProteinSelection: viewerRef.current.setProteinSelection,
+          setRepresentation: viewerRef.current.setRepresentation,
+          setColorScheme: viewerRef.current.setColorScheme,
+          setIsolateChainId: viewerRef.current.setIsolateChainId,
+          setSpinEnabled: viewerRef.current.setSpinEnabled,
+          setSelectedResidueKey: viewerRef.current.setSelectedResidueKey,
+          runViewerCommand: viewerRef.current.runViewerCommand,
+          analyzeStructure,
+          explainResidue,
+          acceptLanguage,
+          t: (key, opts) => i18n.t(key, { ns: "assistant", ...opts }),
+        });
+
+        const reply = appendReply ? `${plan.reply}\n\n${appendReply}` : plan.reply;
+        return { ok: true, reply, steps };
+      } catch (e) {
+        const notice = e instanceof AiRequestError
+          ? formatAiUserNotice(e.code, e.message)
+          : noticeFromUnknownError(e);
+        return { ok: false, error: notice };
+      }
+    },
+    [runChat, status?.configured, analyzeStructure],
+  );
+
+  const sendMessage = useCallback(
+    async (text: string, intent: AiExplainIntent = "agent") => {
+      const trimmed = text.trim();
+      if (!trimmed || isSending) return;
+
+      const userMsg: AssistantUiMessage = { id: nextId(), role: "user", content: trimmed };
+      const pendingId = nextId();
+      setMessages((prev) => [...prev, userMsg, { id: pendingId, role: "assistant", content: "", pending: true }]);
+      setIsSending(true);
+
+      try {
+        if (intent === "agent" || intent === "general") {
+          await runAgent(trimmed, messages, pendingId);
+          return;
+        }
+
+        const answer = await runChat(trimmed, intent, messages);
+        if (!answer) {
+          setMessages((prev) => prev.filter((m) => m.id !== pendingId));
+          return;
+        }
+        const routing = lastRoutingRef.current;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === pendingId
+              ? {
+                  ...m,
+                  content: answer,
+                  pending: false,
+                  fellBack: routing?.fellBack,
+                  servedBy: routing
+                    ? { provider: routing.provider, model: routing.model }
+                    : undefined,
+                }
+              : m,
+          ),
+        );
+      } catch (e) {
+        const notice = e instanceof AiRequestError
+          ? formatAiUserNotice(e.code, e.message)
+          : noticeFromUnknownError(e);
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === pendingId ? { ...m, content: notice, pending: false, error: true } : m,
+          ),
+        );
+        toast.error(i18n.t("toasts.unavailable", { ns: "assistant" }), { description: notice });
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [isSending, messages, runAgent, runChat],
+  );
+
+  useEffect(() => {
+    setStructureAnalysis((prev) => ({ ...prev, active: null }));
+  }, [viewer.proteinSelection]);
+
   const closeExplainPopover = useCallback(() => setExplainPopover(null), []);
   const clearMessages = useCallback(() => setMessages([]), []);
 
@@ -372,6 +683,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       lastContext,
       buildContext,
       sendMessage,
+      runAgentQuery,
       explain,
       clearMessages,
       registerContextExtension,
@@ -382,6 +694,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       resetAiSettings,
       refreshAiStatus,
       testAiConnection,
+      structureAnalysis,
+      analyzeStructure,
+      closeStructureAnalysis,
     }),
     [
       messages,
@@ -392,6 +707,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       lastContext,
       buildContext,
       sendMessage,
+      runAgentQuery,
       explain,
       clearMessages,
       registerContextExtension,
@@ -402,6 +718,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       resetAiSettings,
       refreshAiStatus,
       testAiConnection,
+      structureAnalysis,
+      analyzeStructure,
+      closeStructureAnalysis,
     ],
   );
 

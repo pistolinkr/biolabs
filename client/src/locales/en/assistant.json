@@ -1,6 +1,7 @@
 {
   "analysisLabel": "Assistant analysis",
   "dragPanel": "Drag to move panel",
+  "resizePanel": "Drag to resize panel",
   "expandPanel": "Expand panel",
   "collapsePanel": "Collapse panel",
   "noAnalysisYet": "No analysis yet",
@@ -10,6 +11,24 @@
   "current": "Current · {{resname}} {{chain}}:{{resno}}",
   "running": "Running {{label}}…",
   "couldNotAnalyze": "Could not analyze this residue.",
+  "structureAnalysis": {
+    "kicker": "Structure analysis",
+    "analyzing": "Analyzing structure…",
+    "empty": "No structure analysis yet",
+    "historyHint": "Run structure analysis below. Prior runs for this protein appear here.",
+    "current": "Current analysis",
+    "run": "Analyze structure",
+    "runLabel": "Structure analysis",
+    "rerun": "Re-analyze structure",
+    "failed": "Could not analyze this structure."
+  },
+  "residueAnalysis": {
+    "kicker": "Residue analysis"
+  },
+  "explainPopover": {
+    "openChat": "Open chat",
+    "analyzing": "Analyzing with platform context…"
+  },
   "askAi": "Ask AI",
   "explain": "Explain",
   "assistant": {
@@ -22,11 +41,46 @@
     "staticHostingNote": "Vercel static deploy has no AI backend. Use Node or Docker with server .env for /api/ai.",
     "context": "Context: {{protein}}{{residue}}",
     "noProtein": "no protein",
-    "emptyState": "Ask about the loaded structure, selected residue, polymer contacts, or general biology. Every answer uses the full platform context automatically.",
+    "emptyState": "Ask about the loaded structure, selected residue, polymer contacts, or general biology. You can also request platform actions — e.g. \"find elephant hemoglobin, render cartoon, spin, and analyze\".",
     "you": "You",
     "aiName": "Biolabs AI",
     "thinking": "Thinking…",
-    "placeholder": "Ask about this structure…"
+    "placeholder": "Ask about this structure…",
+    "rateLimitedPlaceholder": "Rate limited — please wait…",
+    "rateLimitedWait": "AI is rate-limited. Next call available in {{seconds}}s.",
+    "executingActions": "Running platform actions…"
+  },
+  "agent": {
+    "executing": "Running platform actions…",
+    "steps": {
+      "searchSelect": "Search: {{query}}",
+      "setRepresentation": "Representation: {{representation}}",
+      "setColor": "Color: {{color}}",
+      "isolateChain": "Isolate chain {{chain}}",
+      "isolateClear": "Clear chain isolate",
+      "spinOn": "Enable spin",
+      "spinOff": "Disable spin",
+      "fitView": "Fit view",
+      "resetView": "Reset view",
+      "focusResidue": "Focus {{chain}}:{{resno}}",
+      "analyzeStructure": "Analyze structure",
+      "explainResidue": "Explain {{chain}}:{{resno}}",
+      "command": "Command: {{cmdId}}",
+      "unknown": "Unknown action"
+    },
+    "errors": {
+      "emptyQuery": "Search query is empty.",
+      "noSearchResults": "No results for \"{{query}}\".",
+      "loadTimeout": "Timed out loading {{id}}.",
+      "noStructure": "No structure loaded.",
+      "explainFailed": "Could not explain this residue.",
+      "commandNotAllowed": "Command not allowed: {{cmdId}}.",
+      "unknownAction": "Unknown action type."
+    }
+  },
+  "fallback": {
+    "servedBy": "Switched to {{provider}} · {{model}}",
+    "tooltip": "The preferred model was blocked, so the assistant automatically fell back to another provider/model."
   },
   "toasts": {
     "notConfigured": "AI not configured",

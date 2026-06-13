@@ -18,7 +18,7 @@ export type WorkflowStageStatus =
   | "running"
   | "failed";
 
-export type LeftWorkbenchTab = "input" | "structure" | "display" | "source";
+export type LeftWorkbenchTab = "input" | "structure" | "source";
 
 export const WORKFLOW_STAGES: {
   id: WorkflowStageId;

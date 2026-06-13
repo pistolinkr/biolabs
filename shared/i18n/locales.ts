@@ -176,6 +176,26 @@ export function resolveUiLocale(preference: UiLocalePreference, browserLanguages
   return DEFAULT_UI_LOCALE;
 }
 
+/**
+ * Timezone locale suggestion applies only when UI is `auto` and the browser
+ * did not already resolve to a non-English locale (e.g. ja in navigator.languages).
+ */
+export function inferTimezoneLocaleSuggestion(
+  uiLocale: UiLocalePreference,
+  resolvedLocale: SupportedUiLocale,
+  browserLanguages?: readonly string[],
+): RegionalLocaleInference | null {
+  if (uiLocale !== "auto") return null;
+
+  const browserResolved = resolveUiLocale("auto", browserLanguages);
+  if (browserResolved !== DEFAULT_UI_LOCALE) return null;
+
+  const regional = inferRegionalLocale();
+  if (!regional) return null;
+  if (regional.locale === resolvedLocale) return null;
+  return regional;
+}
+
 export function localeToHtmlLang(locale: SupportedUiLocale): string {
   switch (locale) {
     case "zh":

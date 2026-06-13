@@ -14,10 +14,13 @@ export default function AIChatPanel() {
     isSending,
     sendMessage,
     clearMessages,
-    lastContext,
   } = useAssistant();
   const [draft, setDraft] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const retryAfterMs = status?.call_budget?.retry_after_ms ?? 0;
+  const budgetBlocked = retryAfterMs > 0;
+  const inputDisabled = isSending || !status?.configured || budgetBlocked;
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,33 +50,15 @@ export default function AIChatPanel() {
         </button>
       </div>
 
-      <div className="border-b border-border px-2 py-1.5 font-mono text-[8px] leading-snug text-muted-foreground">
-        {statusLoading ? (
-          t("assistant.checking")
-        ) : status?.configured ? (
-          <>
-            {t("assistant.provider", {
-              provider: status.active_provider ?? "auto",
-              model:
-                status.active_provider && status.models[status.active_provider]
-                  ? t("assistant.providerModel", { model: status.models[status.active_provider] })
-                  : "",
-            })}
-          </>
-        ) : (
-          <div className="space-y-0.5">
-            <div>{t("assistant.notConfiguredEnv")}</div>
-            <div className="text-muted-foreground/80">{t("assistant.staticHostingNote")}</div>
-          </div>
-        )}
-      </div>
+      {!statusLoading && !status?.configured ? (
+        <div className="border-b border-border px-2 py-1.5 font-mono text-[8px] leading-snug text-muted-foreground">
+          {t("assistant.notConfiguredEnv")}
+        </div>
+      ) : null}
 
-      {lastContext ? (
-        <div className="border-b border-border px-2 py-1 font-mono text-[8px] text-muted-foreground">
-          {t("assistant.context", {
-            protein: lastContext.protein_name ?? t("assistant.noProtein"),
-            residue: lastContext.residue_key ? ` · ${lastContext.residue_key}` : "",
-          })}
+      {budgetBlocked ? (
+        <div className="border-b border-amber-500/40 px-2 py-1.5 font-mono text-[8px] leading-snug text-amber-600 dark:text-amber-300">
+          {t("assistant.rateLimitedWait", { seconds: Math.ceil(retryAfterMs / 1000) })}
         </div>
       ) : null}
 
@@ -117,8 +102,8 @@ export default function AIChatPanel() {
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={2}
-            placeholder={t("assistant.placeholder")}
-            disabled={isSending || !status?.configured}
+            placeholder={budgetBlocked ? t("assistant.rateLimitedPlaceholder") : t("assistant.placeholder")}
+            disabled={inputDisabled}
             className="min-h-[52px] flex-1 resize-none border border-border bg-background px-2 py-1.5 font-mono text-[11px] text-foreground placeholder:text-muted-foreground disabled:opacity-50"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -129,7 +114,7 @@ export default function AIChatPanel() {
           />
           <button
             type="submit"
-            disabled={isSending || !draft.trim() || !status?.configured}
+            disabled={inputDisabled || !draft.trim()}
             className="flex shrink-0 items-center justify-center border border-border bg-secondary px-2 text-foreground hover:bg-muted disabled:opacity-40"
           >
             {isSending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}

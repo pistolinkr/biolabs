@@ -30,11 +30,14 @@
     "overlay": "Ovl",
     "accent": "Nb",
     "read": "읽기",
+    "analyze": "분석",
+    "analyzing": "AI…",
     "tips": {
       "context": "거리 기반 고분자 컨텍스트 (뷰포트 선택 또는 서열)",
       "interactions": "선택 컨텍스트의 단백질–핵산 거리선 (DNA/RNA + 잔기 선택 필요)",
       "nucleicAccent": "선택 컨텍스트 내 핵산 백본 얇은 선",
       "readable": "가독성 프리셋: 카툰 + 체인 색상 + 깔끔한 격리",
+      "structureAnalysis": "AI로 로드된 전체 구조 분석 (접힘, 도메인, 조립체, 체인)",
       "reset": "뷰 재설정",
       "fit": "전체 맞춤",
       "fitSelection": "격리/선택 맞춤",
@@ -116,5 +119,8 @@
     "export": "보내기",
     "contextContacts": "컨텍스트 접촉 오버레이",
     "nucleicAccent": "핵산 백본 강조"
+  },
+  "sequenceDock": {
+    "resize": "시퀀스 패널 높이 조절"
   }
 }

@@ -1,6 +1,8 @@
 {
   "AI_QUOTA_EXCEEDED": "AI quota exceeded. Try again later or switch provider.",
   "AI_RATE_LIMITED": "Too many requests. Please wait a moment.",
+  "AI_DAILY_BUDGET_EXCEEDED": "Daily AI usage limit reached. Try again tomorrow or raise the limit in settings.",
+  "AI_CONCURRENCY_LIMIT": "Another AI request is still running. Wait for it to finish.",
   "AI_PROVIDER_UNAVAILABLE": "AI provider is temporarily unavailable.",
   "AI_INVALID_REQUEST": "Invalid AI request.",
   "AI_CONTEXT_TOO_LARGE": "Context is too large for the model.",

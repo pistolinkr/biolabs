@@ -1,8 +1,11 @@
 import type { AiProviderId } from "@shared/ai/types";
 
-const DEFAULT_GEMINI_MODEL = "gemini-2.0-flash";
-const DEFAULT_OPENROUTER_MODEL = "openrouter/free";
-const DEFAULT_HF_MODEL = "HuggingFaceH4/zephyr-7b-beta";
+const DEFAULT_GEMINI_MODELS = ["gemini-2.0-flash", "gemini-1.5-flash"];
+const DEFAULT_OPENROUTER_MODELS = [
+  "deepseek/deepseek-chat-v3-0324:free",
+  "meta-llama/llama-3.3-70b-instruct:free",
+];
+const DEFAULT_HF_MODELS = ["HuggingFaceH4/zephyr-7b-beta", "mistralai/Mistral-7B-Instruct-v0.3"];
 
 /** Strip inline comments and invalid example text from .env values. */
 function cleanEnvValue(raw: string | undefined): string | null {
@@ -11,6 +14,54 @@ function cleanEnvValue(raw: string | undefined): string | null {
   if (!trimmed) return null;
   const withoutComment = trimmed.split("#")[0]?.trim() ?? "";
   return withoutComment || null;
+}
+
+/**
+ * Parse a comma-separated model list from env (e.g. "modelA, modelB").
+ * A legacy single-model env var is honored as the first entry, then the list,
+ * then the built-in defaults — de-duplicated, order preserved.
+ */
+function parseModelList(
+  listRaw: string | undefined,
+  legacyRaw: string | undefined,
+  defaults: string[],
+): string[] {
+  const fromList = (cleanEnvValue(listRaw) ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const legacy = cleanEnvValue(legacyRaw);
+  const merged = [...(legacy ? [legacy] : []), ...fromList];
+  const out = merged.length ? merged : defaults;
+  return Array.from(new Set(out));
+}
+
+function readPositiveInt(raw: string | undefined, fallback: number): number {
+  const n = Number(cleanEnvValue(raw));
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+}
+
+/** Like readPositiveInt but allows 0 (e.g. "disable retries"). */
+function readNonNegativeInt(raw: string | undefined, fallback: number): number {
+  const cleaned = cleanEnvValue(raw);
+  if (cleaned === null) return fallback;
+  const n = Number(cleaned);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
+}
+
+/** Parse a positive (possibly fractional) number, e.g. an intent weight. */
+function readPositiveFloat(raw: string | undefined, fallback: number): number {
+  const n = Number(cleanEnvValue(raw));
+  return Number.isFinite(n) && n > 0 ? n : fallback;
+}
+
+/** Parse a boolean flag: "1"/"true"/"yes"/"on" → true, otherwise the fallback. */
+function readBool(raw: string | undefined, fallback: boolean): boolean {
+  const cleaned = cleanEnvValue(raw)?.toLowerCase();
+  if (cleaned === null || cleaned === undefined) return fallback;
+  if (["1", "true", "yes", "on"].includes(cleaned)) return true;
+  if (["0", "false", "no", "off"].includes(cleaned)) return false;
+  return fallback;
 }
 
 function readProvider(): AiProviderId {
@@ -24,29 +75,102 @@ function readProvider(): AiProviderId {
 export interface AiServerConfig {
   provider: AiProviderId;
   geminiApiKey: string | null;
+  /** Primary model (first of geminiModels) — kept for status display. */
   geminiModel: string;
+  /** Ordered fallback chain of models for this provider. */
+  geminiModels: string[];
   openRouterApiKey: string | null;
   openRouterModel: string;
+  openRouterModels: string[];
   huggingFaceApiKey: string | null;
   huggingFaceModel: string;
+  huggingFaceModels: string[];
   maxContextChars: number;
   maxOutputTokens: number;
   rateLimitPerMinute: number;
+  /** Per-provider call management / budget. */
+  providerRpm: number;
+  providerDailyLimit: number;
+  retryPerModel: number;
+  cooldownBaseMs: number;
+  cooldownMaxMs: number;
+  /** Global intent-weighted call policy (across all providers). */
+  globalRpm: number;
+  globalDaily: number;
+  maxConcurrent: number;
+  /** When true, throttled providers are NOT bypassed as a last resort. */
+  strictLimits: boolean;
+  /** Per-intent unit weights; falls back to 1 for unlisted intents. */
+  intentWeights: Record<string, number>;
 }
 
 export function loadAiConfig(): AiServerConfig {
+  const geminiModels = parseModelList(
+    process.env.GEMINI_MODELS,
+    process.env.GEMINI_MODEL,
+    DEFAULT_GEMINI_MODELS,
+  );
+  const openRouterModels = parseModelList(
+    process.env.OPENROUTER_MODELS,
+    process.env.OPENROUTER_MODEL,
+    DEFAULT_OPENROUTER_MODELS,
+  );
+  const huggingFaceModels = parseModelList(
+    process.env.HUGGINGFACE_MODELS,
+    process.env.HUGGINGFACE_MODEL,
+    DEFAULT_HF_MODELS,
+  );
+
   return {
     provider: readProvider(),
     geminiApiKey: cleanEnvValue(process.env.GEMINI_API_KEY),
-    geminiModel: cleanEnvValue(process.env.GEMINI_MODEL) ?? DEFAULT_GEMINI_MODEL,
+    geminiModel: geminiModels[0] ?? DEFAULT_GEMINI_MODELS[0],
+    geminiModels,
     openRouterApiKey: cleanEnvValue(process.env.OPENROUTER_API_KEY),
-    openRouterModel: cleanEnvValue(process.env.OPENROUTER_MODEL) ?? DEFAULT_OPENROUTER_MODEL,
+    openRouterModel: openRouterModels[0] ?? DEFAULT_OPENROUTER_MODELS[0],
+    openRouterModels,
     huggingFaceApiKey: cleanEnvValue(process.env.HUGGINGFACE_API_KEY),
-    huggingFaceModel: cleanEnvValue(process.env.HUGGINGFACE_MODEL) ?? DEFAULT_HF_MODEL,
+    huggingFaceModel: huggingFaceModels[0] ?? DEFAULT_HF_MODELS[0],
+    huggingFaceModels,
     maxContextChars: Number(process.env.AI_MAX_CONTEXT_CHARS ?? 24_000),
-    maxOutputTokens: Number(process.env.AI_MAX_OUTPUT_TOKENS ?? 1024),
-    rateLimitPerMinute: Number(process.env.AI_RATE_LIMIT_PER_MIN ?? 20),
+    maxOutputTokens: Number(process.env.AI_MAX_OUTPUT_TOKENS ?? 2048),
+    rateLimitPerMinute: readPositiveInt(process.env.AI_RATE_LIMIT_PER_MIN, 20),
+    providerRpm: readPositiveInt(process.env.AI_PROVIDER_RPM, 15),
+    providerDailyLimit: readPositiveInt(process.env.AI_PROVIDER_DAILY, 1000),
+    retryPerModel: readNonNegativeInt(process.env.AI_RETRY_PER_MODEL, 1),
+    cooldownBaseMs: readPositiveInt(process.env.AI_COOLDOWN_BASE_MS, 60_000),
+    cooldownMaxMs: readPositiveInt(process.env.AI_COOLDOWN_MAX_MS, 600_000),
+    globalRpm: readPositiveInt(process.env.AI_GLOBAL_RPM, 30),
+    globalDaily: readPositiveInt(process.env.AI_GLOBAL_DAILY, 500),
+    maxConcurrent: readPositiveInt(process.env.AI_MAX_CONCURRENT, 2),
+    strictLimits: readBool(process.env.AI_STRICT_LIMITS, true),
+    intentWeights: {
+      structure: readPositiveFloat(process.env.AI_INTENT_WEIGHT_STRUCTURE, 2),
+      agent: readPositiveFloat(process.env.AI_INTENT_WEIGHT_AGENT, 2),
+      residue: readPositiveFloat(process.env.AI_INTENT_WEIGHT_RESIDUE, 1),
+      analysis: readPositiveFloat(process.env.AI_INTENT_WEIGHT_ANALYSIS, 1),
+      test: readPositiveFloat(process.env.AI_INTENT_WEIGHT_TEST, 0.5),
+    },
   };
+}
+
+/** Resolve the weighted unit cost of a call for the given intent. */
+export function intentWeight(config: AiServerConfig, intent: string): number {
+  return config.intentWeights[intent] ?? 1;
+}
+
+/** Ordered model fallback chain for a given provider id. */
+export function modelsForProvider(config: AiServerConfig, id: AiProviderId): string[] {
+  switch (id) {
+    case "gemini":
+      return config.geminiModels;
+    case "openrouter":
+      return config.openRouterModels;
+    case "huggingface":
+      return config.huggingFaceModels;
+    default:
+      return [];
+  }
 }
 
 export function listAvailableProviders(config: AiServerConfig): AiProviderId[] {

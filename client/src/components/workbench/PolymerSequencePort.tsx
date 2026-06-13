@@ -46,12 +46,18 @@ function kindMatchesVariant(variant: "protein" | "nucleic", k: BiomolecularEntit
 export interface PolymerSequencePortProps {
   variant: "protein" | "nucleic";
   structureModel: StructureHierarchyModel | null;
+  /** Segment inside the unified sequence dock (shared container, equal row height). */
+  embedded?: boolean;
 }
 
 /**
  * RCSB-style horizontal sequence port — protein or nucleic — with virtualized window for long polymers.
  */
-export default function PolymerSequencePort({ variant, structureModel }: PolymerSequencePortProps) {
+export default function PolymerSequencePort({
+  variant,
+  structureModel,
+  embedded = false,
+}: PolymerSequencePortProps) {
   const { t } = useTranslation("workbench");
   const {
     selectedResidueKey,
@@ -198,9 +204,17 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
     ],
   );
 
+  const segmentShell = (className?: string) =>
+    cn(
+      embedded
+        ? "flex h-full min-h-0 flex-col overflow-hidden"
+        : "flex min-h-[88px] shrink-0 flex-col border-t border-border bg-card",
+      className,
+    );
+
   if (!structureModel) {
     return (
-      <div className="shrink-0 border-t border-border bg-background px-3 py-2">
+      <div className={segmentShell("justify-center bg-background px-3 py-2")}>
         <div className="font-mono text-[11px] font-medium text-foreground">{panelTitle}</div>
         <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
           Load a structure to show the 1-letter sequence
@@ -211,7 +225,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
 
   if (!eligibleChains.length) {
     return (
-      <div className="shrink-0 border-t border-[#2A2A2A] bg-[#0C0C0C] px-3 py-2">
+      <div className={segmentShell("justify-center bg-[#0C0C0C] px-3 py-2")}>
         <div className="font-mono text-[11px] font-medium text-[#D8D8D8]">{panelTitle}</div>
         <div className="mt-0.5 font-mono text-[9px] text-[#6A6A6A]">
           {variant === "protein"
@@ -224,8 +238,8 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
 
   if (sequencesSkipped) {
     return (
-      <div className="shrink-0 border-t border-[#2A2A2A] bg-[#111111] px-3 py-2 font-mono text-[10px] leading-snug text-[#B0B0B0]">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b border-[#2A2A2A] pb-1.5">
+      <div className={segmentShell("justify-center bg-[#111111] px-3 py-2 font-mono text-[10px] leading-snug text-[#B0B0B0]")}>
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b border-border pb-1.5">
           <span className="text-[11px] font-medium text-[#E8E8E8]">{panelTitle}</span>
           <span className="text-[9px] text-[#6A6A6A]">chain {effectiveChainId}</span>
         </div>
@@ -239,7 +253,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
 
   if (!seq.length) {
     return (
-      <div className="shrink-0 border-t border-[#2A2A2A] bg-[#0C0C0C] px-3 py-2">
+      <div className={segmentShell("justify-center bg-[#0C0C0C] px-3 py-2")}>
         <div className="font-mono text-[11px] font-medium text-[#D8D8D8]">{panelTitle}</div>
         <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
           {variant === "protein"
@@ -259,7 +273,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
   return (
     <div
       className={cn(
-        "flex min-h-[88px] shrink-0 flex-col border-t border-border bg-card",
+        segmentShell(),
         hoverChainId && hoverChainId === effectiveChainId && "ring-1 ring-[#6A737C] ring-inset",
       )}
       aria-label={variant === "protein" ? "Amino acid sequence panel" : "Nucleic acid sequence panel"}
@@ -308,7 +322,7 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
       <div
         ref={scrollerRef}
         onScroll={useVirtual ? onScroll : undefined}
-        className="min-h-[48px] max-h-[min(22vh,152px)] overflow-x-auto overflow-y-hidden px-3 py-1.5"
+        className="min-h-0 flex-1 overflow-x-auto overflow-y-auto px-3 py-1.5"
       >
         {useVirtual ? (
           <div
@@ -326,8 +340,8 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
                     title={`${effectiveChainId} ${globalIdx + 1} ${ch}`}
                     className={`min-w-[11px] border px-[2px] py-0.5 ${
                       hi
-                        ? "border-[#F2F2F2] bg-[#1C1C1C] text-[#F2F2F2]"
-                        : "border-transparent text-[#B0B0B0] hover:border-[#3A3A3A]"
+                        ? "border-foreground bg-[#1C1C1C] text-[#F2F2F2]"
+                        : "border-transparent text-[#B0B0B0] hover:border-border"
                     }`}
                     onMouseEnter={() => setHoverIdx(globalIdx)}
                     onMouseLeave={() => setHoverIdx(null)}
@@ -357,8 +371,8 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
                   title={`${effectiveChainId} ${globalIdx + 1} ${ch}`}
                   className={`min-w-[11px] border px-[2px] py-0.5 ${
                     hi
-                      ? "border-[#F2F2F2] bg-[#1C1C1C] text-[#F2F2F2]"
-                      : "border-transparent text-[#B0B0B0] hover:border-[#3A3A3A]"
+                      ? "border-foreground bg-[#1C1C1C] text-[#F2F2F2]"
+                      : "border-transparent text-[#B0B0B0] hover:border-border"
                   }`}
                   onMouseEnter={() => setHoverIdx(globalIdx)}
                   onMouseLeave={() => setHoverIdx(null)}
@@ -377,9 +391,11 @@ export default function PolymerSequencePort({ variant, structureModel }: Polymer
           </div>
         )}
       </div>
-      <div className="border-t border-border px-3 py-1 font-mono text-[8px] text-muted-foreground">
-        Click a residue to focus the viewport · viewport picks scroll and highlight here
-      </div>
+      {!embedded ? (
+        <div className="border-t border-border px-3 py-1 font-mono text-[8px] text-muted-foreground">
+          Click a residue to focus the viewport · viewport picks scroll and highlight here
+        </div>
+      ) : null}
     </div>
   );
 }

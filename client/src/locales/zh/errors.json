@@ -1,6 +1,8 @@
 {
   "AI_QUOTA_EXCEEDED": "AI 配额已超出。请稍后重试或切换提供商。",
   "AI_RATE_LIMITED": "请求过多。请稍候。",
+  "AI_DAILY_BUDGET_EXCEEDED": "已达到每日 AI 使用上限。请明天再试或在设置中提高上限。",
+  "AI_CONCURRENCY_LIMIT": "另一个 AI 请求仍在处理中。请等待其完成。",
   "AI_PROVIDER_UNAVAILABLE": "AI 提供商暂时不可用。",
   "AI_INVALID_REQUEST": "无效的 AI 请求。",
   "AI_CONTEXT_TOO_LARGE": "上下文对于模型来说过大。",

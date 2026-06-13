@@ -22,12 +22,12 @@
   "locale": {
     "auto": "自动（浏览器）",
     "label": "界面语言",
-    "hint": "控制菜单、标签和消息。自动模式优先使用浏览器语言，其次使用系统时区地区。仅使用 VPN 不会改变语言。",
+    "hint": "控制菜单、标签和消息。自动模式跟随浏览器语言。基于时区的建议与 IP/VPN 无关，需单独确认后显示。",
     "autoResolved": "自动检测：{{locale}}"
   },
   "localeSuggestion": {
-    "ariaLabel": "语言建议",
-    "message": "检测到您所在的地区为 {{region}}。是否将界面切换为 {{language}}？",
+    "ariaLabel": "时区语言建议",
+    "message": "您的时区为 {{timeZone}}。是否将界面切换为 {{language}}？",
     "accept": "切换为 {{language}}",
     "dismiss": "稍后"
   },

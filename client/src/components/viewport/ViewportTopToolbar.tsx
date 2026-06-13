@@ -1,7 +1,7 @@
-import { Layers, Palette, Ruler, Sparkles, Monitor } from "lucide-react";
+import { Crosshair, Layers, Palette } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { useViewer, type ContextContactRadiusAngstrom, type MeasurementMode } from "@/contexts/ViewerContext";
+import { useViewer, type ContextContactRadiusAngstrom } from "@/contexts/ViewerContext";
 import type { VizColorSchemeId, VizRepresentationId } from "@/lib/nglRepr";
 import { cn } from "@/lib/utils";
 
@@ -39,10 +39,10 @@ function Seg({
       title={title}
       onClick={onClick}
       className={cn(
-        "shrink-0 whitespace-nowrap border px-2 py-1 font-mono text-[9px] uppercase tracking-wide",
+        "shrink-0 whitespace-nowrap px-2 py-1 font-mono text-[9px] uppercase tracking-wide",
         active
-          ? "border-[#C8C8C8] bg-[#1C1C1C] text-[#F2F2F2]"
-          : "border-[#2A2A2A] bg-[#111111] text-[#8A8A8A] hover:border-[#4A4A4A] hover:text-[#C8C8C8]",
+          ? "text-foreground underline decoration-foreground underline-offset-4"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {label}
@@ -50,7 +50,7 @@ function Seg({
   );
 }
 
-/** RCSB-like dense top bar — representation, coloring, camera, measure, quality. */
+/** Viewport representation, coloring, and polymer context controls. */
 export default function ViewportTopToolbar() {
   const { t } = useTranslation("viewport");
   const {
@@ -59,32 +59,23 @@ export default function ViewportTopToolbar() {
     colorScheme,
     setColorScheme,
     runViewerCommand,
-    measurementMode,
-    setMeasurementMode,
     isolateChainId,
     setIsolateChainId,
-    nglQuality,
     contextContactRadiusAngstrom,
     setContextContactRadiusAngstrom,
     polymerInteractionOverlayEnabled,
     nucleicBackboneAccentEnabled,
   } = useViewer();
 
-  const cycleMeasure = () => {
-    const order: MeasurementMode[] = ["none", "distance", "angle", "dihedral"];
-    const i = order.indexOf(measurementMode);
-    setMeasurementMode(order[(i + 1) % order.length]);
-  };
-
   return (
-    <div className="flex h-10 min-w-0 shrink-0 border-b border-[#2A2A2A] bg-[#0A0A0A]">
+    <div className="flex h-10 min-w-0 shrink-0 bg-background">
       <div
         className="no-scrollbar flex min-h-0 min-w-0 flex-1 items-center overflow-x-auto overflow-y-hidden overscroll-x-contain px-2.5"
         aria-label="Viewport toolbar — scroll horizontally for more controls"
       >
-        <div className="mx-0.5 flex w-max flex-nowrap items-center gap-3 py-1.5 pr-1.5">
-          <div className="flex shrink-0 items-center gap-1 pr-2">
-            <Layers className="size-3.5 shrink-0 text-[#6A6A6A]" strokeWidth={1.25} />
+        <div className="mx-0.5 flex w-max flex-nowrap items-center gap-4 py-1.5 pr-1.5">
+          <div className="flex shrink-0 items-center gap-1">
+            <Layers className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.25} />
             {REPR_ORDER.map((r) => (
               <Seg
                 key={r.id}
@@ -95,9 +86,8 @@ export default function ViewportTopToolbar() {
               />
             ))}
           </div>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <div className="flex shrink-0 items-center gap-1 pr-2">
-            <Palette className="size-3.5 shrink-0 text-[#6A6A6A]" strokeWidth={1.25} />
+          <div className="flex shrink-0 items-center gap-1">
+            <Palette className="size-3.5 shrink-0 text-muted-foreground" strokeWidth={1.25} />
             {COLOR_ORDER.map((c) => (
               <Seg
                 key={c.id}
@@ -108,14 +98,13 @@ export default function ViewportTopToolbar() {
               />
             ))}
           </div>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <div className="flex shrink-0 items-center gap-1 pr-2">
-            <span
-              className="shrink-0 font-mono text-[8px] uppercase tracking-wide text-[#6A6A6A]"
+          <div className="flex shrink-0 items-center gap-1">
+            <Crosshair
+              className="size-3.5 shrink-0 text-muted-foreground"
+              strokeWidth={1.25}
+              aria-label={t("toolbar.tips.context")}
               title={t("toolbar.tips.context")}
-            >
-              {t("toolbar.contacts")}
-            </span>
+            />
             {CONTACT_RADIUS_PRESETS.map((r) => (
               <Seg
                 key={r}
@@ -126,8 +115,7 @@ export default function ViewportTopToolbar() {
               />
             ))}
           </div>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <div className="flex shrink-0 items-center gap-1 pr-2">
+          <div className="flex shrink-0 items-center gap-1">
             <Seg
               title={t("toolbar.tips.interactions")}
               label="Ixn"
@@ -141,62 +129,16 @@ export default function ViewportTopToolbar() {
               onClick={() => runViewerCommand("view.preset.nucleic.accent")}
             />
           </div>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <button
-            type="button"
-            title={t("toolbar.tips.readable")}
-            onClick={() => runViewerCommand("view.preset.readable")}
-            className="mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border border-[#2A2A2A] bg-[#111111] px-2 py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A6A6A] hover:text-[#F2F2F2]"
-          >
-            <Sparkles className="size-3 shrink-0" strokeWidth={1.25} />
-            {t("toolbar.read")}
-          </button>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <button
-            type="button"
-            title={t("toolbar.tips.measure")}
-            onClick={cycleMeasure}
-            className={cn(
-              "mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border px-2 py-1 font-mono text-[9px] uppercase",
-              measurementMode !== "none"
-                ? "border-[#5A6A6A] bg-[#1C1C1C] text-[#F2F2F2]"
-                : "border-[#2A2A2A] bg-[#111111] text-[#8A8A8A] hover:border-[#4A4A4A]",
-            )}
-          >
-            <Ruler className="size-3 shrink-0" strokeWidth={1.25} />
-            {measurementMode === "none" ? t("toolbar.measure") : t(`toolbar.measureModes.${measurementMode}`)}
-          </button>
-          <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-          <button
-            type="button"
-            title={t("toolbar.tips.quality")}
-            onClick={() => runViewerCommand("view.quality.toggle")}
-            className={cn(
-              "mx-0.5 flex shrink-0 items-center gap-1 whitespace-nowrap border px-2 py-1 font-mono text-[9px] uppercase tracking-wide",
-              nglQuality !== "medium"
-                ? "border-[#5A6A6A] bg-[#1C1C1C] text-[#F2F2F2]"
-                : "border-[#2A2A2A] bg-[#111111] text-[#9A9A9A] hover:border-[#5A6A6A] hover:text-[#F2F2F2]",
-            )}
-          >
-            <Monitor className="size-3 shrink-0" strokeWidth={1.25} />
-            {t(`toolbar.qualityLevels.${nglQuality}`)}
-          </button>
           {isolateChainId ? (
-            <>
-              <div className="mx-1 h-5 w-px shrink-0 self-center bg-[#2A2A2A]" />
-              <button
-                type="button"
-                onClick={() => setIsolateChainId(null)}
-                className="mx-0.5 max-w-[7rem] shrink-0 truncate border border-[#5A5040] bg-[#141414] px-2 py-1 font-mono text-[9px] uppercase text-[#E0D8C8] hover:border-[#8A7A6A]"
-                title={t("toolbar.tips.clearIsolate")}
-              >
-                ISO {isolateChainId} ×
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => setIsolateChainId(null)}
+              className="max-w-[7rem] shrink-0 truncate px-2 py-1 font-mono text-[9px] uppercase text-accent underline decoration-accent underline-offset-4 hover:text-foreground"
+              title={t("toolbar.tips.clearIsolate")}
+            >
+              ISO {isolateChainId} ×
+            </button>
           ) : null}
-          <span className="shrink-0 self-center whitespace-nowrap pl-3 pr-0.5 font-mono text-[8px] uppercase tracking-widest text-[#5A5A5A]">
-            {t("toolbar.palette")}
-          </span>
         </div>
       </div>
     </div>

@@ -44,11 +44,19 @@ When the user selects **Auto (browser)**:
 2. Match the first **non-English** supported locale by prefix (e.g. `ko-KR` → `ko`, `ja-JP` → `ja`).
 3. If only English tags match, use `en`.
 
-**Regional language suggestion (consent required):**
+**Regional language suggestion (consent required, timezone only):**
 
-When the system timezone maps to a supported region (e.g. `Asia/Seoul` → Korean) and the **current UI locale differs**, a bottom banner asks whether to switch. The user must click **Switch to …** to apply; **Not now** dismisses and is remembered in `biolabs.locale.suggestion.v1`.
+When the **OS timezone** maps to a supported locale (e.g. `Asia/Seoul` → Korean) and the **current UI locale differs**, a bottom banner asks whether to switch. The user must click **Switch to …** to apply; **Not now** dismisses and is remembered in `biolabs.locale.suggestion.v1`.
 
-VPN / IP geolocation does **not** change UI language. Regional detection uses **OS timezone** only.
+The banner shows the IANA timezone id (e.g. `Asia/Seoul`), not IP or VPN location. VPN / IP geolocation does **not** change UI language or this suggestion.
+
+Timezone suggestions appear only when:
+
+1. UI language preference is **`auto`**, and
+2. Browser languages resolve to **English only** (no `ja`/`ko`/… in `navigator.languages`), and
+3. OS timezone maps to a different supported locale.
+
+If the browser already resolves to Japanese (or any non-English locale), the timezone banner is **not** shown — browser language takes precedence over timezone.
 
 ---
 

@@ -141,6 +141,86 @@ export default function AiSettingsSection({
         </div>
       </div>
 
+      {status?.configured && status.call_budget ? (
+        <div className="workbench-panel-inset p-3">
+          <div className="workbench-kicker mb-1">{t("ai.callBudget")}</div>
+          <p className="mb-2 font-mono text-[9px] leading-snug text-muted-foreground">
+            {t("ai.callBudgetHint")}
+          </p>
+          <div className="space-y-1 font-mono text-[10px] text-foreground">
+            <div className="text-muted-foreground">
+              {t("ai.budget.daily", {
+                used: status.call_budget.daily_used,
+                limit: status.call_budget.daily_limit,
+              })}
+            </div>
+            <div className="text-muted-foreground">
+              {t("ai.budget.rpm", {
+                used: status.call_budget.rpm_used,
+                limit: status.call_budget.rpm_limit,
+              })}
+            </div>
+            <div className="text-muted-foreground">
+              {t("ai.budget.concurrent", {
+                used: status.call_budget.concurrent_in_flight,
+                limit: status.call_budget.concurrent_limit,
+              })}
+            </div>
+            {status.call_budget.retry_after_ms > 0 ? (
+              <div className="text-amber-600 dark:text-amber-300">
+                {t("ai.budget.nextCall", {
+                  seconds: Math.ceil(status.call_budget.retry_after_ms / 1000),
+                })}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {status?.configured && status.provider_health && status.provider_health.length > 0 ? (
+        <div className="workbench-panel-inset p-3">
+          <div className="workbench-kicker mb-1">{t("ai.providerHealth")}</div>
+          <p className="mb-2 font-mono text-[9px] leading-snug text-muted-foreground">
+            {t("ai.providerHealthHint")}
+          </p>
+          <div className="space-y-2">
+            {status.provider_health.map((h) => {
+              const cooling = h.cooldown_until != null && h.cooldown_until > Date.now();
+              return (
+                <div key={h.id} className="border-b border-border pb-2 font-mono text-[10px] last:border-b-0 last:pb-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-foreground">{providerLabel(h.id)}</span>
+                    <span
+                      className={cn(
+                        "border px-1.5 py-0.5 text-[9px]",
+                        cooling
+                          ? "border-amber-500/40 text-amber-600 dark:text-amber-300"
+                          : "border-emerald-500/40 text-emerald-700 dark:text-emerald-300",
+                      )}
+                    >
+                      {cooling ? t("ai.health.cooldown") : t("ai.health.ready")}
+                    </span>
+                  </div>
+                  <div className="mt-0.5 text-muted-foreground">
+                    {t("ai.health.usage", {
+                      today: h.requests_today,
+                      daily: h.daily_limit,
+                      rpm: h.requests_last_minute,
+                      rpmLimit: h.rpm_limit,
+                    })}
+                  </div>
+                  {h.models.length > 0 ? (
+                    <div className="mt-0.5 truncate text-muted-foreground/80" title={h.models.join(", ")}>
+                      {t("ai.health.models", { list: h.models.join("  →  ") })}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
       <div>
         <div className="workbench-kicker mb-2 px-1">{t("ai.clientPrefs")}</div>
 

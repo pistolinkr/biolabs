@@ -84,7 +84,7 @@ export default function PolymerProximityGraph({
       </div>
       <svg
         viewBox={`0 0 ${W} ${H}`}
-        className="w-full border border-[#2A2A2A] bg-[#0A0A0A]"
+        className="w-full border border-border bg-[#0A0A0A]"
         aria-label="Protein to nucleic proximity graph"
         dangerouslySetInnerHTML={{ __html: svgMarkup }}
       />

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import AiSettingsSection from "@/components/settings/AiSettingsSection";
 import { SettingsRow, Toggle } from "@/components/settings/AiSettingsSection";
+import WorkspaceSettingsSection from "@/components/settings/WorkspaceSettingsSection";
 import { useAssistant } from "@/contexts/AssistantContext";
 import { useLocale } from "@/contexts/LocaleContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -37,10 +38,9 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
     clearMessages,
   } = useAssistant();
 
-  const [workspacePrefs, setWorkspacePrefs] = useState({
-    autoSave: true,
-    autoSaveInterval: 5,
-  });
+  useEffect(() => {
+    if (isOpen) setTab(initialTab);
+  }, [isOpen, initialTab]);
 
   const TABS: { id: SettingsTab; label: string }[] = [
     { id: "general", label: t("tabs.general") },
@@ -166,38 +166,7 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
               />
             )}
 
-            {tab === "workspace" && (
-              <div className="space-y-4">
-                <div className="workbench-kicker">{t("workspace.persistence")}</div>
-                <SettingsRow label={t("workspace.autoSave")} hint={t("workspace.autoSaveHint")}>
-                  <Toggle
-                    checked={workspacePrefs.autoSave}
-                    onChange={(v) => setWorkspacePrefs((p) => ({ ...p, autoSave: v }))}
-                  />
-                </SettingsRow>
-                {workspacePrefs.autoSave ? (
-                  <SettingsRow
-                    label={t("workspace.autoSaveInterval")}
-                    hint={t("workspace.autoSaveIntervalHint", { minutes: workspacePrefs.autoSaveInterval })}
-                  >
-                    <input
-                      type="range"
-                      min={1}
-                      max={30}
-                      value={workspacePrefs.autoSaveInterval}
-                      onChange={(e) =>
-                        setWorkspacePrefs((p) => ({
-                          ...p,
-                          autoSaveInterval: parseInt(e.target.value, 10),
-                        }))
-                      }
-                      className="w-36 accent-accent"
-                    />
-                  </SettingsRow>
-                ) : null}
-                <p className="font-mono text-[9px] leading-relaxed text-muted-foreground">{t("workspace.saveNote")}</p>
-              </div>
-            )}
+            {tab === "workspace" && <WorkspaceSettingsSection />}
 
             {tab === "about" && (
               <div className="space-y-3 font-mono text-[10px] text-muted-foreground">

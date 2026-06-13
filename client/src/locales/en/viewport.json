@@ -30,11 +30,14 @@
     "overlay": "Ovl",
     "accent": "Nb",
     "read": "Read",
+    "analyze": "Analyze",
+    "analyzing": "AI…",
     "tips": {
       "context": "Distance-based polymer context (viewport pick or sequence)",
       "interactions": "Protein–nucleic distance lines in the picked context (requires DNA/RNA + residue pick).",
       "nucleicAccent": "Thin backbone lines on nucleic residues in the picked context.",
       "readable": "Readable preset: cartoon + chain colors + clear isolate",
+      "structureAnalysis": "Analyze the full loaded structure with AI (fold, domains, assembly, chains)",
       "reset": "Reset view",
       "fit": "Fit all",
       "fitSelection": "Fit isolate/selection",
@@ -116,5 +119,8 @@
     "export": "Export",
     "contextContacts": "Context contacts overlay",
     "nucleicAccent": "Nucleic backbone accent"
+  },
+  "sequenceDock": {
+    "resize": "Resize sequence panel height"
   }
 }
