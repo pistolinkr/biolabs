@@ -9,7 +9,7 @@ import type {
   AiUserErrorPayload,
 } from "@shared/ai/types";
 import { buildPromptMessages } from "@shared/ai/promptBuilder";
-import type { AiClientApiKeys } from "@/lib/ai/aiKeysStorage";
+import { hasAnyClientKey, type AiClientApiKeys } from "@/lib/ai/aiKeysStorage";
 import {
   CLIENT_MAX_CONTEXT_CHARS,
   CLIENT_MAX_OUTPUT_TOKENS,
@@ -47,6 +47,46 @@ export async function fetchAiStatus(): Promise<AiStatusResponse> {
     const payload = data as AiUserErrorPayload;
     throw new AiRequestError(payload.code ?? "AI_UNKNOWN", payload.error ?? "AI status unavailable.");
   }
+  return data;
+}
+
+function canUseClientTransport(clientKeys?: AiClientApiKeys): boolean {
+  return Boolean(clientKeys && hasAnyClientKey(clientKeys));
+}
+
+function shouldFallbackFromClient(err: unknown): boolean {
+  if (!(err instanceof AiRequestError)) return true;
+  return err.code !== "AI_REQUEST_INVALID";
+}
+
+async function sendAiChatServer(params: {
+  messages: AiChatMessage[];
+  context: AiPlatformContext;
+  intent?: AiExplainIntent;
+  provider?: AiProviderId;
+  generation?: AiChatRequest["generation"];
+}): Promise<AiChatResponse> {
+  const body: AiChatRequest = {
+    messages: params.messages,
+    context: params.context,
+    intent: params.intent,
+    provider: params.provider,
+    generation: params.generation,
+  };
+
+  const res = await fetch(CHAT_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  const data = await readAiJson<AiChatResponse>(res);
+
+  if (!res.ok || !("message" in data)) {
+    const payload = data as AiUserErrorPayload;
+    throw new AiRequestError(payload.code ?? "AI_UNKNOWN", payload.error ?? "AI request failed.");
+  }
+
   return data;
 }
 
@@ -108,30 +148,21 @@ export async function sendAiChat(params: {
   transport?: AiTransportMode;
   clientKeys?: AiClientApiKeys;
 }): Promise<AiChatResponse> {
-  if (params.transport === "client" && params.clientKeys) {
-    return sendAiChatClient({ ...params, clientKeys: params.clientKeys });
+  const preferClient = params.transport === "client" && canUseClientTransport(params.clientKeys);
+
+  if (preferClient) {
+    try {
+      return await sendAiChatClient({ ...params, clientKeys: params.clientKeys! });
+    } catch (clientErr) {
+      if (!shouldFallbackFromClient(clientErr)) throw clientErr;
+      try {
+        const response = await sendAiChatServer(params);
+        return { ...response, fell_back: true };
+      } catch {
+        throw clientErr;
+      }
+    }
   }
 
-  const body: AiChatRequest = {
-    messages: params.messages,
-    context: params.context,
-    intent: params.intent,
-    provider: params.provider,
-    generation: params.generation,
-  };
-
-  const res = await fetch(CHAT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  const data = await readAiJson<AiChatResponse>(res);
-
-  if (!res.ok || !("message" in data)) {
-    const payload = data as AiUserErrorPayload;
-    throw new AiRequestError(payload.code ?? "AI_UNKNOWN", payload.error ?? "AI request failed.");
-  }
-
-  return data;
+  return sendAiChatServer(params);
 }

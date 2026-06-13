@@ -95,6 +95,7 @@
     "useOwnKeysHint": "브라우저에서 프로바이더를 직접 호출합니다 — Vercel 정적 호스팅에서도 동작합니다.",
     "clientActive": "활성: 브라우저 직접 호출(내 API 키)",
     "clientKeysNote": "요청은 브라우저에서 프로바이더로 전송됩니다. 키는 프로바이더 API 외부로 전송되지 않습니다.",
+    "serverFallbackNote": "서버 .env 키도 사용 가능합니다. 브라우저 키가 실패하면 서버로 자동 폴백합니다.",
     "getKey": "키 발급",
     "keyPlaceholder": "{{provider}} API 키 붙여넣기",
     "keySaved": "저장됨 {{mask}} — 붙여넣으면 교체",

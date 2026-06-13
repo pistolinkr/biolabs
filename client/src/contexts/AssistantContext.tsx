@@ -144,15 +144,31 @@ const FALLBACK_AI_STATUS: AiStatusResponse = {
 };
 
 function resolveAiStatus(server: AiStatusResponse | null, keys: AiKeysSettings): AiStatusResponse {
-  if (keys.useOwnApiKeys && hasAnyClientKey(keys.keys)) {
-    return buildClientAiStatus(keys.keys);
+  const base = server ?? FALLBACK_AI_STATUS;
+  if (!keys.useOwnApiKeys || !hasAnyClientKey(keys.keys)) {
+    return base;
   }
-  return server ?? FALLBACK_AI_STATUS;
+
+  const client = buildClientAiStatus(keys.keys);
+  if (!base.configured) {
+    return client;
+  }
+
+  return {
+    ...base,
+    configured: true,
+    active_provider: client.active_provider ?? base.active_provider,
+    available_providers: Array.from(new Set([...client.available_providers, ...base.available_providers])),
+    models: { ...base.models, ...client.models },
+    max_output_tokens: Math.max(base.max_output_tokens, client.max_output_tokens),
+    max_context_chars: Math.max(base.max_context_chars, client.max_context_chars),
+  };
 }
 
-function isAiConfigured(status: AiStatusResponse | null, keys: AiKeysSettings): boolean {
+function isAiConfigured(server: AiStatusResponse | null, keys: AiKeysSettings): boolean {
+  if (server?.configured) return true;
   if (keys.useOwnApiKeys && hasAnyClientKey(keys.keys)) return true;
-  return status?.configured ?? false;
+  return false;
 }
 
 function shouldUseClientKeys(keys: AiKeysSettings): boolean {

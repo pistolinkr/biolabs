@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import type { AiClientSettings } from "@/lib/ai/aiSettingsStorage";
 import type { AiKeysSettings } from "@/lib/ai/aiKeysStorage";
 import { maskApiKey, providersWithKeys } from "@/lib/ai/aiKeysStorage";
+import { CLIENT_MAX_OUTPUT_TOKENS } from "@/lib/ai/clientProviders";
 import type { AiStatusResponse } from "@shared/ai/types";
 import type { AiProviderId } from "@shared/ai/types";
 import type { UiLocalePreference } from "@shared/i18n/locales";
@@ -91,9 +92,11 @@ export default function AiSettingsSection({
   const { uiLocale, setUiLocale, supportedLocales, localeLabels } = useLocale();
   const clientProviders = providersWithKeys(aiKeysSettings.keys);
   const providerOptions: AiProviderId[] = usingClientKeys
-    ? ["auto", ...clientProviders]
+    ? ["auto", ...Array.from(new Set([...clientProviders, ...(status?.available_providers ?? [])]))]
     : ["auto", ...(status?.available_providers ?? [])];
-  const maxTokensCap = usingClientKeys ? 4096 : (status?.max_output_tokens ?? 1024);
+  const maxTokensCap = usingClientKeys
+    ? Math.max(CLIENT_MAX_OUTPUT_TOKENS, status?.max_output_tokens ?? 0)
+    : (status?.max_output_tokens ?? 1024);
 
   const providerLabel = (p: AiProviderId) => t(`ai.providers.${p}`);
 
@@ -116,6 +119,9 @@ export default function AiSettingsSection({
               })}
             </div>
             <div className="text-muted-foreground">{t("ai.clientKeysNote")}</div>
+            {status?.provider_health && status.provider_health.length > 0 ? (
+              <div className="text-muted-foreground">{t("ai.serverFallbackNote")}</div>
+            ) : null}
           </div>
         ) : status?.configured ? (
           <div className="space-y-1 font-mono text-[10px] text-foreground">

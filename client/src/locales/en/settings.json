@@ -95,6 +95,7 @@
     "useOwnKeysHint": "Call providers directly from the browser — works on Vercel static hosting.",
     "clientActive": "Active: browser direct (your API keys)",
     "clientKeysNote": "Requests go from your browser to the provider. Keys never leave this device except to the provider API.",
+    "serverFallbackNote": "Server .env keys are also available — if your browser key fails, Biolabs falls back to the server automatically.",
     "getKey": "Get key",
     "keyPlaceholder": "Paste {{provider}} API key",
     "keySaved": "Saved {{mask}} — paste to replace",
