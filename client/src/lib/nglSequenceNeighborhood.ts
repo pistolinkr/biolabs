@@ -68,16 +68,30 @@ export function removeNucleicPresetRepresentations(sc: StructureComponent): void
   }
 }
 
+const NUCLEIC_ACCENT_HALO_COLOR = "#3D8FD4";
+const NUCLEIC_ACCENT_LINE_COLOR = "#D6EEFF";
+const NUCLEIC_ACCENT_HALO_WIDTH = 6;
+const NUCLEIC_ACCENT_LINE_WIDTH = 3;
+const NUCLEIC_ACCENT_HALO_OPACITY = 0.5;
+const NUCLEIC_ACCENT_LINE_OPACITY = 1;
+
 export function applyNucleicBackboneAccent(sc: StructureComponent, sele = "nucleic"): void {
   const s = sele.trim();
   if (!s) return;
   try {
     sc.addRepresentation("line", {
       sele: s,
+      name: `${NUC_PRESET_PREFIX}LineHalo`,
+      color: NUCLEIC_ACCENT_HALO_COLOR,
+      linewidth: NUCLEIC_ACCENT_HALO_WIDTH,
+      opacity: NUCLEIC_ACCENT_HALO_OPACITY,
+    } as never);
+    sc.addRepresentation("line", {
+      sele: s,
       name: `${NUC_PRESET_PREFIX}Line`,
-      color: "#8A9AAA",
-      linewidth: 2,
-      opacity: 0.85,
+      color: NUCLEIC_ACCENT_LINE_COLOR,
+      linewidth: NUCLEIC_ACCENT_LINE_WIDTH,
+      opacity: NUCLEIC_ACCENT_LINE_OPACITY,
     } as never);
   } catch {
     /* */
@@ -671,13 +685,13 @@ export function buildPolymerContextSnapshot(
 
   const proteinSnippets: Record<string, string> = {};
   const nucleicSnippets: Record<string, string> = {};
-  for (const cid of chains) {
+  chains.forEach((cid) => {
     const resSet = byChainRes.get(cid) ?? new Set();
     const p = snippetAlongChain(sc, cid, resSet, "protein");
     const n = snippetAlongChain(sc, cid, resSet, "nucleic");
     if (p) proteinSnippets[cid] = p.slice(0, 64);
     if (n) nucleicSnippets[cid] = n.slice(0, 64);
-  }
+  });
 
   let nearestNucleic: PolymerContextSnapshot["nearestNucleic"] = null;
   let bestD2 = Infinity;

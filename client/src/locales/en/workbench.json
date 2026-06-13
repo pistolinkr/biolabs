@@ -212,7 +212,9 @@
   },
   "sequence": {
     "proteinTitle": "Amino acid sequence (1-letter)",
-    "nucleicTitle": "DNA / RNA (1-letter)"
+    "nucleicTitle": "DNA / RNA (1-letter)",
+    "dockLabel": "Sequence panels",
+    "hint": "Click a residue to focus the viewport · viewport picks scroll and highlight here"
   },
   "entityKinds": {
     "protein": "Protein",

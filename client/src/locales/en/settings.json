@@ -16,18 +16,39 @@
     "viewportNote": "Viewport render options (AO, shadows) are controlled from the Display workbench tab."
   },
   "workspace": {
+    "layout": "Workstation layout",
+    "layoutHint": "Pick how the Data, Viewport, Inspector, and Assistant panels are arranged. Panel positions are fixed — use presets or reset to change the layout.",
+    "activeBadge": "Active",
+    "resetLayout": "Reset to preset",
+    "appearance": "Appearance",
+    "density": "Density",
+    "densityHint": "Tab bar and panel spacing.",
+    "densityOptions": {
+      "comfortable": "Comfortable",
+      "compact": "Compact"
+    },
+    "sequenceDockHeight": "Sequence panel height",
+    "sequenceDockHeightHint": "{{px}} px (also resizable by dragging the handle above the sequence dock)",
+    "presets": {
+      "classic": "Classic",
+      "classicHint": "Data · Viewport · Inspector, with the Assistant docked below the Inspector.",
+      "focus": "Focus",
+      "focusHint": "Maximize the viewport with slim side columns; Assistant tabs onto the Inspector. Great for presenting or learning.",
+      "analysis": "Analysis",
+      "analysisHint": "Wide Inspector with the Assistant as a tab — for data-heavy, in-depth analysis.",
+      "assistant": "Assistant-first",
+      "assistantHint": "A large Assistant region on the right with the Inspector beneath it — for conversational exploration.",
+      "compact": "Compact",
+      "compactHint": "Narrow side panels with compact density — for small screens and laptops."
+    },
     "persistence": "Persistence",
-    "autoSave": "Auto-save session",
-    "autoSaveHint": "Viewer selection and display prefs (localStorage).",
-    "autoSaveInterval": "Auto-save interval",
-    "autoSaveIntervalHint": "{{minutes}} min (viewer debounces ~500ms on change)",
     "saveNote": "Use the header Save button (⌘S) to write a full workspace snapshot including dock layout and AI preferences. Export JSON via the Download menu."
   },
   "about": {
     "kicker": "Biolabs",
     "version": "{{version}} · Computational biology workstation",
     "stack": "Structure: NGL · Layout: Dockview · AI: modular cloud providers",
-    "copyright": "© 2026 Biolabs Project"
+    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team."
   },
   "ai": {
     "serverStatus": "Server status",
@@ -41,6 +62,23 @@
     "staticDeployNote": "Vercel static hosting serves the frontend only — there is no /api/ai server. For AI, deploy with Node (pnpm build && pnpm start) or Docker and add provider keys to server .env.",
     "refreshStatus": "Refresh status",
     "testConnection": "Test connection",
+    "providerHealth": "Provider health",
+    "providerHealthHint": "Live failover status. Blocked providers cool down automatically and requests switch to the next model/provider.",
+    "health": {
+      "ready": "Ready",
+      "cooldown": "Cooling down",
+      "usage": "Today {{today}}/{{daily}} · this minute {{rpm}}/{{rpmLimit}}",
+      "models": "Fallback chain: {{list}}"
+    },
+    "callBudget": "Call budget",
+    "callBudgetHint": "Intent-weighted limit shared across all providers.",
+    "budget": {
+      "daily": "Today {{used}}/{{limit}} units",
+      "rpm": "This minute {{used}}/{{limit}} units",
+      "concurrent": "In flight {{used}}/{{limit}}",
+      "nextCall": "Next call available in {{seconds}}s",
+      "strict": "Strict limits on"
+    },
     "clientPrefs": "Client preferences",
     "preferredProvider": "Preferred provider",
     "preferredProviderHint": "Overrides server auto-selection for your requests.",

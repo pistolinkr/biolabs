@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Eye,
   Layers,
+  LayoutGrid,
   Loader2,
   Maximize2,
   Microscope,
@@ -16,6 +17,10 @@ import {
 import { Streamdown } from "streamdown";
 import { useAssistantOptional } from "@/contexts/AssistantContext";
 import { useViewerOptional } from "@/contexts/ViewerContext";
+import { LAYOUT_PRESET_EVENT, LAYOUT_RESET_EVENT } from "@/contexts/WorkstationLayoutContext";
+import type { LayoutPresetId } from "@/lib/workstationLayoutStorage";
+import { i18n } from "@/i18n";
+import { buildCommandSearchBlob, commandMatchesQuery } from "@/lib/commandSearch";
 import { cn } from "@/lib/utils";
 
 type CommandCategory = "display" | "selection" | "view" | "analysis" | "io";
@@ -34,6 +39,7 @@ interface Command {
   icon: React.ReactNode;
   category: string;
   cmdId: string;
+  searchBlob: string;
 }
 
 type AiPanelPhase = "commands" | "loading" | "answer" | "error";
@@ -76,6 +82,12 @@ const COMMAND_DEFS: CommandDef[] = [
   { id: "confidence-toggle", cmdId: "overlay.confidence.toggle", category: "display", icon: <Palette size={14} /> },
   { id: "spin", cmdId: "view.spin.toggle", category: "view", icon: <Orbit size={14} /> },
   { id: "analysis-ixn", cmdId: "analysis.interactions", category: "analysis", icon: <Microscope size={14} /> },
+  { id: "layout-classic", cmdId: "layout.classic", category: "view", icon: <LayoutGrid size={14} /> },
+  { id: "layout-focus", cmdId: "layout.focus", category: "view", icon: <LayoutGrid size={14} /> },
+  { id: "layout-analysis", cmdId: "layout.analysis", category: "view", icon: <LayoutGrid size={14} /> },
+  { id: "layout-assistant", cmdId: "layout.assistant", category: "view", icon: <LayoutGrid size={14} /> },
+  { id: "layout-compact", cmdId: "layout.compact", category: "view", icon: <LayoutGrid size={14} /> },
+  { id: "layout-reset", cmdId: "layout.reset", category: "view", icon: <LayoutGrid size={14} /> },
   { id: "export-cif", cmdId: "export.cif", category: "io", icon: <Download size={14} /> },
   { id: "screenshot", cmdId: "screenshot", category: "io", icon: <Download size={14} /> },
 ];
@@ -93,6 +105,15 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
   const run = useCallback(
     (cmdId: string) => {
+      if (cmdId.startsWith("layout.")) {
+        if (cmdId === "layout.reset") {
+          window.dispatchEvent(new Event(LAYOUT_RESET_EVENT));
+        } else {
+          const preset = cmdId.slice("layout.".length) as LayoutPresetId;
+          window.dispatchEvent(new CustomEvent<LayoutPresetId>(LAYOUT_PRESET_EVENT, { detail: preset }));
+        }
+        return;
+      }
       if (viewer) {
         viewer.runViewerCommand(cmdId);
       } else {
@@ -112,19 +133,15 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         title: t(`items.${def.cmdId}.title`),
         description: t(`items.${def.cmdId}.description`),
         category: t(`categories.${def.category}`),
+        searchBlob: buildCommandSearchBlob(i18n, def.cmdId, def.category),
       })),
-    [t],
+    [t, i18n.language],
   );
 
   const filteredCommands = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     if (!q) return commands;
-    return commands.filter(
-      (cmd) =>
-        cmd.title.toLowerCase().includes(q) ||
-        cmd.description.toLowerCase().includes(q) ||
-        cmd.cmdId.toLowerCase().includes(q),
-    );
+    return commands.filter((cmd) => commandMatchesQuery(cmd.searchBlob, q));
   }, [commands, query]);
 
   const len = filteredCommands.length;
@@ -146,22 +163,17 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
     setAiPanel({ phase: "loading", question: q });
 
-    const result = await assistant.explain({
-      intent: "general",
-      prompt: q,
-      popoverOnly: true,
-      globalPopover: false,
-    });
+    const result = await assistant.runAgentQuery(q);
 
-    if (result && !result.includes("(AI_")) {
-      setAiPanel({ phase: "answer", question: q, answer: result });
+    if (result.ok && result.reply && !result.reply.includes("(AI_")) {
+      setAiPanel({ phase: "answer", question: q, answer: result.reply });
       return;
     }
 
     setAiPanel({
       phase: "error",
       question: q,
-      error: result ?? t("palette.aiFailed"),
+      error: result.error ?? t("palette.aiFailed"),
     });
   }, [assistant, query, t]);
 
@@ -228,7 +240,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       aria-hidden={!isOpen}
     >
       <div
-        className="relative w-full max-w-xl border border-[#2A2A2A] bg-[#111111] shadow-2xl"
+        className="relative w-full max-w-xl border border-border bg-[#111111] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -236,11 +248,11 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       >
         {showingAi ? (
           <div className="relative z-[60] flex max-h-[min(70vh,520px)] flex-col">
-            <div className="flex shrink-0 items-center gap-2 border-b border-[#2A2A2A] px-2 py-2 font-mono">
+            <div className="flex shrink-0 items-center gap-2 border-b border-border px-2 py-2 font-mono">
               <button
                 type="button"
                 onClick={backToCommands}
-                className="flex items-center gap-1 border border-[#2A2A2A] px-2 py-1 text-[9px] uppercase tracking-wide text-[#B0B0B0] hover:border-[#5A5A5A] hover:text-[#F2F2F2]"
+                className="flex items-center gap-1 border border-border px-2 py-1 text-[9px] uppercase tracking-wide text-[#B0B0B0] hover:border-muted-foreground hover:text-[#F2F2F2]"
               >
                 <ArrowLeft className="size-3" />
                 {t("palette.aiBack")}
@@ -249,7 +261,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-3 font-mono">
-              <div className="mb-3 border border-[#2A2A2A] bg-[#0A0A0A] px-2 py-1.5">
+              <div className="mb-3 border border-border bg-[#0A0A0A] px-2 py-1.5">
                 <div className="text-[8px] uppercase tracking-wide text-[#6A6A6A]">{t("palette.aiYouAsked")}</div>
                 <p className="mt-1 whitespace-pre-wrap text-[11px] leading-relaxed text-[#E8E8E8]">
                   {aiPanel.question}
@@ -272,7 +284,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               )}
             </div>
 
-            <div className="flex shrink-0 justify-between border-t border-[#2A2A2A] px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
+            <div className="flex shrink-0 justify-between border-t border-border px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
               <span>{t("palette.aiEscHint")}</span>
               <button
                 type="button"
@@ -285,7 +297,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2 border-b border-[#2A2A2A] p-2 font-mono">
+            <div className="flex items-center gap-2 border-b border-border p-2 font-mono">
               <span className="text-[10px] uppercase tracking-[0.2em] text-[#6A6A6A]">{t("palette.cmd")}</span>
               <input
                 ref={inputRef}
@@ -332,7 +344,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               )}
             </div>
 
-            <div className="flex items-center justify-between gap-2 border-t border-[#2A2A2A] px-2 py-1.5 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
+            <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1.5 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
               <span>{t("palette.navigate")}</span>
               <div className="flex items-center gap-2">
                 <span>
@@ -343,7 +355,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                   disabled={askDisabled}
                   onClick={() => void handleAskAi()}
                   title={askDisabled ? t("palette.askAiDisabledHint") : t("palette.askAiHint")}
-                  className="inline-flex items-center gap-1 border border-[#3A3A3A] bg-[#1A1A1A] px-2 py-1 text-[9px] uppercase tracking-wide text-[#D8D8D8] hover:border-[#5A6A6A] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 border border-border bg-[#1A1A1A] px-2 py-1 text-[9px] uppercase tracking-wide text-[#D8D8D8] hover:border-accent disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {assistant?.isSending ? (
                     <Loader2 className="size-3 animate-spin" />

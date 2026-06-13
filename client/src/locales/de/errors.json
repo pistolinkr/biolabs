@@ -1,6 +1,8 @@
 {
   "AI_QUOTA_EXCEEDED": "KI-Kontingent überschritten. Versuchen Sie es später erneut oder wechseln Sie den Provider.",
   "AI_RATE_LIMITED": "Zu viele Anfragen. Bitte warten Sie einen Moment.",
+  "AI_DAILY_BUDGET_EXCEEDED": "Tägliches KI-Nutzungslimit erreicht. Versuchen Sie es morgen erneut oder erhöhen Sie das Limit in den Einstellungen.",
+  "AI_CONCURRENCY_LIMIT": "Eine andere KI-Anfrage läuft noch. Warten Sie, bis sie abgeschlossen ist.",
   "AI_PROVIDER_UNAVAILABLE": "KI-Provider ist vorübergehend nicht verfügbar.",
   "AI_INVALID_REQUEST": "Ungültige KI-Anfrage.",
   "AI_CONTEXT_TOO_LARGE": "Kontext ist für das Modell zu groß.",

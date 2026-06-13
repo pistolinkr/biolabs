@@ -1,6 +1,8 @@
 {
   "AI_QUOTA_EXCEEDED": "Cuota de IA excedida. Inténtelo más tarde o cambie de proveedor.",
   "AI_RATE_LIMITED": "Demasiadas solicitudes. Espere un momento.",
+  "AI_DAILY_BUDGET_EXCEEDED": "Límite diario de uso de IA alcanzado. Inténtelo mañana o aumente el límite en la configuración.",
+  "AI_CONCURRENCY_LIMIT": "Otra solicitud de IA sigue en curso. Espere a que termine.",
   "AI_PROVIDER_UNAVAILABLE": "El proveedor de IA no está disponible temporalmente.",
   "AI_INVALID_REQUEST": "Solicitud de IA no válida.",
   "AI_CONTEXT_TOO_LARGE": "El contexto es demasiado grande para el modelo.",

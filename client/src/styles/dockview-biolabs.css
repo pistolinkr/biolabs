@@ -2,36 +2,23 @@
 @import "dockview/dist/styles/dockview.css";
 
 /**
- * Biolabs workstation — dockview chrome follows app CSS variables (html.dark default, html.light).
- * Always attach `dockview-theme-dark` for dockview internals; colors come from `--background` / `--card`.
+ * Biolabs workstation — borderless dock chrome; layout is preset-driven (no tab bars / sashes).
  */
-.workstation-dock-root {
+.workstation-dock-root,
+.workstation-dock-root.dockview-theme-dark {
   color-scheme: inherit;
   --dv-group-view-background-color: var(--background);
-  --dv-tabs-and-actions-container-background-color: var(--background);
-  --dv-activegroup-visiblepanel-tab-background-color: var(--card);
-  --dv-activegroup-hiddenpanel-tab-background-color: var(--secondary);
-  --dv-inactivegroup-visiblepanel-tab-background-color: var(--card);
-  --dv-inactivegroup-hiddenpanel-tab-background-color: var(--secondary);
-  --dv-tab-divider-color: var(--border);
-  --dv-activegroup-visiblepanel-tab-color: var(--foreground);
-  --dv-activegroup-hiddenpanel-tab-color: var(--muted-foreground);
-  --dv-inactivegroup-visiblepanel-tab-color: var(--muted-foreground);
-  --dv-inactivegroup-hiddenpanel-tab-color: var(--muted-foreground);
-  --dv-tabs-and-actions-container-height: 28px;
-  --dv-tabs-and-actions-container-font-size: 9px;
-  --dv-paneview-active-outline-color: var(--ring);
-  --dv-sash-color: var(--border);
-  --dv-active-sash-color: var(--accent);
-  --dv-drag-over-background-color: color-mix(in srgb, var(--accent) 18%, transparent);
-  --dv-tabs-container-scrollbar-color: var(--muted-foreground);
-  --dv-icon-hover-background-color: color-mix(in srgb, var(--foreground) 8%, transparent);
-  --dv-tab-group-chip-border-radius: 0px;
-  --dv-floating-box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border);
+  --dv-tabs-and-actions-container-height: 0px;
+  --dv-tabs-and-actions-container-background-color: transparent;
+  --dv-sash-color: transparent;
+  --dv-active-sash-color: transparent;
+  --dv-separator-border: transparent;
+  --dv-drag-over-background-color: transparent;
+  --dv-floating-box-shadow: none;
 }
 
 html.light .workstation-dock-root {
-  --dv-floating-box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--border);
+  --dv-floating-box-shadow: none;
 }
 
 .workstation-dock-root .dv-groupview,
@@ -42,50 +29,51 @@ html.light .workstation-dock-root {
   color: var(--foreground);
 }
 
-.workstation-dock-root .dv-default-tab {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  cursor: grab;
-  box-sizing: border-box;
-  padding-left: 12px;
-  padding-right: 12px;
+/* No dock tab bars (DATA / VIEWPORT / INSPECTOR strips) */
+.workstation-dock-root .dv-tabs-and-actions-container,
+.workstation-dock-root .dv-groupview .dv-tabs-and-actions-container {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
 }
 
-.workstation-dock-root .dv-default-tab:active {
-  cursor: grabbing;
+/* No split sash chrome between dock panels */
+.workstation-dock-root.dockview-theme-dark .dv-split-view-container .dv-sash-container .dv-sash {
+  pointer-events: none !important;
+  background-color: transparent !important;
 }
 
-.workstation-dock-root .dv-default-tab-content {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  padding-right: 8px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--muted-foreground);
+.workstation-dock-root.dockview-theme-dark .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover,
+.workstation-dock-root.dockview-theme-dark .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):active {
+  background-color: transparent !important;
 }
 
-.workstation-dock-root .dv-default-tab::after {
-  content: "";
-  flex-shrink: 0;
-  width: 14px;
-  height: 9px;
-  margin-left: auto;
-  opacity: 0.8;
-  background: repeating-linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--muted-foreground) 85%, transparent) 0,
-    color-mix(in srgb, var(--muted-foreground) 85%, transparent) 1px,
-    transparent 1px,
-    transparent 3px
-  );
+.workstation-dock-root.dockview-theme-dark .dv-split-view-container.dv-separator-border .dv-view:not(:first-child)::before {
+  background-color: transparent;
 }
 
 .workstation-dock-root .dv-floating-overlay-host {
   z-index: 1000;
+}
+
+/* Collapse shared edges so adjacent panels show a single 1px line, not 2px. */
+.workstation-dock-root
+  .dv-split-view-container.dv-horizontal
+  > .dv-view-container
+  > .dv-view:not(:first-child)
+  :is(.workbench-surface, .workbench-viewport-frame) {
+  border-left-width: 0;
+}
+
+.workstation-dock-root
+  .dv-split-view-container.dv-vertical
+  > .dv-view-container
+  > .dv-view:not(:first-child)
+  :is(.workbench-surface, .workbench-viewport-frame) {
+  border-top-width: 0;
 }

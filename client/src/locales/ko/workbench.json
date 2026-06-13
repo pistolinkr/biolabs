@@ -212,7 +212,9 @@
   },
   "sequence": {
     "proteinTitle": "아미노산 서열 (1-letter)",
-    "nucleicTitle": "DNA / RNA (1-letter)"
+    "nucleicTitle": "DNA / RNA (1-letter)",
+    "dockLabel": "서열 패널",
+    "hint": "잔기를 클릭하면 뷰포트가 해당 위치로 이동합니다 · 뷰포트 선택 시 여기에서 스크롤·강조됩니다"
   },
   "entityKinds": {
     "protein": "단백질",

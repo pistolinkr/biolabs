@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import { useLocale } from "@/contexts/LocaleContext";
@@ -7,23 +7,18 @@ import {
   isLocaleSuggestionDismissed,
 } from "@/lib/localeSuggestionStorage";
 import {
-  getRegionDisplayName,
-  inferRegionalLocale,
+  inferTimezoneLocaleSuggestion,
   type RegionalLocaleInference,
 } from "@shared/i18n/locales";
 
 export default function LocaleSuggestionBanner() {
   const { t } = useTranslation("common");
-  const { resolvedLocale, setUiLocale, localeLabels } = useLocale();
+  const { uiLocale, resolvedLocale, setUiLocale, localeLabels } = useLocale();
   const [inference, setInference] = useState<RegionalLocaleInference | null>(null);
 
   useEffect(() => {
-    const regional = inferRegionalLocale();
+    const regional = inferTimezoneLocaleSuggestion(uiLocale, resolvedLocale);
     if (!regional) {
-      setInference(null);
-      return;
-    }
-    if (regional.locale === resolvedLocale) {
       setInference(null);
       return;
     }
@@ -32,12 +27,7 @@ export default function LocaleSuggestionBanner() {
       return;
     }
     setInference(regional);
-  }, [resolvedLocale]);
-
-  const regionName = useMemo(() => {
-    if (!inference) return "";
-    return getRegionDisplayName(inference.regionCode, resolvedLocale);
-  }, [inference, resolvedLocale]);
+  }, [resolvedLocale, uiLocale]);
 
   if (!inference) return null;
 
@@ -63,7 +53,10 @@ export default function LocaleSuggestionBanner() {
     >
       <div className="min-w-0 flex-1">
         <p className="font-mono text-[10px] leading-relaxed text-foreground">
-          {t("localeSuggestion.message", { region: regionName, language: languageName })}
+          {t("localeSuggestion.message", {
+            timeZone: inference.timeZone,
+            language: languageName,
+          })}
         </p>
       </div>
       <div className="flex shrink-0 flex-wrap items-center gap-2">

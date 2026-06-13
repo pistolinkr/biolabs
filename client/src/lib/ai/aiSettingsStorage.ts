@@ -19,7 +19,7 @@ export const DEFAULT_AI_CLIENT_SETTINGS: AiClientSettings = {
   preferredProvider: "auto",
   responseLanguage: "auto",
   temperature: 0.35,
-  maxOutputTokens: 1024,
+  maxOutputTokens: 2048,
   includeFullSequences: true,
   compactContext: false,
   autoOpenChatOnExplain: false,

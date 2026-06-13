@@ -115,6 +115,17 @@ html.dark {
   --sidebar-border: #2a2a2a;
   --sidebar-ring: #7c8a99;
   --viewport-background: #0a0a0a;
+  --workbench-panel-border-width: 1px;
+  /* Dark gray panel resize / split lines (shared by dock + floating AI panels) */
+  --panel-handle-line: var(--border);
+  --panel-handle-line-active: #525252;
+  --panel-handle-grip: #454545;
+  --panel-handle-fill: #2e2e2e;
+  --panel-handle-fill-hover: #454545;
+  /* Dock tab handler strip */
+  --panel-tab-bar-bg: #2a2a2a;
+  --panel-tab-active-bg: #3a3a3a;
+  --panel-tab-inactive-bg: #252525;
   color-scheme: dark;
   background-color: var(--background);
   color: var(--foreground);
@@ -217,7 +228,15 @@ html.light {
   }
 
   .workbench-surface {
-    @apply border border-border bg-card text-card-foreground;
+    box-sizing: border-box;
+    border: var(--workbench-panel-border-width) solid var(--border);
+    @apply bg-card text-card-foreground;
+  }
+
+  .workbench-viewport-frame {
+    box-sizing: border-box;
+    border: var(--workbench-panel-border-width) solid var(--border);
+    background-color: var(--viewport-background);
   }
 
   .workbench-panel {
@@ -230,6 +249,27 @@ html.light {
 
   .workbench-kicker {
     @apply text-[9px] uppercase tracking-[0.14em] text-muted-foreground;
+  }
+
+  /* Floating AI panel resize handles (8-way) */
+  .floating-panel-handle-edge:hover {
+    background-color: color-mix(in srgb, var(--panel-handle-line) 35%, transparent);
+  }
+
+  .floating-panel-handle-edge.is-resizing {
+    background-color: color-mix(in srgb, var(--panel-handle-line-active) 45%, transparent);
+  }
+
+  .floating-panel-handle-corner {
+    background-color: color-mix(in srgb, var(--panel-handle-fill) 55%, transparent);
+  }
+
+  .floating-panel-handle-corner:hover {
+    background-color: color-mix(in srgb, var(--panel-handle-fill-hover) 65%, transparent);
+  }
+
+  .floating-panel-handle-corner.is-resizing {
+    background-color: color-mix(in srgb, var(--panel-handle-line-active) 70%, transparent);
   }
   
   .panel {
@@ -248,15 +288,11 @@ html.light {
     @apply flex-1 flex flex-col overflow-hidden overscroll-y-none;
   }
 
-  /* Shadow on inspector content (dockview replaces fixed .panel-right wrapper) */
+  /* Inspector: flat edge — no stacked border beside dock split handle */
   .workbench-inspector-surface {
     position: relative;
     z-index: 10;
-    box-shadow: -14px 0 32px rgba(0, 0, 0, 0.72);
-  }
-
-  html.light .workbench-inspector-surface {
-    box-shadow: -10px 0 24px rgba(0, 0, 0, 0.08);
+    box-shadow: none;
   }
   
   .panel-bottom {

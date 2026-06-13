@@ -22,12 +22,12 @@
   "locale": {
     "auto": "Automatisch (Browser)",
     "label": "UI-Sprache",
-    "hint": "Steuert Menüs, Beschriftungen und Meldungen. Automatisch nutzt zuerst die Browser-Sprache, dann die Zeitzone-Region. VPN allein ändert die Sprache nicht.",
+    "hint": "Steuert Menüs, Beschriftungen und Meldungen. Automatisch folgt der Browser-Sprache. Zeitzone-Vorschläge erscheinen separat mit Zustimmung (nicht IP/VPN).",
     "autoResolved": "Automatisch erkannt: {{locale}}"
   },
   "localeSuggestion": {
-    "ariaLabel": "Sprachvorschlag",
-    "message": "Ihre Region scheint {{region}} zu sein. Oberfläche auf {{language}} umstellen?",
+    "ariaLabel": "Zeitzone-Sprachvorschlag",
+    "message": "Ihre Zeitzone ist {{timeZone}}. Oberfläche auf {{language}} umstellen?",
     "accept": "Zu {{language}} wechseln",
     "dismiss": "Nicht jetzt"
   },

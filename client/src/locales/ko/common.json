@@ -22,12 +22,12 @@
   "locale": {
     "auto": "자동 (브라우저)",
     "label": "UI 언어",
-    "hint": "메뉴, 레이블, 메시지를 제어합니다. 자동은 브라우저 언어를 따릅니다. 지역 기반 제안은 별도로 동의 후 표시됩니다.",
+    "hint": "메뉴, 레이블, 메시지를 제어합니다. 자동은 브라우저 언어를 따릅니다. 타임존 기반 제안은 IP/VPN과 무관하게 별도 동의 후 표시됩니다.",
     "autoResolved": "자동 감지: {{locale}}"
   },
   "localeSuggestion": {
-    "ariaLabel": "언어 제안",
-    "message": "현재 지역이 {{region}}(으)로 감지되었습니다. 인터페이스를 {{language}}로 변경하시겠습니까?",
+    "ariaLabel": "타임존 언어 제안",
+    "message": "시간대가 {{timeZone}}입니다. UI 언어를 {{language}}(으)로 바꿀까요?",
     "accept": "{{language}}로 변경",
     "dismiss": "나중에"
   },

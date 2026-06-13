@@ -1,21 +1,18 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import WorkstationDockLayout from "@/components/WorkstationDockLayout";
 import AIChatSheet from "@/components/assistant/AIChatSheet";
 import ExplainPopover from "@/components/assistant/ExplainPopover";
-import ResidueAnalysisPanel from "@/components/assistant/ResidueAnalysisPanel";
-import ViewportOverlays from "@/components/workbench/ViewportOverlays";
-import ContextualWorkflowBanner from "@/components/workbench/ContextualWorkflowBanner";
-import WorkflowPipelineRail from "@/components/workbench/WorkflowPipelineRail";
+import ViewportAnalysisPanel from "@/components/assistant/ViewportAnalysisPanel";
 import AppHeader from "@/components/AppHeader";
 import CommandPalette from "@/components/CommandPalette";
 import SettingsPanel from "@/components/SettingsPanel";
-import ScientificHUD from "@/components/ScientificHUD";
 import StructureViewport from "@/components/StructureViewport";
 import ViewportChrome from "@/components/viewport/ViewportChrome";
 import { AssistantProvider } from "@/contexts/AssistantContext";
 import { ViewerProvider, useViewer } from "@/contexts/ViewerContext";
 import { WorkflowProvider } from "@/contexts/WorkflowContext";
+import { WorkstationLayoutProvider, useWorkstationLayout } from "@/contexts/WorkstationLayoutContext";
 
 /**
  * Biolabs Workspace — computational biology workstation shell.
@@ -25,7 +22,9 @@ export default function Workspace() {
     <ViewerProvider>
       <WorkflowProvider>
         <AssistantProvider>
-          <WorkspaceChrome />
+          <WorkstationLayoutProvider>
+            <WorkspaceChrome />
+          </WorkstationLayoutProvider>
         </AssistantProvider>
       </WorkflowProvider>
     </ViewerProvider>
@@ -37,25 +36,23 @@ function WorkspaceChrome() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { proteinSelection, setViewportShell } = useViewer();
-  const viewportShellRef = useRef<HTMLDivElement>(null);
-  const canvasHudBoundsRef = useRef<HTMLDivElement>(null);
-
-  const setViewportAndHudRef = (el: HTMLDivElement | null) => {
-    viewportShellRef.current = el;
+  const { density } = useWorkstationLayout();
+  const setViewportRef = (el: HTMLDivElement | null) => {
     setViewportShell(el);
   };
 
   return (
-    <div className="workstation-shell flex h-screen max-h-screen flex-col overflow-hidden bg-background text-foreground">
+    <div
+      data-density={density}
+      className="workstation-shell flex h-screen max-h-screen flex-col overflow-hidden bg-background text-foreground"
+    >
       <AppHeader
         onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
         onSettingsOpen={() => setSettingsOpen(true)}
       />
-      <WorkflowPipelineRail />
-      <ContextualWorkflowBanner />
       {proteinSelection ? (
         <div
-          className="shrink-0 border-b border-border bg-card px-4 py-1.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground"
+          className="shrink-0 bg-background px-4 py-1.5 font-mono text-[10px] uppercase tracking-wide text-muted-foreground"
           title={proteinSelection.label}
         >
           <span className="text-foreground">{t("loaded")}</span>
@@ -70,24 +67,14 @@ function WorkspaceChrome() {
         <WorkstationDockLayout
           centerContent={
             <div
-              ref={setViewportAndHudRef}
+              ref={setViewportRef}
               className="relative flex h-full min-h-0 min-w-0 flex-col overflow-hidden overscroll-y-none"
             >
               <div className="relative min-h-0 flex-1 overflow-hidden">
                 <ViewportChrome>
-                  <div
-                    ref={canvasHudBoundsRef}
-                    className="relative h-full min-h-0 w-full overflow-hidden"
-                  >
+                  <div className="relative h-full min-h-0 w-full overflow-hidden">
                     <StructureViewport className="absolute inset-0" />
-                    <ViewportOverlays />
-                    <ResidueAnalysisPanel />
-                    <ScientificHUD
-                      visible={true}
-                      position="top-right"
-                      canvasRef={canvasHudBoundsRef}
-                      dockInsidePanel
-                    />
+                    <ViewportAnalysisPanel />
                   </div>
                 </ViewportChrome>
               </div>

@@ -72,37 +72,30 @@ export default function ViewportBottomInfoStrip() {
   ]);
 
   return (
-    <div className="flex min-h-8 shrink-0 items-center gap-3 border-t border-[#2A2A2A] bg-[#111111] px-2 py-1 font-mono text-[10px] text-[#B0B0B0]">
-      <span className="min-w-0 shrink text-[#8A8A8A]" title={structLine}>
-        <span className="mr-1 text-[9px] uppercase tracking-wider text-[#6A6A6A]">{t("bottomStrip.struct")}</span>
-        <span className="truncate text-[#E8E8E8]">{structLine}</span>
+    <div className="flex min-h-8 shrink-0 items-center gap-3 bg-background px-2 py-1 font-mono text-[10px] text-muted-foreground">
+      <span className="min-w-0 shrink" title={structLine}>
+        <span className="mr-1 text-[9px] uppercase tracking-wider text-muted-foreground">{t("bottomStrip.struct")}</span>
+        <span className="truncate text-foreground">{structLine}</span>
       </span>
-      <div className="h-4 w-px shrink-0 bg-[#2A2A2A]" />
-      <span className="min-w-0 shrink-0 text-[#C8C8C8]" title={pickLine}>
-        <span className="mr-1 text-[9px] uppercase tracking-wider text-[#6A6A6A]">{t("bottomStrip.pick")}</span>
+      <span className="min-w-0 shrink-0 text-foreground" title={pickLine}>
+        <span className="mr-1 text-[9px] uppercase tracking-wider text-muted-foreground">{t("bottomStrip.pick")}</span>
         {pickLine}
       </span>
       {measurementMode !== "none" ? (
-        <>
-          <div className="h-4 w-px shrink-0 bg-[#2A2A2A]" />
-          <span
-            className="text-[9px] uppercase text-[#9A9A7A]"
-            title={t(`bottomStrip.measureHints.${measurementMode}`)}
-          >
+        <span
+          className="text-[9px] uppercase text-muted-foreground"
+          title={t(`bottomStrip.measureHints.${measurementMode}`)}
+        >
             {t("bottomStrip.measureHint", {
               mode: t(`toolbar.measureModes.${measurementMode}`),
               hint: t(`bottomStrip.measureHints.${measurementMode}`),
             })}
           </span>
-        </>
       ) : null}
       {overlayLine ? (
-        <>
-          <div className="h-4 w-px shrink-0 bg-[#2A2A2A]" />
-          <span className="min-w-0 shrink text-[9px] uppercase text-[#9A9A7A]" title={overlayLine}>
-            {overlayLine}
-          </span>
-        </>
+        <span className="min-w-0 shrink text-[9px] uppercase text-muted-foreground" title={overlayLine}>
+          {overlayLine}
+        </span>
       ) : null}
     </div>
   );

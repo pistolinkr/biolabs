@@ -22,12 +22,12 @@
   "locale": {
     "auto": "Auto (navegador)",
     "label": "Idioma de la interfaz",
-    "hint": "Controla menús, etiquetas y mensajes. Auto usa primero el idioma del navegador y luego la región del huso horario. Solo VPN no cambia el idioma.",
+    "hint": "Controla menús, etiquetas y mensajes. Auto sigue el idioma del navegador. Las sugerencias por zona horaria (no IP/VPN) aparecen por separado con consentimiento.",
     "autoResolved": "Detectado automáticamente: {{locale}}"
   },
   "localeSuggestion": {
-    "ariaLabel": "Sugerencia de idioma",
-    "message": "Parece que su región es {{region}}. ¿Cambiar la interfaz a {{language}}?",
+    "ariaLabel": "Sugerencia de idioma por zona horaria",
+    "message": "Su zona horaria es {{timeZone}}. ¿Cambiar la interfaz a {{language}}?",
     "accept": "Cambiar a {{language}}",
     "dismiss": "Ahora no"
   },

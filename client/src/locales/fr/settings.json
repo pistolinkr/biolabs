@@ -27,7 +27,7 @@
     "kicker": "Biolabs",
     "version": "{{version}} · Poste de travail de biologie computationnelle",
     "stack": "Structure : NGL · Disposition : Dockview · IA : fournisseurs cloud modulaires",
-    "copyright": "© 2026 Biolabs Project"
+    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team."
   },
   "ai": {
     "serverStatus": "État du serveur",

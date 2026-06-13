@@ -22,12 +22,12 @@
   "locale": {
     "auto": "Auto (navigateur)",
     "label": "Langue de l'interface",
-    "hint": "Contrôle les menus, libellés et messages. Auto utilise d'abord la langue du navigateur, puis la région du fuseau horaire. Le VPN seul ne change pas la langue.",
+    "hint": "Contrôle les menus, libellés et messages. Auto suit la langue du navigateur. Les suggestions basées sur le fuseau horaire (pas IP/VPN) apparaissent séparément avec consentement.",
     "autoResolved": "Détection auto : {{locale}}"
   },
   "localeSuggestion": {
-    "ariaLabel": "Suggestion de langue",
-    "message": "Votre région semble être {{region}}. Passer l'interface en {{language}} ?",
+    "ariaLabel": "Suggestion de langue (fuseau horaire)",
+    "message": "Votre fuseau horaire est {{timeZone}}. Passer l'interface en {{language}} ?",
     "accept": "Passer en {{language}}",
     "dismiss": "Plus tard"
   },

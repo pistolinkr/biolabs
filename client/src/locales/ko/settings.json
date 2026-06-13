@@ -16,18 +16,39 @@
     "viewportNote": "뷰포트 렌더 옵션(AO, 그림자)은 Display 워크벤치 탭에서 제어합니다."
   },
   "workspace": {
+    "layout": "워크스테이션 레이아웃",
+    "layoutHint": "데이터, 뷰포트, 인스펙터, 어시스턴트 패널 배치를 선택하세요. 패널 위치는 고정되어 있으며, 프리셋 선택이나 초기화로 레이아웃을 변경할 수 있습니다.",
+    "activeBadge": "활성",
+    "resetLayout": "프리셋으로 초기화",
+    "appearance": "외관",
+    "density": "밀도",
+    "densityHint": "탭바 및 패널 간격.",
+    "densityOptions": {
+      "comfortable": "보통",
+      "compact": "조밀"
+    },
+    "sequenceDockHeight": "시퀀스 패널 높이",
+    "sequenceDockHeightHint": "{{px}} px (시퀀스 도크 위 핸들을 드래그해서도 조절 가능)",
+    "presets": {
+      "classic": "Classic",
+      "classicHint": "데이터 · 뷰포트 · 인스펙터, 어시스턴트는 인스펙터 아래에 도킹.",
+      "focus": "Focus",
+      "focusHint": "양옆을 슬림하게 줄여 뷰포트를 최대화하고 어시스턴트는 인스펙터 탭으로. 발표나 학습에 적합.",
+      "analysis": "Analysis",
+      "analysisHint": "넓은 인스펙터와 어시스턴트 탭 — 데이터 중심 심층 분석용.",
+      "assistant": "Assistant-first",
+      "assistantHint": "우측에 큰 어시스턴트 영역, 그 아래 인스펙터 — 대화형 탐색용.",
+      "compact": "Compact",
+      "compactHint": "좁은 양옆 패널 + 조밀 밀도 — 작은 화면과 노트북용."
+    },
     "persistence": "영속성",
-    "autoSave": "세션 자동 저장",
-    "autoSaveHint": "뷰어 선택 및 표시 설정(localStorage).",
-    "autoSaveInterval": "자동 저장 간격",
-    "autoSaveIntervalHint": "{{minutes}}분 (뷰어는 변경 시 ~500ms 디바운스)",
     "saveNote": "헤더의 저장 버튼(⌘S)을 사용하여 도크 레이아웃 및 AI 설정을 포함한 전체 워크스페이스 스냅샷을 저장하세요. 다운로드 메뉴에서 JSON을 보낼 수 있습니다."
   },
   "about": {
     "kicker": "Biolabs",
     "version": "{{version}} · 계산 생물학 워크스테이션",
     "stack": "구조: NGL · 레이아웃: Dockview · AI: 모듈형 클라우드 프로바이더",
-    "copyright": "© 2026 Biolabs Project"
+    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team."
   },
   "ai": {
     "serverStatus": "서버 상태",
@@ -41,6 +62,23 @@
     "staticDeployNote": "Vercel 정적 호스팅은 프론트엔드만 제공하며 /api/ai 서버가 없습니다. AI를 사용하려면 Node(pnpm build && pnpm start) 또는 Docker로 배포하고 서버 .env에 API 키를 추가하세요.",
     "refreshStatus": "상태 새로고침",
     "testConnection": "연결 테스트",
+    "providerHealth": "프로바이더 상태",
+    "providerHealthHint": "실시간 폴백 상태입니다. 차단된 프로바이더는 자동으로 쿨다운되고 요청은 다음 모델/프로바이더로 전환됩니다.",
+    "health": {
+      "ready": "정상",
+      "cooldown": "쿨다운 중",
+      "usage": "오늘 {{today}}/{{daily}} · 이번 분 {{rpm}}/{{rpmLimit}}",
+      "models": "폴백 체인: {{list}}"
+    },
+    "callBudget": "호출 예산",
+    "callBudgetHint": "모든 프로바이더가 공유하는 인텐트 가중치 한도입니다.",
+    "budget": {
+      "daily": "오늘 {{used}}/{{limit}} 유닛",
+      "rpm": "이번 분 {{used}}/{{limit}} 유닛",
+      "concurrent": "처리 중 {{used}}/{{limit}}",
+      "nextCall": "{{seconds}}초 후 다음 호출 가능",
+      "strict": "엄격 제한 활성화"
+    },
     "clientPrefs": "클라이언트 설정",
     "preferredProvider": "선호 프로바이더",
     "preferredProviderHint": "요청에 대해 서버 자동 선택을 재정의합니다.",

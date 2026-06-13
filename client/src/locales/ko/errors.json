@@ -1,6 +1,8 @@
 {
   "AI_QUOTA_EXCEEDED": "AI 할당량을 초과했습니다. 나중에 다시 시도하거나 프로바이더를 변경하세요.",
   "AI_RATE_LIMITED": "요청이 너무 많습니다. 잠시 기다려 주세요.",
+  "AI_DAILY_BUDGET_EXCEEDED": "오늘 AI 사용 한도에 도달했습니다. 내일 다시 시도하거나 설정에서 한도를 늘리세요.",
+  "AI_CONCURRENCY_LIMIT": "다른 AI 요청이 아직 처리 중입니다. 완료될 때까지 기다려 주세요.",
   "AI_PROVIDER_UNAVAILABLE": "AI 프로바이더를 일시적으로 사용할 수 없습니다.",
   "AI_INVALID_REQUEST": "잘못된 AI 요청입니다.",
   "AI_CONTEXT_TOO_LARGE": "컨텍스트가 모델에 비해 너무 큽니다.",

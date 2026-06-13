@@ -1,0 +1,2 @@
+/** User prompt for whole-structure AI analysis (intent: structure). */
+export const STRUCTURE_ANALYSIS_PROMPT = `Analyze the currently loaded structure as a whole. Summarize overall fold, domain architecture, quaternary assembly, and chain composition (protein, nucleic, ligand). Use structure_summary and platform_generated_analysis from context. Note confidence or experimental quality signals when present. Highlight biologically interesting regions and suggest what to explore next in the viewer.`;

@@ -34,7 +34,7 @@ const STAGE_TO_LEFT_TAB: Partial<Record<WorkflowStageId, LeftWorkbenchTab>> = {
   folding: "source",
   analysis: "structure",
   reasoning: "structure",
-  visualization: "display",
+  visualization: "structure",
   simulation: "structure",
   engineering: "input",
 };

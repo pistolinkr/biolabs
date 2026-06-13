@@ -1,6 +1,13 @@
 import type { AiChatMessage } from "@shared/ai/types";
 import type { AiServerConfig } from "../config.ts";
-import { AiProviderError, type AiCompletionOptions, type AiProvider, type AiProviderResult } from "./base.ts";
+import { appendTruncationNotice } from "../truncation.ts";
+import {
+  AiProviderError,
+  parseRetryAfterMs,
+  type AiCompletionOptions,
+  type AiProvider,
+  type AiProviderResult,
+} from "./base.ts";
 
 export function createGeminiProvider(config: AiServerConfig): AiProvider {
   return {
@@ -11,6 +18,7 @@ export function createGeminiProvider(config: AiServerConfig): AiProvider {
         throw new AiProviderError("GEMINI_API_KEY is not configured", "gemini");
       }
 
+      const model = options.model ?? config.geminiModel;
       const systemParts = messages.filter((m) => m.role === "system").map((m) => m.content);
       const convo = messages.filter((m) => m.role !== "system");
 
@@ -19,7 +27,7 @@ export function createGeminiProvider(config: AiServerConfig): AiProvider {
         parts: [{ text: m.content }],
       }));
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.geminiModel)}:generateContent?key=${encodeURIComponent(config.geminiApiKey)}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(config.geminiApiKey)}`;
 
       const res = await fetch(url, {
         method: "POST",
@@ -39,27 +47,39 @@ export function createGeminiProvider(config: AiServerConfig): AiProvider {
       if (!res.ok) {
         const errText = await res.text().catch(() => "");
         console.error("[biolabs-ai] gemini upstream", res.status, errText.slice(0, 500));
-        throw new AiProviderError("gemini upstream error", "gemini", res.status);
+        throw new AiProviderError("gemini upstream error", "gemini", res.status, {
+          retryAfterMs: parseRetryAfterMs(res),
+          model,
+        });
       }
 
       const data = (await res.json()) as {
-        candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        candidates?: Array<{
+          content?: { parts?: Array<{ text?: string }> };
+          finishReason?: string;
+        }>;
         error?: { message?: string };
       };
 
       if (data.error?.message) {
         console.error("[biolabs-ai] gemini payload error", data.error.message);
-        throw new AiProviderError("gemini payload error", "gemini");
+        throw new AiProviderError("gemini payload error", "gemini", undefined, { model });
       }
 
+      const candidate = data.candidates?.[0];
       const text =
-        data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("")?.trim() ?? "";
+        candidate?.content?.parts?.map((p) => p.text ?? "").join("")?.trim() ?? "";
 
       if (!text) {
-        throw new AiProviderError("empty response", "gemini");
+        throw new AiProviderError("empty response", "gemini", undefined, { model });
       }
 
-      return { text, model: config.geminiModel, provider: "gemini" };
+      const truncated = candidate?.finishReason === "MAX_TOKENS";
+      return {
+        text: appendTruncationNotice(text, truncated),
+        model,
+        provider: "gemini",
+      };
     },
   };
 }

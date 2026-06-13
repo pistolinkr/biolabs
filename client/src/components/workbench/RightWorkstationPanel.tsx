@@ -248,12 +248,12 @@ export default function RightWorkstationPanel() {
         </Section>
 
         <Section title={t("inspector.sections.confidence")} defaultOpen>
-          <div className="space-y-2 border border-[#2A2A2A] bg-[#0A0A0A] p-2">
+          <div className="space-y-2 border border-border bg-[#0A0A0A] p-2">
             <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#6A6A6A]">
               {t("inspector.plddtRamp")}
             </div>
             <div
-              className="h-2.5 w-full border border-[#2A2A2A]"
+              className="h-2.5 w-full border border-border"
               style={{
                 background:
                   "linear-gradient(90deg, #303030 0%, #6A6F74 35%, #9EA8B0 65%, #D2D6DC 100%)",
@@ -272,7 +272,7 @@ export default function RightWorkstationPanel() {
             <button
               type="button"
               onClick={() => runViewerCommand("overlay.confidence.toggle")}
-              className="w-full border border-[#2A2A2A] bg-[#141414] py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-[#5A5A5A] hover:text-[#F2F2F2]"
+              className="w-full border border-border bg-[#141414] py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-muted-foreground hover:text-[#F2F2F2]"
             >
               {colorScheme === "bfactor" || colorScheme === "bfactor_gray"
                 ? t("inspector.clearHeatmap")
@@ -295,7 +295,7 @@ export default function RightWorkstationPanel() {
               value={assemblyPick}
               onChange={(e) => setAssemblyPick(e.target.value)}
               disabled={!structureModel}
-              className="border border-[#2A2A2A] bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] text-[#F2F2F2] disabled:opacity-40"
+              className="border border-border bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] text-[#F2F2F2] disabled:opacity-40"
             >
               <option value="asu">{t("inspector.asu")}</option>
               <option value="bio1">{t("inspector.bio1")}</option>
@@ -311,7 +311,7 @@ export default function RightWorkstationPanel() {
 
         <Section title={t("inspector.sections.interactionGraph")} defaultOpen={false}>
           {!polymerContextSnapshot?.proximityGraphEdges?.length ? (
-            <p className="border border-[#2A2A2A] bg-[#0A0A0A] p-2 font-mono text-[9px] leading-snug text-[#7A7A7A]">
+            <p className="border border-border bg-[#0A0A0A] p-2 font-mono text-[9px] leading-snug text-[#7A7A7A]">
               {t("inspector.graphEmpty")}
             </p>
           ) : (

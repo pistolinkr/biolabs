@@ -50,6 +50,12 @@
     "overlay.confidence.toggle": { "title": "신뢰도 색상 전환", "description": "B-factor 회색조 / 이전 스킴 복원" },
     "view.spin.toggle": { "title": "회전 전환", "description": "스테이지 자동 회전" },
     "analysis.interactions": { "title": "상호작용 계산 (스텁)", "description": "인터페이스 그래프 / 접촉 워커" },
+    "layout.classic": { "title": "레이아웃: Classic", "description": "데이터 · 뷰포트 · 인스펙터, 어시스턴트 하단" },
+    "layout.focus": { "title": "레이아웃: Focus", "description": "뷰포트 최대화, 양옆 패널 슬림" },
+    "layout.analysis": { "title": "레이아웃: Analysis", "description": "넓은 인스펙터 + 어시스턴트 탭" },
+    "layout.assistant": { "title": "레이아웃: Assistant-first", "description": "우측에 큰 어시스턴트 영역" },
+    "layout.compact": { "title": "레이아웃: Compact", "description": "작은 화면용 좁은 양옆 패널" },
+    "layout.reset": { "title": "레이아웃 초기화", "description": "현재 레이아웃 프리셋 다시 적용" },
     "export.cif": { "title": "좌표 보내기", "description": "해결된 URL로 mmCIF / PDB 다운로드" },
     "screenshot": { "title": "뷰포트 스크린샷", "description": "WebGL 캔버스에서 PNG" }
   }

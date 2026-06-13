@@ -48,18 +48,18 @@ export default function StructureHierarchyPanel() {
 
   if (!proteinSelection && !structureModel) {
     return (
-      <div className="border-b border-[#2A2A2A] px-2 py-3 font-mono text-[10px] uppercase tracking-wide text-[#8A8A8A]">
+      <div className="border-b border-border px-2 py-3 font-mono text-[10px] uppercase tracking-wide text-[#8A8A8A]">
         {t("hierarchy.emptyLoad")}
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-[#2A2A2A]">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-border">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-1 border-b border-[#2A2A2A] bg-[#111111] px-2 py-1.5 text-left font-mono text-[10px] uppercase tracking-widest text-[#8A8A8A] hover:bg-[#171717]"
+        className="flex w-full items-center gap-1 border-b border-border bg-[#111111] px-2 py-1.5 text-left font-mono text-[10px] uppercase tracking-widest text-[#8A8A8A] hover:bg-[#171717]"
       >
         {open ? <ChevronDown className="size-3" /> : <ChevronRight className="size-3" />}
         {t("hierarchy.title")}
@@ -71,7 +71,7 @@ export default function StructureHierarchyPanel() {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder={t("hierarchy.filterPlaceholder")}
-            className="border border-[#2A2A2A] bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] uppercase text-[#F2F2F2] placeholder:text-[#5A5A5A] focus:outline-none focus:border-[#5A5A5A]"
+            className="border border-border bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] uppercase text-[#F2F2F2] placeholder:text-[#5A5A5A] focus:outline-none focus:border-muted-foreground"
           />
           <div className="min-h-0 flex-1 overflow-y-auto font-mono text-[10px] leading-snug">
             {groupKeys.map((gk) => {
@@ -79,7 +79,7 @@ export default function StructureHierarchyPanel() {
               if (!list?.length) return null;
               const go = groupOpen[gk] ?? true;
               return (
-                <div key={gk} className="mb-1 border border-[#2A2A2A]/80">
+                <div key={gk} className="mb-1 border border-border/80">
                   <button
                     type="button"
                     onClick={() => setGroupOpen((s) => ({ ...s, [gk]: !go }))}
@@ -95,7 +95,7 @@ export default function StructureHierarchyPanel() {
                         return (
                           <div
                             key={c.id}
-                            className="border-t border-[#2A2A2A]/50 py-1 pl-1"
+                            className="border-t border-border/50 py-1 pl-1"
                             onMouseEnter={() => setHoverChainId(c.id)}
                             onMouseLeave={() => setHoverChainId(null)}
                           >
@@ -115,7 +115,7 @@ export default function StructureHierarchyPanel() {
                               <button
                                 type="button"
                                 title={t("hierarchy.isolate")}
-                                className="ml-auto border border-transparent px-1 text-[9px] uppercase text-[#8A8A8A] hover:border-[#2A2A2A] hover:text-[#F2F2F2]"
+                                className="ml-auto border border-transparent px-1 text-[9px] uppercase text-[#8A8A8A] hover:border-border hover:text-[#F2F2F2]"
                                 onClick={() => setIsolateChainId(isolateChainId === c.id ? null : c.id)}
                               >
                                 {t("hierarchy.isolateShort")}

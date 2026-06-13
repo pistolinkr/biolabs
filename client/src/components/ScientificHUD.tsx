@@ -184,7 +184,7 @@ export default function ScientificHUD({
       className={`${posMode} ${positionClasses[position]} z-40 pointer-events-none`}
       style={{ transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)` }}
     >
-      <div className="space-y-1 pointer-events-none border border-[#2A2A2A] bg-[#171717]/95 p-2 font-mono text-[10px] text-[#8A8A8A]">
+      <div className="space-y-1 pointer-events-none border border-border bg-[#171717]/95 p-2 font-mono text-[10px] text-[#8A8A8A]">
         {/* Header — drag by top-right grip */}
         <div className="mb-1 flex items-center justify-between gap-2">
           <div className="select-none font-medium uppercase tracking-[0.12em] text-[#F2F2F2]">{t("hud.title")}</div>

@@ -1,7 +1,7 @@
 /** Semver — keep in sync with package.json when cutting releases. */
-export const APP_VERSION = "2.1.0";
+export const APP_VERSION = "2.2.0";
 
-/** Short UI label (major.minor), e.g. biolabs v2.1 */
+/** Short UI label (major.minor), e.g. biolabs v2.2 */
 export function getAppVersionLabel(version: string = APP_VERSION): string {
   const match = /^(\d+)\.(\d+)/.exec(version);
   if (match) return `biolabs v${match[1]}.${match[2]}`;

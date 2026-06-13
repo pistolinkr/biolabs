@@ -22,12 +22,12 @@
   "locale": {
     "auto": "Auto (browser)",
     "label": "UI language",
-    "hint": "Controls menus, labels, and messages. Auto follows browser language. Regional suggestions appear separately with your consent.",
+    "hint": "Controls menus, labels, and messages. Auto follows browser language. Timezone-based suggestions appear separately with your consent (not IP/VPN).",
     "autoResolved": "Auto detected: {{locale}}"
   },
   "localeSuggestion": {
-    "ariaLabel": "Language suggestion",
-    "message": "Your region appears to be {{region}}. Switch the interface to {{language}}?",
+    "ariaLabel": "Timezone language suggestion",
+    "message": "Your timezone is {{timeZone}}. Switch the interface to {{language}}?",
     "accept": "Switch to {{language}}",
     "dismiss": "Not now"
   },

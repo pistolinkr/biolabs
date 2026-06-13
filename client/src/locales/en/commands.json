@@ -50,6 +50,12 @@
     "overlay.confidence.toggle": { "title": "Toggle confidence coloring", "description": "Grayscale B-factor / restore prior scheme" },
     "view.spin.toggle": { "title": "Toggle spin", "description": "Stage autorotation" },
     "analysis.interactions": { "title": "Calculate interactions (stub)", "description": "Interface graph / contacts worker" },
+    "layout.classic": { "title": "Layout: Classic", "description": "Data · Viewport · Inspector with Assistant below" },
+    "layout.focus": { "title": "Layout: Focus", "description": "Maximize viewport, slim side panels" },
+    "layout.analysis": { "title": "Layout: Analysis", "description": "Wide Inspector with Assistant tab" },
+    "layout.assistant": { "title": "Layout: Assistant-first", "description": "Large Assistant region on the right" },
+    "layout.compact": { "title": "Layout: Compact", "description": "Narrow side panels for small screens" },
+    "layout.reset": { "title": "Reset layout", "description": "Re-apply the active layout preset" },
     "export.cif": { "title": "Export coordinates", "description": "Download mmCIF / PDB via resolved URL" },
     "screenshot": { "title": "Screenshot viewport", "description": "PNG from WebGL canvas" }
   }

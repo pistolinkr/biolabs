@@ -2,6 +2,7 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { loadAiConfig } from "./config.ts";
 import { handleAiChat, handleAiStatus } from "./handlers.ts";
+import { rateLimited } from "./userErrors.ts";
 
 export function createAiRouter(): Router {
   const config = loadAiConfig();
@@ -12,7 +13,13 @@ export function createAiRouter(): Router {
     max: config.rateLimitPerMinute,
     standardHeaders: true,
     legacyHeaders: false,
-    message: { error: "AI rate limit exceeded. Try again in a minute." },
+    handler: (req, res) => {
+      const info = (req as unknown as { rateLimit?: { resetTime?: Date } }).rateLimit;
+      const resetMs = info?.resetTime
+        ? Math.max(0, info.resetTime.getTime() - Date.now())
+        : undefined;
+      res.status(429).json(rateLimited("AI_RATE_LIMITED", resetMs));
+    },
   });
 
   router.get("/status", (_req, res) => {
