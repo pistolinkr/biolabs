@@ -21,6 +21,14 @@ import {
   saveAiClientSettings,
   type AiClientSettings,
 } from "@/lib/ai/aiSettingsStorage";
+import {
+  DEFAULT_AI_KEYS,
+  hasAnyClientKey,
+  loadAiKeysSettings,
+  saveAiKeysSettings,
+  type AiKeysSettings,
+} from "@/lib/ai/aiKeysStorage";
+import { buildClientAiStatus, CLIENT_MAX_OUTPUT_TOKENS } from "@/lib/ai/clientProviders";
 import { buildAiPlatformContext } from "@/lib/ai/contextBuilder";
 import { boostAgentPlan, executeAgentPlan, parseAgentPlan } from "@/lib/ai/agentActions";
 import { acceptLanguageForSearch } from "@/lib/proteinSearchQuery";
@@ -113,11 +121,44 @@ interface AssistantContextValue {
   aiSettings: AiClientSettings;
   updateAiSettings: (patch: Partial<AiClientSettings>) => void;
   resetAiSettings: () => void;
+  aiKeysSettings: AiKeysSettings;
+  updateAiKeysSettings: (patch: Partial<AiKeysSettings>) => void;
+  clearAiKeys: () => void;
+  /** True when server or user API keys can serve requests. */
+  aiConfigured: boolean;
+  usingClientKeys: boolean;
   refreshAiStatus: () => Promise<void>;
   testAiConnection: () => Promise<boolean>;
   structureAnalysis: StructureAnalysisState;
   analyzeStructure: () => Promise<void>;
   closeStructureAnalysis: () => void;
+}
+
+const FALLBACK_AI_STATUS: AiStatusResponse = {
+  configured: false,
+  active_provider: null,
+  available_providers: [],
+  models: {},
+  rate_limit_per_minute: 20,
+  max_output_tokens: 2048,
+  max_context_chars: 24000,
+  server_provider: "auto",
+};
+
+function resolveAiStatus(server: AiStatusResponse | null, keys: AiKeysSettings): AiStatusResponse {
+  if (keys.useOwnApiKeys && hasAnyClientKey(keys.keys)) {
+    return buildClientAiStatus(keys.keys);
+  }
+  return server ?? FALLBACK_AI_STATUS;
+}
+
+function isAiConfigured(status: AiStatusResponse | null, keys: AiKeysSettings): boolean {
+  if (keys.useOwnApiKeys && hasAnyClientKey(keys.keys)) return true;
+  return status?.configured ?? false;
+}
+
+function shouldUseClientKeys(keys: AiKeysSettings): boolean {
+  return keys.useOwnApiKeys && hasAnyClientKey(keys.keys);
 }
 
 const AssistantContext = createContext<AssistantContextValue | null>(null);
@@ -145,8 +186,10 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     active: null,
   });
   const [aiSettings, setAiSettings] = useState<AiClientSettings>(() => loadAiClientSettings());
+  const [aiKeysSettings, setAiKeysSettings] = useState<AiKeysSettings>(() => loadAiKeysSettings());
 
   const viewerRef = useRef(viewer);
+  const serverStatusRef = useRef<AiStatusResponse | null>(null);
   useEffect(() => {
     viewerRef.current = viewer;
   }, [viewer]);
@@ -210,30 +253,49 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   const refreshAiStatus = useCallback(async () => {
     setStatusLoading(true);
     try {
-      const s = await fetchAiStatus();
-      setStatus(s);
-      if (s.call_budget) {
-        configureCallGate({ maxConcurrent: s.call_budget.concurrent_limit });
+      let serverStatus: AiStatusResponse | null = null;
+      try {
+        serverStatus = await fetchAiStatus();
+      } catch {
+        serverStatus = null;
       }
-    } catch {
-      setStatus({
-        configured: false,
-        active_provider: null,
-        available_providers: [],
-        models: {},
-        rate_limit_per_minute: 20,
-        max_output_tokens: 2048,
-        max_context_chars: 24000,
-        server_provider: "auto",
-      });
+      serverStatusRef.current = serverStatus;
+      setStatus(resolveAiStatus(serverStatus, aiKeysSettings));
+      if (serverStatus?.call_budget) {
+        configureCallGate({ maxConcurrent: serverStatus.call_budget.concurrent_limit });
+      }
     } finally {
       setStatusLoading(false);
     }
-  }, []);
+  }, [aiKeysSettings]);
 
   useEffect(() => {
     void refreshAiStatus();
   }, [refreshAiStatus]);
+
+  useEffect(() => {
+    setStatus(resolveAiStatus(serverStatusRef.current, aiKeysSettings));
+  }, [aiKeysSettings]);
+
+  const updateAiKeysSettings = useCallback((patch: Partial<AiKeysSettings>) => {
+    setAiKeysSettings((prev) => {
+      const next: AiKeysSettings = {
+        ...prev,
+        ...patch,
+        keys: patch.keys ? { ...prev.keys, ...patch.keys } : prev.keys,
+      };
+      saveAiKeysSettings(next);
+      setStatus(resolveAiStatus(serverStatusRef.current, next));
+      return next;
+    });
+  }, []);
+
+  const clearAiKeys = useCallback(() => {
+    const next = { ...DEFAULT_AI_KEYS, keys: { ...DEFAULT_AI_KEYS.keys } };
+    setAiKeysSettings(next);
+    saveAiKeysSettings(next);
+    setStatus(resolveAiStatus(serverStatusRef.current, next));
+  }, []);
 
   const updateAiSettings = useCallback((patch: Partial<AiClientSettings>) => {
     setAiSettings((prev) => {
@@ -249,9 +311,12 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     saveAiClientSettings(next);
   }, []);
 
+  const usingClientKeys = shouldUseClientKeys(aiKeysSettings);
+  const aiConfigured = isAiConfigured(status, aiKeysSettings);
+
   const runChat = useCallback(
     async (userText: string, intent: AiExplainIntent, history: AssistantUiMessage[]) => {
-      if (!status?.configured) {
+      if (!isAiConfigured(status, aiKeysSettings)) {
         toast.error(i18n.t("toasts.notConfigured", { ns: "assistant" }), {
           description: formatAiUserNotice("AI_NOT_CONFIGURED", i18n.t("toasts.notConfiguredHint", { ns: "assistant" })),
         });
@@ -268,7 +333,10 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         { role: "user", content: userText },
       ];
 
-      const serverCap = status?.max_output_tokens ?? aiSettings.maxOutputTokens;
+      const useClient = shouldUseClientKeys(aiKeysSettings);
+      const serverCap = useClient
+        ? CLIENT_MAX_OUTPUT_TOKENS
+        : (status?.max_output_tokens ?? aiSettings.maxOutputTokens);
       const explainIntent =
         intent !== "general" && intent !== "agent";
       const requestedTokens = explainIntent
@@ -285,6 +353,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
           maxOutputTokens: Math.min(requestedTokens, serverCap),
           responseLanguage: aiSettings.responseLanguage,
         },
+        transport: useClient ? "client" : "server",
+        clientKeys: useClient ? aiKeysSettings.keys : undefined,
       });
       lastRoutingRef.current = {
         fellBack: Boolean(response.fell_back),
@@ -293,7 +363,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       };
       return response.message;
     },
-    [buildContext, status?.configured, status?.max_output_tokens, aiSettings],
+    [buildContext, status, aiKeysSettings, aiSettings],
   );
 
   const explain = useCallback(
@@ -363,7 +433,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   );
 
   const testAiConnection = useCallback(async () => {
-    if (!status?.configured) {
+    if (!isAiConfigured(status, aiKeysSettings)) {
       toast.error(i18n.t("toasts.notConfigured", { ns: "assistant" }), {
         description: formatAiUserNotice("AI_NOT_CONFIGURED", i18n.t("toasts.notConfiguredHint", { ns: "assistant" })),
       });
@@ -371,6 +441,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     }
     try {
       const context = buildContext();
+      const useClient = shouldUseClientKeys(aiKeysSettings);
       await sendAiChat({
         messages: [{ role: "user", content: "Reply with exactly: OK" }],
         context,
@@ -381,6 +452,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
           maxOutputTokens: 16,
           responseLanguage: "en",
         },
+        transport: useClient ? "client" : "server",
+        clientKeys: useClient ? aiKeysSettings.keys : undefined,
       });
       toast.success(i18n.t("toasts.connectionOk", { ns: "assistant" }));
       return true;
@@ -391,7 +464,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       toast.error(i18n.t("toasts.connectionFailed", { ns: "assistant" }), { description: notice });
       return false;
     }
-  }, [status?.configured, buildContext, aiSettings.preferredProvider]);
+  }, [status, aiKeysSettings, buildContext, aiSettings.preferredProvider]);
 
   const closeStructureAnalysis = useCallback(() => {
     setStructureAnalysis((prev) => ({ ...prev, panelOpen: false }));
@@ -405,7 +478,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       });
       return;
     }
-    if (!status?.configured) {
+    if (!isAiConfigured(status, aiKeysSettings)) {
       toast.error(i18n.t("toasts.notConfigured", { ns: "assistant" }), {
         description: formatAiUserNotice("AI_NOT_CONFIGURED", i18n.t("toasts.notConfiguredHint", { ns: "assistant" })),
       });
@@ -469,7 +542,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
   }, [
     viewer.proteinSelection,
     viewer.structureModel,
-    status?.configured,
+    status,
+    aiKeysSettings,
     explain,
   ]);
 
@@ -559,7 +633,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     async (text: string) => {
       const trimmed = text.trim();
       if (!trimmed) return { ok: false, error: "empty" };
-      if (!status?.configured) {
+      if (!isAiConfigured(status, aiKeysSettings)) {
         return { ok: false, error: formatAiUserNotice("AI_NOT_CONFIGURED") };
       }
 
@@ -608,7 +682,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         return { ok: false, error: notice };
       }
     },
-    [runChat, status?.configured, analyzeStructure],
+    [runChat, status, aiKeysSettings, analyzeStructure],
   );
 
   const sendMessage = useCallback(
@@ -692,6 +766,11 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       aiSettings,
       updateAiSettings,
       resetAiSettings,
+      aiKeysSettings,
+      updateAiKeysSettings,
+      clearAiKeys,
+      aiConfigured,
+      usingClientKeys,
       refreshAiStatus,
       testAiConnection,
       structureAnalysis,
@@ -716,6 +795,11 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       aiSettings,
       updateAiSettings,
       resetAiSettings,
+      aiKeysSettings,
+      updateAiKeysSettings,
+      clearAiKeys,
+      aiConfigured,
+      usingClientKeys,
       refreshAiStatus,
       testAiConnection,
       structureAnalysis,

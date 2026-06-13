@@ -30,6 +30,11 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
     aiSettings,
     updateAiSettings,
     resetAiSettings,
+    aiKeysSettings,
+    updateAiKeysSettings,
+    clearAiKeys,
+    aiConfigured,
+    usingClientKeys,
     status,
     statusLoading,
     isSending,
@@ -155,10 +160,15 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
             {tab === "ai" && (
               <AiSettingsSection
                 settings={aiSettings}
+                aiKeysSettings={aiKeysSettings}
                 status={status}
                 statusLoading={statusLoading}
                 isSending={isSending}
+                aiConfigured={aiConfigured}
+                usingClientKeys={usingClientKeys}
                 onChange={updateAiSettings}
+                onKeysChange={updateAiKeysSettings}
+                onClearKeys={clearAiKeys}
                 onReset={resetAiSettings}
                 onRefreshStatus={() => void refreshAiStatus()}
                 onTestConnection={() => void testAiConnection()}

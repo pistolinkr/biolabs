@@ -1,6 +1,8 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import type { AiClientSettings } from "@/lib/ai/aiSettingsStorage";
+import type { AiKeysSettings } from "@/lib/ai/aiKeysStorage";
+import { maskApiKey, providersWithKeys } from "@/lib/ai/aiKeysStorage";
 import type { AiStatusResponse } from "@shared/ai/types";
 import type { AiProviderId } from "@shared/ai/types";
 import type { UiLocalePreference } from "@shared/i18n/locales";
@@ -53,10 +55,15 @@ function Toggle({
 
 export interface AiSettingsSectionProps {
   settings: AiClientSettings;
+  aiKeysSettings: AiKeysSettings;
   status: AiStatusResponse | null;
   statusLoading: boolean;
   isSending: boolean;
+  aiConfigured: boolean;
+  usingClientKeys: boolean;
   onChange: (patch: Partial<AiClientSettings>) => void;
+  onKeysChange: (patch: Partial<AiKeysSettings>) => void;
+  onClearKeys: () => void;
   onReset: () => void;
   onRefreshStatus: () => void;
   onTestConnection: () => void;
@@ -65,10 +72,15 @@ export interface AiSettingsSectionProps {
 
 export default function AiSettingsSection({
   settings,
+  aiKeysSettings,
   status,
   statusLoading,
   isSending,
+  aiConfigured,
+  usingClientKeys,
   onChange,
+  onKeysChange,
+  onClearKeys,
   onReset,
   onRefreshStatus,
   onTestConnection,
@@ -77,8 +89,11 @@ export default function AiSettingsSection({
   const { t } = useTranslation("settings");
   const { t: tc } = useTranslation("common");
   const { uiLocale, setUiLocale, supportedLocales, localeLabels } = useLocale();
-  const providerOptions: AiProviderId[] = ["auto", ...(status?.available_providers ?? [])];
-  const maxTokensCap = status?.max_output_tokens ?? 1024;
+  const clientProviders = providersWithKeys(aiKeysSettings.keys);
+  const providerOptions: AiProviderId[] = usingClientKeys
+    ? ["auto", ...clientProviders]
+    : ["auto", ...(status?.available_providers ?? [])];
+  const maxTokensCap = usingClientKeys ? 4096 : (status?.max_output_tokens ?? 1024);
 
   const providerLabel = (p: AiProviderId) => t(`ai.providers.${p}`);
 
@@ -92,6 +107,16 @@ export default function AiSettingsSection({
         <div className="workbench-kicker mb-2">{t("ai.serverStatus")}</div>
         {statusLoading ? (
           <p className="font-mono text-[10px] text-muted-foreground">{t("ai.checking")}</p>
+        ) : usingClientKeys ? (
+          <div className="space-y-1 font-mono text-[10px] text-foreground">
+            <div>{t("ai.clientActive")}</div>
+            <div className="text-muted-foreground">
+              {t("ai.available", {
+                list: clientProviders.join(", ") || t("ai.none"),
+              })}
+            </div>
+            <div className="text-muted-foreground">{t("ai.clientKeysNote")}</div>
+          </div>
         ) : status?.configured ? (
           <div className="space-y-1 font-mono text-[10px] text-foreground">
             <div>
@@ -133,7 +158,7 @@ export default function AiSettingsSection({
           <button
             type="button"
             onClick={onTestConnection}
-            disabled={!status?.configured || isSending}
+            disabled={!aiConfigured || isSending}
             className="btn-compact disabled:opacity-40"
           >
             {t("ai.testConnection")}
@@ -141,7 +166,7 @@ export default function AiSettingsSection({
         </div>
       </div>
 
-      {status?.configured && status.call_budget ? (
+      {status?.configured && !usingClientKeys && status.call_budget ? (
         <div className="workbench-panel-inset p-3">
           <div className="workbench-kicker mb-1">{t("ai.callBudget")}</div>
           <p className="mb-2 font-mono text-[9px] leading-snug text-muted-foreground">
@@ -177,7 +202,7 @@ export default function AiSettingsSection({
         </div>
       ) : null}
 
-      {status?.configured && status.provider_health && status.provider_health.length > 0 ? (
+      {status?.configured && !usingClientKeys && status.provider_health && status.provider_health.length > 0 ? (
         <div className="workbench-panel-inset p-3">
           <div className="workbench-kicker mb-1">{t("ai.providerHealth")}</div>
           <p className="mb-2 font-mono text-[9px] leading-snug text-muted-foreground">
@@ -326,7 +351,57 @@ export default function AiSettingsSection({
 
       <div className="workbench-panel-inset p-3">
         <div className="workbench-kicker mb-1">{t("ai.apiKeys")}</div>
-        <p className="font-mono text-[9px] leading-relaxed text-muted-foreground">{t("ai.apiKeysHint")}</p>
+        <p className="mb-3 font-mono text-[9px] leading-relaxed text-muted-foreground">{t("ai.apiKeysHint")}</p>
+
+        <SettingsRow label={t("ai.useOwnKeys")} hint={t("ai.useOwnKeysHint")}>
+          <Toggle
+            checked={aiKeysSettings.useOwnApiKeys}
+            onChange={(v) => onKeysChange({ useOwnApiKeys: v })}
+          />
+        </SettingsRow>
+
+        {aiKeysSettings.useOwnApiKeys ? (
+          <div className="space-y-2 pt-1">
+            {(
+              [
+                { id: "gemini" as const, label: "Gemini", link: "https://aistudio.google.com/apikey" },
+                { id: "openrouter" as const, label: "OpenRouter", link: "https://openrouter.ai/keys" },
+                { id: "huggingface" as const, label: "Hugging Face", link: "https://huggingface.co/settings/tokens" },
+              ] as const
+            ).map(({ id, label, link }) => (
+              <div key={id} className="border-b border-border pb-2 last:border-b-0">
+                <div className="mb-1 flex items-center justify-between gap-2">
+                  <span className="font-mono text-[10px] text-foreground">{label}</span>
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-[9px] text-accent hover:underline"
+                  >
+                    {t("ai.getKey")}
+                  </a>
+                </div>
+                <input
+                  type="password"
+                  autoComplete="off"
+                  value={aiKeysSettings.keys[id]}
+                  placeholder={
+                    aiKeysSettings.keys[id]
+                      ? t("ai.keySaved", { mask: maskApiKey(aiKeysSettings.keys[id]) })
+                      : t("ai.keyPlaceholder", { provider: label })
+                  }
+                  onChange={(e) =>
+                    onKeysChange({ keys: { ...aiKeysSettings.keys, [id]: e.target.value } })
+                  }
+                  className="w-full border border-border bg-input px-2 py-1 font-mono text-[10px] text-foreground placeholder:text-muted-foreground focus:border-accent focus:outline-none"
+                />
+              </div>
+            ))}
+            <button type="button" onClick={onClearKeys} className="btn-compact mt-1">
+              {t("ai.clearKeys")}
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap gap-2 pt-1">

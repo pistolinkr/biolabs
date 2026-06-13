@@ -8,6 +8,14 @@ import type {
   AiStatusResponse,
   AiUserErrorPayload,
 } from "@shared/ai/types";
+import { buildPromptMessages } from "@shared/ai/promptBuilder";
+import type { AiClientApiKeys } from "@/lib/ai/aiKeysStorage";
+import {
+  CLIENT_MAX_CONTEXT_CHARS,
+  CLIENT_MAX_OUTPUT_TOKENS,
+  ClientProviderError,
+  completeWithClientKeys,
+} from "@/lib/ai/clientProviders";
 import { AiRequestError } from "@/lib/ai/userErrors";
 import {
   assertCallAllowed,
@@ -20,13 +28,12 @@ import {
 const CHAT_URL = "/api/ai/chat";
 const STATUS_URL = "/api/ai/status";
 
+export type AiTransportMode = "server" | "client";
+
 async function readAiJson<T>(res: Response): Promise<T | AiUserErrorPayload> {
   const text = await res.text();
   if (!text.trim()) {
-    throw new AiRequestError(
-      "AI_NETWORK_ERROR",
-      "Empty response from AI endpoint.",
-    );
+    throw new AiRequestError("AI_NETWORK_ERROR", "Empty response from AI endpoint.");
   }
   try {
     return JSON.parse(text) as T | AiUserErrorPayload;
@@ -35,7 +42,7 @@ async function readAiJson<T>(res: Response): Promise<T | AiUserErrorPayload> {
       "AI_NETWORK_ERROR",
       res.ok
         ? "Invalid response from AI endpoint."
-        : "AI endpoint unavailable. Run the dev server or `pnpm start` with API keys configured.",
+        : "AI endpoint unavailable. Add your API keys in Settings → AI, or run the server with .env keys.",
     );
   }
 }
@@ -50,21 +57,64 @@ export async function fetchAiStatus(): Promise<AiStatusResponse> {
   return data;
 }
 
+async function sendAiChatClient(params: {
+  messages: AiChatMessage[];
+  context: AiPlatformContext;
+  intent?: AiExplainIntent;
+  provider?: AiProviderId;
+  generation?: AiChatRequest["generation"];
+  clientKeys: AiClientApiKeys;
+}): Promise<AiChatResponse> {
+  const intent = params.intent ?? "general";
+  const temperature =
+    typeof params.generation?.temperature === "number"
+      ? Math.min(1, Math.max(0, params.generation.temperature))
+      : 0.35;
+  const maxOutputTokens =
+    typeof params.generation?.maxOutputTokens === "number"
+      ? Math.min(CLIENT_MAX_OUTPUT_TOKENS, Math.max(128, Math.floor(params.generation.maxOutputTokens)))
+      : CLIENT_MAX_OUTPUT_TOKENS;
+
+  const promptMessages = buildPromptMessages(
+    params.context,
+    params.messages,
+    intent,
+    CLIENT_MAX_CONTEXT_CHARS,
+    params.generation,
+  );
+
+  try {
+    const result = await completeWithClientKeys({
+      messages: promptMessages,
+      keys: params.clientKeys,
+      preferred: params.provider,
+      maxOutputTokens,
+      temperature,
+    });
+    return {
+      message: result.text,
+      provider: result.provider,
+      model: result.model,
+      context_fingerprint: params.context.context_fingerprint,
+      fell_back: result.fellBack,
+    };
+  } catch (e) {
+    if (e instanceof ClientProviderError) {
+      throw new AiRequestError(e.code, e.message);
+    }
+    throw new AiRequestError("AI_UNKNOWN", e instanceof Error ? e.message : "AI request failed.");
+  }
+}
+
 export async function sendAiChat(params: {
   messages: AiChatMessage[];
   context: AiPlatformContext;
   intent?: AiExplainIntent;
   provider?: AiProviderId;
   generation?: AiChatRequest["generation"];
+  transport?: AiTransportMode;
+  clientKeys?: AiClientApiKeys;
 }): Promise<AiChatResponse> {
-  const body: AiChatRequest = {
-    messages: params.messages,
-    context: params.context,
-    intent: params.intent,
-    provider: params.provider,
-    generation: params.generation,
-  };
-
   const lastUser = [...params.messages].reverse().find((m) => m.role === "user");
   const gateParams: AssertParams = {
     intent: params.intent ?? "general",
@@ -72,11 +122,24 @@ export async function sendAiChat(params: {
     prompt: lastUser?.content ?? "",
   };
 
-  // Client gate: blocks UI spam / duplicates before touching the network.
   assertCallAllowed(gateParams);
   const release = beginCall();
 
   try {
+    if (params.transport === "client" && params.clientKeys) {
+      const response = await sendAiChatClient({ ...params, clientKeys: params.clientKeys });
+      recordCall(gateParams);
+      return response;
+    }
+
+    const body: AiChatRequest = {
+      messages: params.messages,
+      context: params.context,
+      intent: params.intent,
+      provider: params.provider,
+      generation: params.generation,
+    };
+
     const res = await fetch(CHAT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -87,7 +150,6 @@ export async function sendAiChat(params: {
 
     if (!res.ok || !("message" in data)) {
       const payload = data as AiUserErrorPayload;
-      // Sync the server's retry hint into the client cooldown.
       noteServerRetryAfter(payload.retry_after_ms);
       throw new AiRequestError(
         payload.code ?? "AI_UNKNOWN",
