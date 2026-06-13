@@ -685,13 +685,13 @@ export function buildPolymerContextSnapshot(
 
   const proteinSnippets: Record<string, string> = {};
   const nucleicSnippets: Record<string, string> = {};
-  for (const cid of chains) {
+  chains.forEach((cid) => {
     const resSet = byChainRes.get(cid) ?? new Set();
     const p = snippetAlongChain(sc, cid, resSet, "protein");
     const n = snippetAlongChain(sc, cid, resSet, "nucleic");
     if (p) proteinSnippets[cid] = p.slice(0, 64);
     if (n) nucleicSnippets[cid] = n.slice(0, 64);
-  }
+  });
 
   let nearestNucleic: PolymerContextSnapshot["nearestNucleic"] = null;
   let bestD2 = Infinity;

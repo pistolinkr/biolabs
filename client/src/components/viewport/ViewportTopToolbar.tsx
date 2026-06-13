@@ -99,12 +99,13 @@ export default function ViewportTopToolbar() {
             ))}
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Crosshair
-              className="size-3.5 shrink-0 text-muted-foreground"
-              strokeWidth={1.25}
-              aria-label={t("toolbar.tips.context")}
-              title={t("toolbar.tips.context")}
-            />
+            <span title={t("toolbar.tips.context")} className="inline-flex shrink-0">
+              <Crosshair
+                className="size-3.5 text-muted-foreground"
+                strokeWidth={1.25}
+                aria-label={t("toolbar.tips.context")}
+              />
+            </span>
             {CONTACT_RADIUS_PRESETS.map((r) => (
               <Seg
                 key={r}

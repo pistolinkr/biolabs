@@ -23,8 +23,8 @@ export default function PolymerProximityGraph({
       pKeys.add(`${e.proteinChain}:${e.proteinResno}`);
       nKeys.add(`${e.nucleicChain}:${e.nucleicResno}`);
     }
-    const pList = [...pKeys];
-    const nList = [...nKeys];
+    const pList = Array.from(pKeys);
+    const nList = Array.from(nKeys);
     const pyStep = pList.length > 1 ? (H - 2 * PAD) / (pList.length - 1) : 0;
     const nyStep = nList.length > 1 ? (H - 2 * PAD) / (nList.length - 1) : 0;
     const posP = new Map<string, { x: number; y: number }>();
@@ -50,22 +50,22 @@ export default function PolymerProximityGraph({
         `<line x1="${pa.x}" y1="${pa.y}" x2="${nb.x}" y2="${nb.y}" stroke="#6A6A6A" stroke-width="0.8" opacity="${opacity.toFixed(2)}" />`,
       );
     }
-    for (const [k, pt] of posP) {
+    posP.forEach((pt, k) => {
       parts.push(
         `<circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#2A2A2A" stroke="#8A8A8A" stroke-width="0.6" />`,
       );
       parts.push(
         `<text x="${pt.x - 4}" y="${pt.y + 3}" font-size="7" font-family="ui-monospace,monospace" fill="#B0B0B0" text-anchor="end">${k}</text>`,
       );
-    }
-    for (const [k, pt] of posN) {
+    });
+    posN.forEach((pt, k) => {
       parts.push(
         `<circle cx="${pt.x}" cy="${pt.y}" r="3" fill="#1C2428" stroke="#8A8A8A" stroke-width="0.6" />`,
       );
       parts.push(
         `<text x="${pt.x + 4}" y="${pt.y + 3}" font-size="7" font-family="ui-monospace,monospace" fill="#B0B0B0" text-anchor="start">${k}</text>`,
       );
-    }
+    });
     return parts.join("");
   }, [edges, fingerprint]);
 
