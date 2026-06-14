@@ -3,8 +3,18 @@ import type { AiClientApiKeys } from "@/lib/ai/aiKeysStorage";
 
 export const CLIENT_DEFAULT_MODELS: Record<Exclude<AiProviderId, "auto">, string> = {
   gemini: "gemini-2.0-flash",
-  openrouter: "deepseek/deepseek-chat-v3-0324:free",
+  openrouter: "openrouter/free",
   huggingface: "HuggingFaceH4/zephyr-7b-beta",
+};
+
+const CLIENT_MODEL_CHAINS: Record<Exclude<AiProviderId, "auto">, string[]> = {
+  gemini: ["gemini-2.0-flash", "gemini-1.5-flash"],
+  openrouter: [
+    "openrouter/free",
+    "deepseek/deepseek-chat-v3-0324:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+  ],
+  huggingface: ["HuggingFaceH4/zephyr-7b-beta", "mistralai/Mistral-7B-Instruct-v0.3"],
 };
 
 export const CLIENT_MAX_CONTEXT_CHARS = 24_000;
@@ -29,7 +39,9 @@ export class ClientProviderError extends Error {
 function classifyStatus(status: number, message: string): AiErrorCode {
   const lower = message.toLowerCase();
   if (status === 429 || lower.includes("quota")) return "AI_QUOTA_EXCEEDED";
-  if (status === 404 || lower.includes("not found")) return "AI_MODEL_UNAVAILABLE";
+  if (status === 404 || lower.includes("not found") || lower.includes("no endpoints")) {
+    return "AI_MODEL_UNAVAILABLE";
+  }
   if (status === 401 || status === 403) return "AI_NOT_CONFIGURED";
   if (status >= 500 || lower.includes("network") || lower.includes("failed to fetch")) {
     return "AI_NETWORK_ERROR";
@@ -54,6 +66,17 @@ function listAvailable(keys: AiClientApiKeys): Exclude<AiProviderId, "auto">[] {
     if (id === "huggingface") return Boolean(keys.huggingface);
     return false;
   });
+}
+
+function shouldTryNextModel(code: AiErrorCode): boolean {
+  return (
+    code === "AI_MODEL_UNAVAILABLE" ||
+    code === "AI_QUOTA_EXCEEDED" ||
+    code === "AI_NOT_CONFIGURED" ||
+    code === "AI_NETWORK_ERROR" ||
+    code === "AI_EMPTY_RESPONSE" ||
+    code === "AI_UNKNOWN"
+  );
 }
 
 async function completeGemini(
@@ -115,7 +138,7 @@ async function completeOpenRouter(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://biolabs.local",
+      "HTTP-Referer": typeof window !== "undefined" ? window.location.origin : "https://biolabs.world",
       "X-Title": "Biolabs Protein Workstation",
     },
     body: JSON.stringify({
@@ -209,6 +232,37 @@ async function completeHuggingFace(
   return text;
 }
 
+async function completeProviderModel(
+  id: Exclude<AiProviderId, "auto">,
+  model: string,
+  params: {
+    messages: { role: string; content: string }[];
+    keys: AiClientApiKeys;
+    maxOutputTokens: number;
+    temperature: number;
+  },
+): Promise<string> {
+  if (id === "gemini") {
+    return completeGemini(params.messages, params.keys.gemini, model, params.maxOutputTokens, params.temperature);
+  }
+  if (id === "openrouter") {
+    return completeOpenRouter(
+      params.messages,
+      params.keys.openrouter,
+      model,
+      params.maxOutputTokens,
+      params.temperature,
+    );
+  }
+  return completeHuggingFace(
+    params.messages,
+    params.keys.huggingface,
+    model,
+    params.maxOutputTokens,
+    params.temperature,
+  );
+}
+
 export async function completeWithClientKeys(params: {
   messages: { role: string; content: string }[];
   keys: AiClientApiKeys;
@@ -223,40 +277,21 @@ export async function completeWithClientKeys(params: {
 
   const order = resolveOrder(params.preferred, available);
   let lastError: ClientProviderError | null = null;
+  let attemptIndex = 0;
 
   for (let i = 0; i < order.length; i += 1) {
     const id = order[i];
-    const model = CLIENT_DEFAULT_MODELS[id];
-    try {
-      let text: string;
-      if (id === "gemini") {
-        text = await completeGemini(
-          params.messages,
-          params.keys.gemini,
-          model,
-          params.maxOutputTokens,
-          params.temperature,
-        );
-      } else if (id === "openrouter") {
-        text = await completeOpenRouter(
-          params.messages,
-          params.keys.openrouter,
-          model,
-          params.maxOutputTokens,
-          params.temperature,
-        );
-      } else {
-        text = await completeHuggingFace(
-          params.messages,
-          params.keys.huggingface,
-          model,
-          params.maxOutputTokens,
-          params.temperature,
-        );
+    const models = CLIENT_MODEL_CHAINS[id];
+
+    for (const model of models) {
+      try {
+        const text = await completeProviderModel(id, model, params);
+        return { text, provider: id, model, fellBack: attemptIndex > 0 };
+      } catch (e) {
+        lastError = e instanceof ClientProviderError ? e : new ClientProviderError(String(e), id, "AI_UNKNOWN");
+        attemptIndex += 1;
+        if (!shouldTryNextModel(lastError.code)) break;
       }
-      return { text, provider: id, model, fellBack: i > 0 };
-    } catch (e) {
-      lastError = e instanceof ClientProviderError ? e : new ClientProviderError(String(e), id, "AI_UNKNOWN");
     }
   }
 

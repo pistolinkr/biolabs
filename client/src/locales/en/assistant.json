@@ -37,8 +37,7 @@
     "checking": "Checking AI provider…",
     "provider": "Provider: {{provider}}{{model}}",
     "providerModel": " · {{model}}",
-    "notConfiguredEnv": "No AI keys — open Settings → AI, enable “Use my API keys”, and paste a provider key.",
-    "staticHostingNote": "On static hosting, use Settings → AI → “Use my API keys” for browser-direct AI.",
+    "notConfiguredEnv": "No API keys — open Settings → AI and paste a provider key.",
     "context": "Context: {{protein}}{{residue}}",
     "noProtein": "no protein",
     "emptyState": "Ask about the loaded structure, selected residue, polymer contacts, or general biology. You can also request platform actions — e.g. \"find elephant hemoglobin, render cartoon, spin, and analyze\".",
@@ -82,7 +81,7 @@
   },
   "toasts": {
     "notConfigured": "AI not configured",
-    "notConfiguredHint": "Add keys in Settings → AI (browser) or server .env, then test connection.",
+    "notConfiguredHint": "Add provider API keys in Settings → AI, then run Test connection.",
     "unavailable": "AI unavailable",
     "explainUnavailable": "Explain unavailable",
     "connectionOk": "AI connection OK",
