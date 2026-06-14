@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
 import AiSettingsSection from "@/components/settings/AiSettingsSection";
+import ThemeSelector from "@/components/ThemeSelector";
 import { SettingsRow, Toggle } from "@/components/settings/AiSettingsSection";
 import WorkspaceSettingsSection from "@/components/settings/WorkspaceSettingsSection";
 import { useAssistant } from "@/contexts/AssistantContext";
 import { useLocale } from "@/contexts/LocaleContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import type { UiLocalePreference } from "@shared/i18n/locales";
 import { resolveUiLocale } from "@shared/i18n/locales";
 import { APP_VERSION_LABEL } from "@shared/version";
@@ -24,7 +24,6 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
   const { t } = useTranslation("settings");
   const { t: tc } = useTranslation("common");
   const [tab, setTab] = useState<SettingsTab>(initialTab);
-  const { systemTheme, setTheme } = useTheme();
   const { uiLocale, resolvedLocale, setUiLocale, supportedLocales, localeLabels } = useLocale();
   const {
     aiSettings,
@@ -140,15 +139,7 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
                   </p>
                 ) : null}
                 <SettingsRow label={t("general.colorTheme")} hint={t("general.colorThemeHint")}>
-                  <select
-                    value={systemTheme ?? "system"}
-                    onChange={(e) => setTheme(e.target.value)}
-                    className="min-w-[140px] border border-border bg-input px-2 py-1 font-mono text-[10px] text-foreground focus:border-accent focus:outline-none"
-                  >
-                    <option value="system">{tc("theme.system")}</option>
-                    <option value="dark">{tc("theme.dark")}</option>
-                    <option value="light">{tc("theme.light")}</option>
-                  </select>
+                  <ThemeSelector className="min-w-[140px]" />
                 </SettingsRow>
                 <SettingsRow label={t("general.scientificHud")} hint={t("general.scientificHudHint")}>
                   <Toggle checked={true} onChange={() => {}} disabled />

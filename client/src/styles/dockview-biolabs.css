@@ -5,7 +5,8 @@
  * Biolabs workstation — borderless dock chrome; layout is preset-driven (no tab bars / sashes).
  */
 .workstation-dock-root,
-.workstation-dock-root.dockview-theme-dark {
+.workstation-dock-root.dockview-theme-dark,
+.workstation-dock-root.dockview-theme-light {
   color-scheme: inherit;
   --dv-group-view-background-color: var(--background);
   --dv-tabs-and-actions-container-height: 0px;
@@ -43,17 +44,17 @@ html.light .workstation-dock-root {
 }
 
 /* No split sash chrome between dock panels */
-.workstation-dock-root.dockview-theme-dark .dv-split-view-container .dv-sash-container .dv-sash {
+.workstation-dock-root .dv-split-view-container .dv-sash-container .dv-sash {
   pointer-events: none !important;
   background-color: transparent !important;
 }
 
-.workstation-dock-root.dockview-theme-dark .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover,
-.workstation-dock-root.dockview-theme-dark .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):active {
+.workstation-dock-root .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):hover,
+.workstation-dock-root .dv-split-view-container .dv-sash-container .dv-sash:not(.disabled):active {
   background-color: transparent !important;
 }
 
-.workstation-dock-root.dockview-theme-dark .dv-split-view-container.dv-separator-border .dv-view:not(:first-child)::before {
+.workstation-dock-root .dv-split-view-container.dv-separator-border .dv-view:not(:first-child)::before {
   background-color: transparent;
 }
 

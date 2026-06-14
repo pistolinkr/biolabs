@@ -1,36 +1,23 @@
 import { useEffect, useState } from "react";
-import { useTheme as useNextThemes } from "next-themes";
+import { readColorScheme, type ColorScheme } from "@/lib/themeColors";
 
-/** Resolved light/dark — synced with `html.light` / `html.dark` (Safari-safe). */
-export function useColorScheme(): "light" | "dark" {
-  const { resolvedTheme } = useNextThemes();
-  const [scheme, setScheme] = useState<"light" | "dark">(() => readHtmlColorScheme());
+/** Resolved light/dark — always synced with `html.light` / `html.dark` (CSS + NGL). */
+export function useColorScheme(): ColorScheme {
+  const [scheme, setScheme] = useState<ColorScheme>(() => readColorScheme());
 
   useEffect(() => {
-    setScheme(readHtmlColorScheme());
+    const sync = () => setScheme(readColorScheme());
+    sync();
     const el = document.documentElement;
-    const obs = new MutationObserver(() => setScheme(readHtmlColorScheme()));
+    const obs = new MutationObserver(sync);
     obs.observe(el, { attributes: true, attributeFilter: ["class"] });
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onMq = () => setScheme(readHtmlColorScheme());
-    mq.addEventListener("change", onMq);
+    mq.addEventListener("change", sync);
     return () => {
       obs.disconnect();
-      mq.removeEventListener("change", onMq);
+      mq.removeEventListener("change", sync);
     };
   }, []);
 
-  if (resolvedTheme === "light" || resolvedTheme === "dark") return resolvedTheme;
   return scheme;
-}
-
-function readHtmlColorScheme(): "light" | "dark" {
-  if (typeof document === "undefined") return "dark";
-  const root = document.documentElement;
-  if (root.classList.contains("light")) return "light";
-  if (root.classList.contains("dark")) return "dark";
-  if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-    return "dark";
-  }
-  return "dark";
 }

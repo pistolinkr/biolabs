@@ -5,7 +5,9 @@ import AIChatPanel from "@/components/assistant/AIChatPanel";
 import LeftWorkstationPanel from "@/components/workbench/LeftWorkstationPanel";
 import RightWorkstationPanel from "@/components/workbench/RightWorkstationPanel";
 import { useLocale } from "@/contexts/LocaleContext";
+import { useColorScheme } from "@/contexts/ThemeContext";
 import { useWorkstationLayout } from "@/contexts/WorkstationLayoutContext";
+import { cn } from "@/lib/utils";
 import { DOCK_LAYOUT_STORAGE_KEY } from "@/lib/workstationLayoutStorage";
 import {
   PANEL_ASSISTANT,
@@ -95,6 +97,7 @@ export default function WorkstationDockLayout({ centerContent }: WorkstationDock
   const disposablesRef = useRef<Array<{ dispose: () => void }>>([]);
   const apiRef = useRef<DockviewApi | null>(null);
   const { resolvedLocale } = useLocale();
+  const colorScheme = useColorScheme();
   const { registerApi, getActivePreset } = useWorkstationLayout();
 
   useEffect(() => {
@@ -150,7 +153,10 @@ export default function WorkstationDockLayout({ centerContent }: WorkstationDock
   return (
     <CenterSlotContext.Provider value={centerContent}>
       <div
-        className="workstation-dock-root dockview-theme-dark flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground"
+        className={cn(
+          "workstation-dock-root flex h-full min-h-0 w-full flex-col overflow-hidden bg-background text-foreground",
+          colorScheme === "dark" ? "dockview-theme-dark" : "dockview-theme-light",
+        )}
       >
         <DockviewReact
           className="dockview-biolabs-host h-full min-h-0 w-full flex-1"

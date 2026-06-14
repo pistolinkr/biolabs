@@ -9,14 +9,8 @@ import { handleViewportMeasurementPick } from "@/lib/nglMeasurement";
 import { applyRelativeDepthFog } from "@/lib/nglViewportTune";
 import { applyPolymerContextHighlight, resolveStripSelectionFromPick } from "@/lib/nglSequenceNeighborhood";
 import { nglFitSelection } from "@/lib/nglViewportActions";
-import { viewportBackgroundColor } from "@/lib/themeColors";
+import { applyNglStageTheme, viewportBackgroundColor, VIEWPORT_LIGHTING } from "@/lib/themeColors";
 import { useResolvedTheme } from "@/contexts/ThemeContext";
-
-/** Softer key + fill for dark background — avoids blown-out, neon-like chain colors. */
-const VIEWPORT_LIGHTING = {
-  lightIntensity: 1.05,
-  ambientIntensity: 0.3,
-} as const;
 
 /** Delay before showing repr overlay — avoids flash on fast updates. */
 const REPR_LOADING_DELAY_MS = 200;
@@ -110,16 +104,16 @@ export default function StructureViewport({ className = "" }: { className?: stri
     if (!el) return;
 
     const stage = new Stage(el, {
-      backgroundColor: viewportBackgroundColor(),
+      backgroundColor: viewportBackgroundColor(resolvedTheme),
       quality: "medium",
       workerDefault: true,
-      ...VIEWPORT_LIGHTING,
+      ...VIEWPORT_LIGHTING[resolvedTheme],
     });
     localStageRef.current = stage;
     registerStage(stage);
     try {
       stage.setParameters({
-        ...VIEWPORT_LIGHTING,
+        ...VIEWPORT_LIGHTING[resolvedTheme],
       });
     } catch {
       /* */
@@ -203,11 +197,7 @@ export default function StructureViewport({ className = "" }: { className?: stri
   useEffect(() => {
     const stage = localStageRef.current;
     if (!stage) return;
-    try {
-      stage.setParameters({ backgroundColor: viewportBackgroundColor() } as never);
-    } catch {
-      /* */
-    }
+    applyNglStageTheme(stage, resolvedTheme);
   }, [resolvedTheme]);
 
   useEffect(() => {
@@ -473,8 +463,8 @@ export default function StructureViewport({ className = "" }: { className?: stri
 
       {selection === null && overlay.kind === "idle" ? (
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 px-4 text-center font-mono">
-          <span className="text-[11px] uppercase tracking-widest text-[#8A8A8A]">Viewport idle</span>
-          <span className="text-[10px] text-[#6A6A6A]">NGL · RCSB / UniProt / AlphaFold DB</span>
+          <span className="text-[11px] uppercase tracking-widest text-muted-foreground">Viewport idle</span>
+          <span className="text-[10px] text-muted-foreground">NGL · RCSB / UniProt / AlphaFold DB</span>
         </div>
       ) : null}
 

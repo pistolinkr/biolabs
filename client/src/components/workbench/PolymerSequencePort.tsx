@@ -225,9 +225,9 @@ export default function PolymerSequencePort({
 
   if (!eligibleChains.length) {
     return (
-      <div className={segmentShell("justify-center bg-[#0C0C0C] px-3 py-2")}>
-        <div className="font-mono text-[11px] font-medium text-[#D8D8D8]">{panelTitle}</div>
-        <div className="mt-0.5 font-mono text-[9px] text-[#6A6A6A]">
+      <div className={segmentShell("justify-center bg-card px-3 py-2")}>
+        <div className="font-mono text-[11px] font-medium text-foreground">{panelTitle}</div>
+        <div className="mt-0.5 font-mono text-[9px] text-muted-foreground">
           {variant === "protein"
             ? "No protein polymer chains in this structure."
             : "No displayable DNA/RNA polymer chains in this structure."}
@@ -238,14 +238,14 @@ export default function PolymerSequencePort({
 
   if (sequencesSkipped) {
     return (
-      <div className={segmentShell("justify-center bg-[#111111] px-3 py-2 font-mono text-[10px] leading-snug text-[#B0B0B0]")}>
+      <div className={segmentShell("justify-center bg-card px-3 py-2 font-mono text-[10px] leading-snug text-secondary-foreground")}>
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-b border-border pb-1.5">
-          <span className="text-[11px] font-medium text-[#E8E8E8]">{panelTitle}</span>
-          <span className="text-[9px] text-[#6A6A6A]">chain {effectiveChainId}</span>
+          <span className="text-[11px] font-medium text-foreground">{panelTitle}</span>
+          <span className="text-[9px] text-muted-foreground">chain {effectiveChainId}</span>
         </div>
-        <div className="mt-1.5 text-[#9A9A9A]">
+        <div className="mt-1.5 text-muted-foreground">
           Sequence omitted for large structure ({totalLen.toLocaleString()} residues). Jump via{" "}
-          <span className="text-[#D8D8D8]">RES #</span>.
+          <span className="text-foreground">RES #</span>.
         </div>
       </div>
     );
@@ -253,9 +253,9 @@ export default function PolymerSequencePort({
 
   if (!seq.length) {
     return (
-      <div className={segmentShell("justify-center bg-[#0C0C0C] px-3 py-2")}>
-        <div className="font-mono text-[11px] font-medium text-[#D8D8D8]">{panelTitle}</div>
-        <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
+      <div className={segmentShell("justify-center bg-card px-3 py-2")}>
+        <div className="font-mono text-[11px] font-medium text-foreground">{panelTitle}</div>
+        <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
           {variant === "protein"
             ? `No standard amino-acid sequence on chain ${effectiveChainId}`
             : `No nucleic 1-letter sequence on chain ${effectiveChainId}`}
@@ -267,14 +267,14 @@ export default function PolymerSequencePort({
   const unitLabel = variant === "protein" ? "aa" : "nt";
   const glyphClass =
     variant === "nucleic"
-      ? "text-[#C8D8E8]"
-      : "text-[#D4D4D4]";
+      ? "text-accent"
+      : "text-foreground";
 
   return (
     <div
       className={cn(
         segmentShell(),
-        hoverChainId && hoverChainId === effectiveChainId && "ring-1 ring-[#6A737C] ring-inset",
+        hoverChainId && hoverChainId === effectiveChainId && "ring-1 ring-accent ring-inset",
       )}
       aria-label={variant === "protein" ? "Amino acid sequence panel" : "Nucleic acid sequence panel"}
     >
@@ -283,7 +283,7 @@ export default function PolymerSequencePort({
           <span className="font-mono text-[11px] font-medium text-foreground">{panelTitle}</span>
         </div>
         {eligibleChains.length > 1 ? (
-          <label className="flex items-center gap-1 font-mono text-[9px] text-[#8A8A8A]">
+          <label className="flex items-center gap-1 font-mono text-[9px] text-muted-foreground">
             <span className="uppercase tracking-wider">Chain</span>
             <select
               value={effectiveChainId}
@@ -310,11 +310,11 @@ export default function PolymerSequencePort({
           title="Jump to residue number"
         />
         {useVirtual ? (
-          <span className="ml-auto shrink-0 font-mono text-[8px] text-[#6A6A6A]">
+          <span className="ml-auto shrink-0 font-mono text-[8px] text-muted-foreground">
             {start + 1}–{start + slice.length} / {seq.length.toLocaleString()}
           </span>
         ) : (
-          <span className="ml-auto shrink-0 font-mono text-[8px] text-[#6A6A6A]">
+          <span className="ml-auto shrink-0 font-mono text-[8px] text-muted-foreground">
             {seq.length} {unitLabel}
           </span>
         )}
@@ -340,8 +340,8 @@ export default function PolymerSequencePort({
                     title={`${effectiveChainId} ${globalIdx + 1} ${ch}`}
                     className={`min-w-[11px] border px-[2px] py-0.5 ${
                       hi
-                        ? "border-foreground bg-[#1C1C1C] text-[#F2F2F2]"
-                        : "border-transparent text-[#B0B0B0] hover:border-border"
+                        ? "border-foreground bg-secondary text-foreground"
+                        : "border-transparent text-secondary-foreground hover:border-border"
                     }`}
                     onMouseEnter={() => setHoverIdx(globalIdx)}
                     onMouseLeave={() => setHoverIdx(null)}
@@ -371,8 +371,8 @@ export default function PolymerSequencePort({
                   title={`${effectiveChainId} ${globalIdx + 1} ${ch}`}
                   className={`min-w-[11px] border px-[2px] py-0.5 ${
                     hi
-                      ? "border-foreground bg-[#1C1C1C] text-[#F2F2F2]"
-                      : "border-transparent text-[#B0B0B0] hover:border-border"
+                      ? "border-foreground bg-secondary text-foreground"
+                      : "border-transparent text-secondary-foreground hover:border-border"
                   }`}
                   onMouseEnter={() => setHoverIdx(globalIdx)}
                   onMouseLeave={() => setHoverIdx(null)}

@@ -167,7 +167,7 @@ export default function RightWorkstationPanel() {
                       setPolymerInteractionOverlayEnabled(e.target.checked);
                       requestReprRefresh();
                     }}
-                    className="accent-[#8A8A8A]"
+                    className="accent-accent"
                   />
                   {t("inspector.contactLines")}
                 </label>
@@ -179,7 +179,7 @@ export default function RightWorkstationPanel() {
                       setNucleicBackboneAccentEnabled(e.target.checked);
                       requestReprRefresh();
                     }}
-                    className="accent-[#8A8A8A]"
+                    className="accent-accent"
                   />
                   {t("inspector.nucleicLineAccent")}
                 </label>
@@ -248,8 +248,8 @@ export default function RightWorkstationPanel() {
         </Section>
 
         <Section title={t("inspector.sections.confidence")} defaultOpen>
-          <div className="space-y-2 border border-border bg-[#0A0A0A] p-2">
-            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-[#6A6A6A]">
+          <div className="space-y-2 border border-border bg-background p-2">
+            <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-muted-foreground">
               {t("inspector.plddtRamp")}
             </div>
             <div
@@ -259,7 +259,7 @@ export default function RightWorkstationPanel() {
                   "linear-gradient(90deg, #303030 0%, #6A6F74 35%, #9EA8B0 65%, #D2D6DC 100%)",
               }}
             />
-            <div className="flex justify-between font-mono text-[8px] text-[#5A5A5A]">
+            <div className="flex justify-between font-mono text-[8px] text-muted-foreground">
               <span>{t("inspector.disordered")}</span>
               <span>{t("inspector.uncertain")}</span>
               <span>{t("inspector.confident")}</span>
@@ -272,7 +272,7 @@ export default function RightWorkstationPanel() {
             <button
               type="button"
               onClick={() => runViewerCommand("overlay.confidence.toggle")}
-              className="w-full border border-border bg-[#141414] py-1 font-mono text-[9px] uppercase tracking-wide text-[#9A9A9A] hover:border-muted-foreground hover:text-[#F2F2F2]"
+              className="w-full border border-border bg-secondary py-1 font-mono text-[9px] uppercase tracking-wide text-secondary-foreground hover:border-muted-foreground hover:text-foreground"
             >
               {colorScheme === "bfactor" || colorScheme === "bfactor_gray"
                 ? t("inspector.clearHeatmap")
@@ -288,14 +288,14 @@ export default function RightWorkstationPanel() {
           <Row k={t("inspector.rows.saltBridges")} v={polymerMock.salt} />
           <Row k={t("inspector.rows.hydrophobic")} v={polymerMock.hp} />
           <div className="flex flex-col gap-1 py-0.5">
-            <span className="w-[40%] font-mono text-[10px] uppercase tracking-wide text-[#8A8A8A]">
+            <span className="w-[40%] font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
               {t("inspector.bioAssembly")}
             </span>
             <select
               value={assemblyPick}
               onChange={(e) => setAssemblyPick(e.target.value)}
               disabled={!structureModel}
-              className="border border-border bg-[#0A0A0A] px-1.5 py-1 font-mono text-[10px] text-[#F2F2F2] disabled:opacity-40"
+              className="border border-border bg-background px-1.5 py-1 font-mono text-[10px] text-foreground disabled:opacity-40"
             >
               <option value="asu">{t("inspector.asu")}</option>
               <option value="bio1">{t("inspector.bio1")}</option>
@@ -311,7 +311,7 @@ export default function RightWorkstationPanel() {
 
         <Section title={t("inspector.sections.interactionGraph")} defaultOpen={false}>
           {!polymerContextSnapshot?.proximityGraphEdges?.length ? (
-            <p className="border border-border bg-[#0A0A0A] p-2 font-mono text-[9px] leading-snug text-[#7A7A7A]">
+            <p className="border border-border bg-background p-2 font-mono text-[9px] leading-snug text-muted-foreground">
               {t("inspector.graphEmpty")}
             </p>
           ) : (
@@ -327,7 +327,7 @@ export default function RightWorkstationPanel() {
           <Row k={t("inspector.rows.foldingRun")} v={t("inspector.trajectoryPlaceholder")} />
           <Row k={t("inspector.rows.docking")} v={t("inspector.dockingPlaceholder")} />
           <Row k={t("inspector.rows.mutagenesis")} v={t("inspector.mutagenesisPlaceholder")} />
-          <p className="font-mono text-[8px] leading-tight text-[#5A5A5A]">{t("inspector.simulationNote")}</p>
+          <p className="font-mono text-[8px] leading-tight text-muted-foreground">{t("inspector.simulationNote")}</p>
         </Section>
       </div>
     </div>

@@ -106,8 +106,8 @@ export default function ProteinSourcePanel() {
               }}
               className={`flex-1 border px-2 py-1 font-mono text-[10px] uppercase tracking-wide ${
                 searchSource === tab.id
-                  ? "border-foreground bg-[#1C1C1C] text-[#F2F2F2]"
-                  : "border-border bg-[#111111] text-[#8A8A8A]"
+                  ? "border-foreground bg-secondary text-foreground"
+                  : "border-border bg-card text-muted-foreground"
               }`}
             >
               {tab.label}
@@ -116,24 +116,24 @@ export default function ProteinSourcePanel() {
         </div>
         <form onSubmit={runSearch} className="flex gap-1">
           <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-[#6A6A6A]" />
+            <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={searchSource === "rcsb" ? t("source.rcsbPlaceholder") : t("source.uniprotPlaceholder")}
-              className="w-full border border-border bg-[#0A0A0A] py-1.5 pl-7 pr-2 font-mono text-[10px] text-[#F2F2F2] placeholder:text-[#5A5A5A] focus:outline-none focus:border-muted-foreground"
+              className="w-full border border-border bg-input py-1.5 pl-7 pr-2 font-mono text-[10px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-muted-foreground"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="border border-border bg-[#111111] px-2 font-mono text-[10px] uppercase text-[#F2F2F2] hover:border-muted-foreground disabled:opacity-50"
+            className="border border-border bg-card px-2 font-mono text-[10px] uppercase text-foreground hover:border-muted-foreground disabled:opacity-50"
           >
             {loading ? <RefreshCw className="size-3 animate-spin" /> : t("source.run")}
           </button>
         </form>
         {error ? (
-          <div className="border border-[#5A3A3A] bg-[#1A1010] px-2 py-1 font-mono text-[10px] text-[#E88]">
+          <div className="border border-destructive/40 bg-destructive/10 px-2 py-1 font-mono text-[10px] text-destructive">
             {error}
           </div>
         ) : null}
@@ -151,7 +151,7 @@ export default function ProteinSourcePanel() {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="flex w-full items-center justify-center gap-1 border border-border bg-[#111111] py-1 font-mono text-[10px] uppercase text-[#8A8A8A] hover:border-muted-foreground hover:text-[#C8C8C8]"
+          className="flex w-full items-center justify-center gap-1 border border-border bg-card py-1 font-mono text-[10px] uppercase text-muted-foreground hover:border-muted-foreground hover:text-foreground"
         >
           <Upload className="size-3" />
           {t("source.importFile")}
@@ -159,33 +159,33 @@ export default function ProteinSourcePanel() {
       </div>
       {hits.length ? (
         <div className="min-h-0 flex-1 overflow-y-auto space-y-1 p-2">
-          <div className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-[#8A8A8A]">
+          <div className="shrink-0 font-mono text-[9px] uppercase tracking-widest text-muted-foreground">
             {t("source.results", { count: hits.length })}
           </div>
           {hits.map((hit) => (
-            <div key={`${hit.source}-${hit.id}`} className="border border-border bg-[#111111]">
+            <div key={`${hit.source}-${hit.id}`} className="border border-border bg-card">
               <button
                 type="button"
                 onClick={() => handleSelectHit(hit)}
-                className="w-full px-2 py-1.5 text-left hover:bg-[#171717]"
+                className="w-full px-2 py-1.5 text-left hover:bg-secondary"
               >
-                <div className="truncate font-mono text-[10px] text-[#F2F2F2]">{hit.title}</div>
+                <div className="truncate font-mono text-[10px] text-foreground">{hit.title}</div>
                 {hit.subtitle ? (
-                  <div className="truncate font-mono text-[9px] text-[#8A8A8A]">{hit.subtitle}</div>
+                  <div className="truncate font-mono text-[9px] text-muted-foreground">{hit.subtitle}</div>
                 ) : null}
               </button>
               {hit.source === "uniprot" && hit.pdbIds?.length ? (
                 <div className="flex gap-1 border-t border-border px-2 py-1">
                   <button
                     type="button"
-                    className="flex-1 border border-border py-0.5 font-mono text-[9px] uppercase text-[#B0B0B0] hover:border-muted-foreground"
+                    className="flex-1 border border-border py-0.5 font-mono text-[9px] uppercase text-secondary-foreground hover:border-muted-foreground"
                     onClick={() => handleSelectHit(hit, "experimental")}
                   >
                     PDB
                   </button>
                   <button
                     type="button"
-                    className="flex-1 border border-border py-0.5 font-mono text-[9px] uppercase text-[#B0B0B0] hover:border-muted-foreground"
+                    className="flex-1 border border-border py-0.5 font-mono text-[9px] uppercase text-secondary-foreground hover:border-muted-foreground"
                     onClick={() => handleSelectHit(hit, "alphafold")}
                   >
                     AlphaFold

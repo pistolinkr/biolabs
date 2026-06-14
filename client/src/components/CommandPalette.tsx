@@ -240,7 +240,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       aria-hidden={!isOpen}
     >
       <div
-        className="relative w-full max-w-xl border border-border bg-[#111111] shadow-2xl"
+        className="relative w-full max-w-xl border border-border bg-card shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -252,44 +252,44 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               <button
                 type="button"
                 onClick={backToCommands}
-                className="flex items-center gap-1 border border-border px-2 py-1 text-[9px] uppercase tracking-wide text-[#B0B0B0] hover:border-muted-foreground hover:text-[#F2F2F2]"
+                className="flex items-center gap-1 border border-border px-2 py-1 text-[9px] uppercase tracking-wide text-secondary-foreground hover:border-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="size-3" />
                 {t("palette.aiBack")}
               </button>
-              <span className="text-[10px] uppercase tracking-[0.2em] text-[#6A6A6A]">{t("palette.aiTitle")}</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{t("palette.aiTitle")}</span>
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto p-3 font-mono">
-              <div className="mb-3 border border-border bg-[#0A0A0A] px-2 py-1.5">
-                <div className="text-[8px] uppercase tracking-wide text-[#6A6A6A]">{t("palette.aiYouAsked")}</div>
-                <p className="mt-1 whitespace-pre-wrap text-[11px] leading-relaxed text-[#E8E8E8]">
+              <div className="mb-3 border border-border bg-background px-2 py-1.5">
+                <div className="text-[8px] uppercase tracking-wide text-muted-foreground">{t("palette.aiYouAsked")}</div>
+                <p className="mt-1 whitespace-pre-wrap text-[11px] leading-relaxed text-foreground">
                   {aiPanel.question}
                 </p>
               </div>
 
               {aiPanel.phase === "loading" ? (
-                <div className="flex items-center gap-2 py-6 text-[11px] text-[#9A9A9A]">
+                <div className="flex items-center gap-2 py-6 text-[11px] text-muted-foreground">
                   <Loader2 className="size-4 animate-spin" />
                   {t("palette.aiThinking")}
                 </div>
               ) : aiPanel.phase === "error" ? (
-                <div className="border border-[#5A3A3A] bg-[#1A1010] px-2 py-2 text-[11px] leading-relaxed text-[#E88]">
+                <div className="border border-destructive/40 bg-destructive/10 px-2 py-2 text-[11px] leading-relaxed text-destructive">
                   {aiPanel.error}
                 </div>
               ) : (
-                <div className="text-[11px] leading-relaxed text-[#D8D8D8]">
+                <div className="text-[11px] leading-relaxed text-foreground">
                   <Streamdown>{aiPanel.answer ?? ""}</Streamdown>
                 </div>
               )}
             </div>
 
-            <div className="flex shrink-0 justify-between border-t border-border px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
+            <div className="flex shrink-0 justify-between border-t border-border px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
               <span>{t("palette.aiEscHint")}</span>
               <button
                 type="button"
                 onClick={onClose}
-                className="text-[#8A8A8A] hover:text-[#F2F2F2]"
+                className="text-muted-foreground hover:text-foreground"
               >
                 {t("palette.aiClose")}
               </button>
@@ -298,7 +298,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
         ) : (
           <>
             <div className="flex items-center gap-2 border-b border-border p-2 font-mono">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-[#6A6A6A]">{t("palette.cmd")}</span>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">{t("palette.cmd")}</span>
               <input
                 ref={inputRef}
                 type="text"
@@ -308,16 +308,16 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                   setQuery(e.target.value);
                   setSelectedIndex(0);
                 }}
-                className="flex-1 bg-transparent text-[13px] text-[#F2F2F2] placeholder-[#5A5A5A] focus:outline-none"
+                className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
-              <span className="text-[10px] text-[#6A6A6A]">ESC</span>
+              <span className="text-[10px] text-muted-foreground">ESC</span>
             </div>
 
             <div className="max-h-96 overflow-y-auto font-mono text-[12px]">
               {len === 0 ? (
-                <div className="p-8 text-center text-[#6A6A6A]">{t("palette.noMatch")}</div>
+                <div className="p-8 text-center text-muted-foreground">{t("palette.noMatch")}</div>
               ) : (
-                <div className="divide-y divide-[#2A2A2A]">
+                <div className="divide-y divide-border">
                   {filteredCommands.map((cmd, idx) => (
                     <button
                       key={cmd.id}
@@ -327,15 +327,15 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                         onClose();
                       }}
                       className={`flex w-full items-start gap-2 px-2 py-1.5 text-left transition-colors ${
-                        idx === selectedIndex ? "bg-[#1C1C1C] text-[#F2F2F2]" : "text-[#C8C8C8] hover:bg-[#141414]"
+                        idx === selectedIndex ? "bg-secondary text-foreground" : "text-secondary-foreground hover:bg-secondary"
                       }`}
                     >
-                      <div className="mt-0.5 shrink-0 text-[#8A8A8A]">{cmd.icon}</div>
+                      <div className="mt-0.5 shrink-0 text-muted-foreground">{cmd.icon}</div>
                       <div className="min-w-0 flex-1">
                         <div className="text-[12px] font-medium uppercase tracking-wide">{cmd.title}</div>
-                        <div className="text-[10px] text-[#8A8A8A]">{cmd.description}</div>
+                        <div className="text-[10px] text-muted-foreground">{cmd.description}</div>
                       </div>
-                      <div className="shrink-0 whitespace-nowrap text-[10px] uppercase tracking-wider text-[#6A6A6A]">
+                      <div className="shrink-0 whitespace-nowrap text-[10px] uppercase tracking-wider text-muted-foreground">
                         {cmd.category}
                       </div>
                     </button>
@@ -344,7 +344,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               )}
             </div>
 
-            <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1.5 font-mono text-[9px] uppercase tracking-wider text-[#6A6A6A]">
+            <div className="flex items-center justify-between gap-2 border-t border-border px-2 py-1.5 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
               <span>{t("palette.navigate")}</span>
               <div className="flex items-center gap-2">
                 <span>
@@ -355,7 +355,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
                   disabled={askDisabled}
                   onClick={() => void handleAskAi()}
                   title={askDisabled ? t("palette.askAiDisabledHint") : t("palette.askAiHint")}
-                  className="inline-flex items-center gap-1 border border-border bg-[#1A1A1A] px-2 py-1 text-[9px] uppercase tracking-wide text-[#D8D8D8] hover:border-accent disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center gap-1 border border-border bg-secondary px-2 py-1 text-[9px] uppercase tracking-wide text-foreground hover:border-accent disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {assistant?.isSending ? (
                     <Loader2 className="size-3 animate-spin" />

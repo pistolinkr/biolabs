@@ -45,9 +45,12 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-:root,
+:root {
+  --radius: 0;
+}
+
 html.dark {
-  /* Biolabs dark — default workstation palette */
+  /* Biolabs dark — industrial workstation palette */
   --primary: #7C8A99;
   --primary-foreground: #F2F2F2;
   --sidebar-primary: #7C8A99;
@@ -57,7 +60,6 @@ html.dark {
   --chart-3: #7C8A99;
   --chart-4: #5A5A5A;
   --chart-5: #3A3A3A;
-  --radius: 0;
   --background: #0A0A0A;
   --foreground: #F2F2F2;
   --card: #111111;
@@ -84,55 +86,8 @@ html.dark {
   --viewport-background: #0a0a0a;
 }
 
-/**
- * Workstation route — always dark industrial UI regardless of `html.light` (Safari/Chrome safe).
- * Landing/Settings outside this shell still follow system theme via html.light / html.dark.
- */
-.workstation-shell {
-  --background: #0a0a0a;
-  --foreground: #f2f2f2;
-  --card: #111111;
-  --card-foreground: #f2f2f2;
-  --popover: #202020;
-  --popover-foreground: #f2f2f2;
-  --secondary: #2a2a2a;
-  --secondary-foreground: #9a9a9a;
-  --muted: #3a3a3a;
-  --muted-foreground: #8a8a8a;
-  --accent: #7c8a99;
-  --accent-foreground: #f2f2f2;
-  --destructive: #ff4444;
-  --destructive-foreground: #f2f2f2;
-  --border: #2a2a2a;
-  --input: #161616;
-  --ring: #7c8a99;
-  --primary: #7c8a99;
-  --primary-foreground: #f2f2f2;
-  --sidebar: #0a0a0a;
-  --sidebar-foreground: #f2f2f2;
-  --sidebar-accent: #7c8a99;
-  --sidebar-accent-foreground: #f2f2f2;
-  --sidebar-border: #2a2a2a;
-  --sidebar-ring: #7c8a99;
-  --viewport-background: #0a0a0a;
-  --workbench-panel-border-width: 1px;
-  /* Dark gray panel resize / split lines (shared by dock + floating AI panels) */
-  --panel-handle-line: var(--border);
-  --panel-handle-line-active: #525252;
-  --panel-handle-grip: #454545;
-  --panel-handle-fill: #2e2e2e;
-  --panel-handle-fill-hover: #454545;
-  /* Dock tab handler strip */
-  --panel-tab-bar-bg: #2a2a2a;
-  --panel-tab-active-bg: #3a3a3a;
-  --panel-tab-inactive-bg: #252525;
-  color-scheme: dark;
-  background-color: var(--background);
-  color: var(--foreground);
-}
-
 html.light {
-  /* Biolabs light — system light mode */
+  /* Biolabs light — follows OS / user light preference */
   --primary: #5A6878;
   --primary-foreground: #F8F8F8;
   --sidebar-primary: #5A6878;
@@ -165,7 +120,40 @@ html.light {
   --sidebar-accent-foreground: #F8F8F8;
   --sidebar-border: #C8C8C8;
   --sidebar-ring: #5A6878;
-  --viewport-background: #0a0a0a;
+  --viewport-background: #e4e4e4;
+}
+
+/**
+ * Workstation shell — inherits html.light / html.dark tokens (landing + workspace).
+ */
+.workstation-shell {
+  --workbench-panel-border-width: 1px;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+html.dark .workstation-shell {
+  --panel-handle-line: var(--border);
+  --panel-handle-line-active: #525252;
+  --panel-handle-grip: #454545;
+  --panel-handle-fill: #2e2e2e;
+  --panel-handle-fill-hover: #454545;
+  --panel-tab-bar-bg: #2a2a2a;
+  --panel-tab-active-bg: #3a3a3a;
+  --panel-tab-inactive-bg: #252525;
+  color-scheme: dark;
+}
+
+html.light .workstation-shell {
+  --panel-handle-line: var(--border);
+  --panel-handle-line-active: #9a9a9a;
+  --panel-handle-grip: #b0b0b0;
+  --panel-handle-fill: #d0d0d0;
+  --panel-handle-fill-hover: #b8b8b8;
+  --panel-tab-bar-bg: #e4e4e4;
+  --panel-tab-active-bg: #d8d8d8;
+  --panel-tab-inactive-bg: #ececec;
+  color-scheme: light;
 }
 
 @layer base {
@@ -173,7 +161,7 @@ html.light {
     @apply border-border outline-ring/50;
   }
   
-  html {
+  html.dark {
     color-scheme: dark;
   }
 

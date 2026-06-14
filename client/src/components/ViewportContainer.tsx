@@ -20,7 +20,7 @@ export default function ViewportContainer({
 }: ViewportContainerProps) {
   return (
     <div
-      className={`w-full h-full min-h-0 min-w-0 bg-[#0A0A0A] flex items-stretch justify-stretch overflow-hidden ${className}`}
+      className={`w-full h-full min-h-0 min-w-0 flex items-stretch justify-stretch overflow-hidden bg-[var(--viewport-background)] ${className}`}
     >
       {children ?? <StructureViewport className="flex-1" />}
     </div>

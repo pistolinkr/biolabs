@@ -1,3 +1,29 @@
+import type { Stage } from "ngl";
+
+export type ColorScheme = "light" | "dark";
+
+export const VIEWPORT_BACKGROUNDS: Record<ColorScheme, string> = {
+  dark: "#0a0a0a",
+  light: "#e4e4e4",
+};
+
+export const VIEWPORT_LIGHTING: Record<ColorScheme, { lightIntensity: number; ambientIntensity: number }> = {
+  dark: { lightIntensity: 1.05, ambientIntensity: 0.3 },
+  light: { lightIntensity: 1.0, ambientIntensity: 0.45 },
+};
+
+/** Single source of truth — matches `html.light` / `html.dark` from next-themes. */
+export function readColorScheme(): ColorScheme {
+  if (typeof document === "undefined") return "dark";
+  const root = document.documentElement;
+  if (root.classList.contains("light")) return "light";
+  if (root.classList.contains("dark")) return "dark";
+  if (typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "light";
+}
+
 /** NGL expects `#rrggbb` or named colors — normalize CSS computed values. */
 export function cssColorToHex(input: string, fallback: string): string {
   const raw = input.trim();
@@ -22,9 +48,22 @@ export function cssColorToHex(input: string, fallback: string): string {
   return fallback;
 }
 
-/** Read `--viewport-background` (always dark) for the NGL WebGL stage. */
-export function viewportBackgroundColor(): string {
-  if (typeof document === "undefined") return "#0a0a0a";
-  const value = getComputedStyle(document.documentElement).getPropertyValue("--viewport-background").trim();
-  return cssColorToHex(value, "#0a0a0a");
+export function viewportBackgroundColor(scheme: ColorScheme = readColorScheme()): string {
+  return VIEWPORT_BACKGROUNDS[scheme];
+}
+
+/** Keep NGL canvas background + lighting aligned with CSS `--viewport-background`. */
+export function applyNglStageTheme(stage: Stage, scheme: ColorScheme): void {
+  const backgroundColor = viewportBackgroundColor(scheme);
+  const lighting = VIEWPORT_LIGHTING[scheme];
+  try {
+    stage.viewer.setBackground(backgroundColor);
+  } catch {
+    /* viewer not ready */
+  }
+  try {
+    stage.setParameters({ backgroundColor, ...lighting } as never);
+  } catch {
+    /* */
+  }
 }
