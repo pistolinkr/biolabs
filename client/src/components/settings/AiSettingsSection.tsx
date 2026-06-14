@@ -112,16 +112,27 @@ export default function AiSettingsSection({
           <p className="font-mono text-[10px] text-muted-foreground">{t("ai.checking")}</p>
         ) : usingClientKeys ? (
           <div className="space-y-1 font-mono text-[10px] text-foreground">
-            <div>{t("ai.clientActive")}</div>
-            <div className="text-muted-foreground">
-              {t("ai.available", {
-                list: clientProviders.join(", ") || t("ai.none"),
-              })}
-            </div>
-            <div className="text-muted-foreground">{t("ai.clientKeysNote")}</div>
             {status?.provider_health && status.provider_health.length > 0 ? (
-              <div className="text-muted-foreground">{t("ai.serverFallbackNote")}</div>
-            ) : null}
+              <>
+                <div>{t("ai.serverActive")}</div>
+                <div className="text-muted-foreground">
+                  {t("ai.available", {
+                    list: status.available_providers.join(", ") || t("ai.none"),
+                  })}
+                </div>
+                <div className="text-muted-foreground">{t("ai.serverPrimaryNote")}</div>
+              </>
+            ) : (
+              <>
+                <div>{t("ai.clientActive")}</div>
+                <div className="text-muted-foreground">
+                  {t("ai.available", {
+                    list: clientProviders.join(", ") || t("ai.none"),
+                  })}
+                </div>
+                <div className="text-muted-foreground">{t("ai.clientKeysNote")}</div>
+              </>
+            )}
           </div>
         ) : status?.configured ? (
           <div className="space-y-1 font-mono text-[10px] text-foreground">

@@ -54,9 +54,14 @@ function canUseClientTransport(clientKeys?: AiClientApiKeys): boolean {
   return Boolean(clientKeys && hasAnyClientKey(clientKeys));
 }
 
-function shouldFallbackFromClient(err: unknown): boolean {
+function shouldFallbackTransport(err: unknown): boolean {
   if (!(err instanceof AiRequestError)) return true;
   return err.code !== "AI_REQUEST_INVALID";
+}
+
+function toAiRequestError(err: unknown): AiRequestError {
+  if (err instanceof AiRequestError) return err;
+  return new AiRequestError("AI_UNKNOWN", err instanceof Error ? err.message : "AI request failed.");
 }
 
 async function sendAiChatServer(params: {
@@ -139,30 +144,78 @@ async function sendAiChatClient(params: {
   }
 }
 
+/**
+ * Route AI chat with dual credential sources.
+ * When the server has .env keys, those are tried first (reliable failover, no browser CORS).
+ * Browser keys are used when the server is unavailable or as a fallback after server failure.
+ */
 export async function sendAiChat(params: {
   messages: AiChatMessage[];
   context: AiPlatformContext;
   intent?: AiExplainIntent;
   provider?: AiProviderId;
   generation?: AiChatRequest["generation"];
-  transport?: AiTransportMode;
   clientKeys?: AiClientApiKeys;
+  /** True when GET /api/ai/status reported configured providers. */
+  serverConfigured?: boolean;
+  /** @deprecated Prefer serverConfigured + clientKeys. Kept for callers that still pass transport. */
+  transport?: AiTransportMode;
 }): Promise<AiChatResponse> {
-  const preferClient = params.transport === "client" && canUseClientTransport(params.clientKeys);
+  const canClient = canUseClientTransport(params.clientKeys);
+  const serverOk = params.serverConfigured === true;
+  const errors: AiRequestError[] = [];
 
-  if (preferClient) {
+  const tryServer = async (): Promise<AiChatResponse | null> => {
+    try {
+      return await sendAiChatServer(params);
+    } catch (e) {
+      const err = toAiRequestError(e);
+      errors.push(err);
+      return null;
+    }
+  };
+
+  const tryClient = async (): Promise<AiChatResponse | null> => {
+    if (!canClient) return null;
     try {
       return await sendAiChatClient({ ...params, clientKeys: params.clientKeys! });
-    } catch (clientErr) {
-      if (!shouldFallbackFromClient(clientErr)) throw clientErr;
-      try {
-        const response = await sendAiChatServer(params);
-        return { ...response, fell_back: true };
-      } catch {
-        throw clientErr;
-      }
+    } catch (e) {
+      const err = toAiRequestError(e);
+      errors.push(err);
+      return null;
     }
+  };
+
+  // Legacy explicit client-only preference (static hosting with no server status).
+  const forceClient = params.transport === "client" && canClient && !serverOk;
+
+  if (forceClient) {
+    const clientResponse = await tryClient();
+    if (clientResponse) return clientResponse;
+    const serverResponse = await tryServer();
+    if (serverResponse) return { ...serverResponse, fell_back: true };
+  } else if (serverOk) {
+    const serverResponse = await tryServer();
+    if (serverResponse) return serverResponse;
+
+    const lastServerErr = errors[errors.length - 1];
+    if (canClient && lastServerErr && shouldFallbackTransport(lastServerErr)) {
+      const clientResponse = await tryClient();
+      if (clientResponse) return { ...clientResponse, fell_back: true };
+    }
+  } else if (canClient) {
+    const clientResponse = await tryClient();
+    if (clientResponse) return clientResponse;
+
+    const lastClientErr = errors[errors.length - 1];
+    if (lastClientErr && shouldFallbackTransport(lastClientErr)) {
+      const serverResponse = await tryServer();
+      if (serverResponse) return { ...serverResponse, fell_back: true };
+    }
+  } else {
+    const serverResponse = await tryServer();
+    if (serverResponse) return serverResponse;
   }
 
-  return sendAiChatServer(params);
+  throw errors[errors.length - 1] ?? new AiRequestError("AI_NOT_CONFIGURED", "AI is not configured.");
 }

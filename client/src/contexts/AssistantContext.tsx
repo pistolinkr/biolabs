@@ -344,10 +344,12 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         { role: "user", content: userText },
       ];
 
-      const useClient = shouldUseClientKeys(aiKeysSettings);
-      const serverCap = useClient
-        ? CLIENT_MAX_OUTPUT_TOKENS
-        : (status?.max_output_tokens ?? aiSettings.maxOutputTokens);
+      const clientKeysForChat = shouldUseClientKeys(aiKeysSettings) ? aiKeysSettings.keys : undefined;
+      const serverConfigured = serverStatusRef.current?.configured ?? false;
+      const tokenCap = Math.max(
+        status?.max_output_tokens ?? aiSettings.maxOutputTokens,
+        clientKeysForChat ? CLIENT_MAX_OUTPUT_TOKENS : 0,
+      );
       const explainIntent =
         intent !== "general" && intent !== "agent";
       const requestedTokens = explainIntent
@@ -361,11 +363,11 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         provider: aiSettings.preferredProvider,
         generation: {
           temperature: aiSettings.temperature,
-          maxOutputTokens: Math.min(requestedTokens, serverCap),
+          maxOutputTokens: Math.min(requestedTokens, tokenCap),
           responseLanguage: aiSettings.responseLanguage,
         },
-        transport: useClient ? "client" : "server",
-        clientKeys: useClient ? aiKeysSettings.keys : undefined,
+        serverConfigured,
+        clientKeys: clientKeysForChat,
       });
       lastRoutingRef.current = {
         fellBack: Boolean(response.fell_back),
@@ -452,7 +454,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     }
     try {
       const context = buildContext();
-      const useClient = shouldUseClientKeys(aiKeysSettings);
+      const clientKeysForChat = shouldUseClientKeys(aiKeysSettings) ? aiKeysSettings.keys : undefined;
+      const serverConfigured = serverStatusRef.current?.configured ?? false;
       await sendAiChat({
         messages: [{ role: "user", content: "Reply with exactly: OK" }],
         context,
@@ -463,8 +466,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
           maxOutputTokens: 16,
           responseLanguage: "en",
         },
-        transport: useClient ? "client" : "server",
-        clientKeys: useClient ? aiKeysSettings.keys : undefined,
+        serverConfigured,
+        clientKeys: clientKeysForChat,
       });
       toast.success(i18n.t("toasts.connectionOk", { ns: "assistant" }));
       return true;
