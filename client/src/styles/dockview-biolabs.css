@@ -8,6 +8,8 @@
 .workstation-dock-root.dockview-theme-dark,
 .workstation-dock-root.dockview-theme-light {
   color-scheme: inherit;
+  overflow: hidden;
+  overscroll-behavior: none;
   --dv-group-view-background-color: var(--background);
   --dv-tabs-and-actions-container-height: 0px;
   --dv-tabs-and-actions-container-background-color: transparent;
@@ -28,6 +30,24 @@ html.light .workstation-dock-root {
 .workstation-dock-root .dv-pane-container {
   background-color: var(--background);
   color: var(--foreground);
+}
+
+.workstation-dock-root .dv-groupview,
+.workstation-dock-root .dv-content-container,
+.workstation-dock-root .dv-view,
+.workstation-dock-root .dv-pane-container,
+.workstation-dock-root .dv-split-view-container,
+.workstation-dock-root .dockview-biolabs-host {
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+/* React panel roots must fill split cells so inner .workstation-scroll-region can scroll. */
+.workstation-dock-root .dv-split-view-container .dv-view > *,
+.workstation-dock-root .workbench-surface,
+.workstation-dock-root .workbench-inspector-surface {
+  height: 100%;
+  min-height: 0;
 }
 
 /* No dock tab bars (DATA / VIEWPORT / INSPECTOR strips) */
@@ -62,19 +82,28 @@ html.light .workstation-dock-root {
   z-index: 1000;
 }
 
-/* Collapse shared edges so adjacent panels show a single 1px line, not 2px. */
+/**
+ * Single 1px dividers between dock panels — no stacked box borders (2px seams).
+ * Horizontal: right edge per column except the last.
+ * Vertical: bottom edge per row except the last.
+ * No top border on panels (shell header already has border-b).
+ */
+.workstation-dock-root :is(.workbench-surface, .workbench-viewport-frame) {
+  border: none;
+}
+
 .workstation-dock-root
   .dv-split-view-container.dv-horizontal
   > .dv-view-container
-  > .dv-view:not(:first-child)
+  > .dv-view:not(:last-child)
   :is(.workbench-surface, .workbench-viewport-frame) {
-  border-left-width: 0;
+  border-right: var(--workbench-panel-border-width) solid var(--border);
 }
 
 .workstation-dock-root
   .dv-split-view-container.dv-vertical
   > .dv-view-container
-  > .dv-view:not(:first-child)
+  > .dv-view:not(:last-child)
   :is(.workbench-surface, .workbench-viewport-frame) {
-  border-top-width: 0;
+  border-bottom: var(--workbench-panel-border-width) solid var(--border);
 }

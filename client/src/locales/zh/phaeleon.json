@@ -1,0 +1,168 @@
+{
+  "toolName": "Phaeleon",
+  "tagline": "药物相互作用分析",
+  "drugA": "药物 A",
+  "drugB": "药物 B",
+  "panels": {
+    "input": {
+      "kicker": "输入",
+      "title": "药物搜索"
+    },
+    "analysis": {
+      "kicker": "分析",
+      "title": "相互作用报告",
+      "empty": "请选择药物 A 和药物 B，然后运行分析。结果使用基于规则的评估并检索 FDA 标签 — 无需云端 AI。",
+      "loading": "正在分析相互作用…"
+    },
+    "inspector": {
+      "kicker": "检查器",
+      "title": "会话与元数据"
+    },
+    "assistant": {
+      "kicker": "助手"
+    }
+  },
+  "search": {
+    "label": "FDA 标签搜索",
+    "placeholder": "药物名称（EN/KO）",
+    "action": "搜索",
+    "loading": "正在检索 OpenFDA…",
+    "noResults": "未找到匹配的药物。",
+    "localOnly": "{{count}} 条本地映射 · 正在获取 FDA 结果…",
+    "resultCount": "{{count}} 条匹配",
+    "typeToSearch": "继续输入 — 本地别名即时显示；FDA 结果随后返回。",
+    "recent": "最近搜索"
+  },
+  "analyze": {
+    "action": "分析相互作用",
+    "hint": "请为分析分配药物 A 和药物 B 两个槽位。",
+    "readyHint": "两个槽位已填充 — 运行规则驱动的相互作用分析。",
+    "doneHint": "分析完成 — 更改药物后可重新运行。"
+  },
+  "input": {
+    "drugSelect": "分配槽位",
+    "activeSlot": "活动",
+    "typingInto": "正在向 {{slot}} 输入",
+    "confirmAssign": "将 “{{drug}}” 分配到 {{slot}}？",
+    "confirmAction": "确认",
+    "cancelAction": "取消"
+  },
+  "severity": {
+    "low": "低",
+    "moderate": "注意",
+    "high": "风险"
+  },
+  "reportEmpty": {
+    "fallback": "请选择药物并运行分析以填充此部分。",
+    "noPair": {
+      "emergency": "分析药物对后，紧急征兆将显示在此处。",
+      "summary": "选择药物 A 和 B 并运行分析以查看摘要。",
+      "mechanism": "一旦分配并分析双方，作用机制细节将出现。",
+      "expectedEffects": "分析后将列出预期影响。",
+      "practicalSteps": "运行相互作用分析后将显示实用步骤。"
+    },
+    "awaitAnalysis": {
+      "emergency": "运行分析以查看何时需就此组合寻求急诊护理。",
+      "summary": "按“分析相互作用”以生成药物对摘要。",
+      "mechanism": "运行相互作用分析时将加载作用机制分析。",
+      "expectedEffects": "分析完成后将显示预期影响。",
+      "practicalSteps": "分析此对后将出现实用步骤。"
+    }
+  },
+  "risk": {
+    "low": "低风险",
+    "moderate": "中等",
+    "high": "高风险",
+    "very_high": "非常高",
+    "unknown": "未知"
+  },
+  "report": {
+    "summary": "摘要",
+    "mechanism": "机制",
+    "expectedEffects": "预期影响",
+    "practicalSteps": "实用步骤",
+    "emergencySigns": "如出现以下情况请就医",
+    "translating": "正在翻译报告…",
+    "translationFailed": "无法翻译",
+    "translationFailedHint": "无法翻译此报告。请检查服务器 .env 中的 AI 密钥，或在“设置 → AI”中添加提供者密钥，然后重新运行分析。"
+  },
+  "inspector": {
+    "assignedDrugs": "已分配药物",
+    "noDrug": "未选择",
+    "generic": "通用名",
+    "brand": "商品名",
+    "session": "会话",
+    "noAnalysis": "运行分析以填充会话指标。",
+    "source": "数据来源",
+    "sourceNote": "药物名称来自通过 Biolabs 服务器代理的 FDA OpenFDA 标签 API。相互作用评估为规则驱动（本地）。",
+    "guide": {
+      "title": "入门",
+      "step1": "在输入中选择药物 A 或 B，然后搜索 FDA 标签。",
+      "step2": "在将搜索结果分配到槽位前请先确认每个结果。",
+      "step3": "运行相互作用分析以填充报告和会话指标。"
+    },
+    "fields": {
+      "risk": "风险",
+      "pair": "组合",
+      "effects": "影响",
+      "steps": "步骤"
+    },
+    "drugProfile": {
+      "title": "关于该药物",
+      "selectHint": "在输入中选择一个槽位，搜索 FDA 标签，或点击下方的药物 A / B 进行查看。",
+      "category": "药物分类",
+      "route": "给药途径",
+      "overview": "概述",
+      "indications": "适应症与用法",
+      "warnings": "重要警告",
+      "noOverview": "尚无结构化标签文本。请尝试通用名或检查拼写。",
+      "sourceFda": "来源：FDA 药物标签",
+      "sourceLocal": "来源：Biolabs 本地药物参考",
+      "sourceMixed": "来源：FDA 标签 + 本地参考",
+      "sourceNone": "来源：数据有限",
+      "fdaLink": "OpenFDA 标签搜索"
+    }
+  },
+  "layout": {
+    "assistantStackResize": "调整助手面板大小",
+    "openInspector": "检查器"
+  },
+  "disclaimer": "仅供教育用途。非医疗建议。更改用药前请始终咨询合格的医疗专业人员。",
+  "assistant": {
+    "askButton": "向 AI 询问",
+    "openTitle": "打开 AI 助手",
+    "notConfiguredTitle": "AI 未配置 — 在设置中添加提供者密钥",
+    "kicker": "Binary",
+    "dockTitle": "药物相互作用助手",
+    "aiName": "Binary",
+    "clearChat": "清除聊天",
+    "selectPairHint": "选择药物 A 和 B — 快速提示和上下文将在此显示。",
+    "runAnalysisHint": "运行相互作用分析以加载基于规则的上下文。",
+    "contextReady": "规则上下文已加载",
+    "notConfigured": "在设置中添加 AI 提供者以使用聊天和快速提示。",
+    "placeholder": "询问有关此药物对、监测或替代方案的问题…",
+    "emptyNoPair": "Ask Binary",
+    "emptyWithPair": "使用上方的快速提示或就此药物对提出后续问题。",
+    "contextBadge": "上下文",
+    "autoReviewIntro": "请审核此 Phaeleon 药物相互作用评估。请保持回答简洁且具有实用性。",
+    "thinking": "思考中",
+    "quickPrompts": "快速提示",
+    "promptLabels": {
+      "explainRisk": "解释风险等级",
+      "clinicalSummary": "临床摘要",
+      "monitoring": "监测要点",
+      "alternatives": "更安全的替代方案"
+    },
+    "prompts": {
+      "unknownRisk": "未知",
+      "explainRisk": "解释 {{drugA}} 与 {{drugB}} 之间的相互作用风险。当前评估：{{risk}}。",
+      "clinicalSummary": "请给出 {{drugA}} 与 {{drugB}} 共同使用的简明临床摘要。",
+      "monitoring": "当 {{drugA}} 与 {{drugB}} 同时使用时应监测哪些内容？",
+      "alternatives": "针对 {{drugA}} 与 {{drugB}} 的组合，临床医生应讨论哪些更安全的替代或用药时间调整？"
+    },
+    "sectionLinks": {
+      "emergency": "→ 紧急征兆",
+      "emergencyPrompt": "总结 {{drugA}} + {{drugB}} 的紧急警示征兆。参考：{{anchor}}"
+    }
+  }
+}

@@ -1,6 +1,9 @@
 {
   "title": "설정",
-  "subtitle": "Biolabs 워크스테이션 구성",
+  "subtitle": {
+    "helix": "Helix 단백질 시각화 워크스테이션",
+    "phaeleon": "Phaeleon 약물 상호작용 워크스테이션"
+  },
   "tabs": {
     "general": "일반",
     "ai": "AI 어시스턴트",
@@ -13,7 +16,8 @@
     "colorThemeHint": "시스템 설정 또는 수동 선택을 따릅니다.",
     "scientificHud": "Scientific HUD",
     "scientificHudHint": "뷰포트에 좌표 정보 오버레이를 표시합니다.",
-    "viewportNote": "뷰포트 렌더 옵션(AO, 그림자)은 Display 워크벤치 탭에서 제어합니다."
+    "viewportNote": "뷰포트 렌더 옵션(AO, 그림자)은 Display 워크벤치 탭에서 제어합니다.",
+    "phaeleonNote": "Phaeleon은 Input · Analysis · Inspector 3열 레이아웃을 사용합니다. 패널 너비와 분석 동작은 워크스페이스 탭에서 설정합니다."
   },
   "workspace": {
     "layout": "워크스테이션 레이아웃",
@@ -44,11 +48,54 @@
     "persistence": "영속성",
     "saveNote": "헤더의 저장 버튼(⌘S)을 사용하여 도크 레이아웃 및 AI 설정을 포함한 전체 워크스페이스 스냅샷을 저장하세요. 다운로드 메뉴에서 JSON을 보낼 수 있습니다."
   },
+  "phaeleonWorkspace": {
+    "layout": "워크스테이션 레이아웃",
+    "layoutHint": "작업 방식에 맞는 레이아웃을 고르세요 — 확인 없이 즉시 전환됩니다.",
+    "resetLayout": "프리셋으로 초기화",
+    "customLayout": "사용자 지정 레이아웃 — 프리셋과 다른 크기입니다.",
+    "presets": {
+      "binary": "Binary",
+      "binaryHint": "Fast judgment. AI on demand.",
+      "consult": "Consult",
+      "consultHint": "Read the report and ask AI side by side.",
+      "classic": "Classic",
+      "classicHint": "3-panel view: input, report, and inspector side by side. AI docked under inspector."
+    },
+    "analysis": "상호작용 분석",
+    "analysisMode": "분석 모드",
+    "analysisModeHint": "규칙 전용은 로컬 실행. 규칙+AI는 평가 결과를 설정된 어시스턴트로 검토합니다.",
+    "analysisModes": {
+      "rules": "규칙만",
+      "rules_and_ai": "규칙 + AI"
+    },
+    "autoAnalyze": "쌍 지정 시 자동 분석",
+    "autoAnalyzeHint": "Drug A와 B가 모두 지정되면 상호작용 분석을 실행합니다.",
+    "autoOpenChat": "분석 후 채팅 열기",
+    "autoOpenChatHint": "상호작용 리포트가 준비되면 어시스턴트 열에 포커스합니다.",
+    "search": "FDA 검색",
+    "fuzzySearch": "퍼지 매칭",
+    "fuzzySearchHint": "정확히 일치하지 않을 때 철자 변형·오타 패턴을 시도합니다.",
+    "session": "세션",
+    "sessionStatus": "Drug A: {{drugA}} · Drug B: {{drugB}} · {{hasAnalysis}}",
+    "sessionHasAnalysis": "분석 완료",
+    "sessionNoAnalysis": "분석 없음",
+    "clearSession": "세션 초기화",
+    "sessionId": "세션 ID: {{id}}…",
+    "pairHistory": "이 세션의 최근 약물쌍",
+    "resetDefaults": "Phaeleon 기본값 복원"
+  },
   "about": {
-    "kicker": "Biolabs",
-    "version": "{{version}} · 계산 생물학 워크스테이션",
-    "stack": "구조: NGL · 레이아웃: Dockview · AI: 모듈형 클라우드 프로바이더",
-    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team."
+    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team.",
+    "helix": {
+      "kicker": "Helix",
+      "version": "{{version}} · 단백질 예측 시각화",
+      "stack": "구조: NGL · 레이아웃: Dockview · AI: 모듈형 클라우드 프로바이더"
+    },
+    "phaeleon": {
+      "kicker": "Phaeleon",
+      "version": "{{version}} · 약물 상호작용 분석",
+      "stack": "검색: FDA OpenFDA · 평가: 규칙 기반 + 선택적 AI 검토 · 레이아웃: Frame B 셸"
+    }
   },
   "ai": {
     "serverStatus": "서버 상태",
@@ -99,6 +146,7 @@
     "clearKeys": "저장된 키 삭제",
     "clearChat": "채팅 기록 지우기",
     "resetDefaults": "AI 기본값 초기화",
+    "phaeleonContextNote": "Phaeleon은 현재 약물 쌍과 규칙 기반 상호작용 리포트를 AI 컨텍스트에 자동 주입합니다. 프로바이더와 응답 언어는 위에서 설정하세요.",
     "providers": {
       "auto": "자동 (폴백 순서)",
       "gemini": "Gemini",

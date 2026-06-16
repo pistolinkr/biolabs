@@ -24,7 +24,7 @@
     "noProtein": "sin proteína",
     "emptyState": "Pregunte sobre la estructura cargada, el residuo seleccionado, los contactos de polímero o biología general. Cada respuesta utiliza automáticamente el contexto completo de la plataforma.",
     "you": "Usted",
-    "aiName": "Biolabs AI",
+    "aiName": "Binary",
     "thinking": "Pensando…",
     "placeholder": "Pregunte sobre esta estructura…"
   },

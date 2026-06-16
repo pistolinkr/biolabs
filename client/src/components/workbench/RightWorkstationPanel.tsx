@@ -129,11 +129,11 @@ export default function RightWorkstationPanel() {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-card text-card-foreground">
-      <div className="shrink-0 border-b border-border bg-card px-2 py-2 font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+    <div className="grid h-full min-h-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-card text-card-foreground">
+      <div className="workbench-panel-nav px-3 font-mono text-[9px] uppercase tracking-[0.14em] text-muted-foreground">
         {t("inspector.title")}
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="workstation-scroll-region min-h-0 overflow-y-auto">
         <Section title={t("inspector.sections.basicInfo")}>
           <Row k={t("inspector.rows.protein")} v={basic.name} />
           <Row k={t("inspector.rows.organism")} v={basic.organism} />

@@ -1,8 +1,24 @@
 {
   "hero": {
     "title": "차세대 생물 시뮬레이션",
-    "subtitle": "구조 분석, 분자 동역학, 대화형 단백질 시각화를 위한 계산 생물학 운영 체제입니다.",
-    "enterWorkspace": "워크스페이스 입장"
+    "subtitle": "구조 분석·예측·시각화를 위한 계산 생물학 플랫폼 — 전문 도구를 실행하세요.",
+    "enterHelix": "Helix 열기"
+  },
+  "tools": {
+    "title": "도구",
+    "helix": {
+      "name": "Helix",
+      "tagline": "단백질 예측 시각화",
+      "description": "AlphaFold, RCSB PDB, UniProt 연동 3D 구조 뷰어.",
+      "action": "Helix 실행"
+    },
+    "phaeleon": {
+      "name": "Phaeleon",
+      "tagline": "약물 상호작용 분석",
+      "description": "FDA OpenFDA 약물 검색 및 규칙 기반 상호작용 평가 — DDI 체커 포팅, 클라우드 AI 불필요.",
+      "action": "Phaeleon 실행",
+      "status": "베타"
+    }
   },
   "capabilities": "핵심 기능",
   "features": {
@@ -24,7 +40,7 @@
     }
   },
   "footer": {
-    "version": "biolabs v2.2",
+    "version": "biolabs v2.3",
     "tagline": "Working with the supervision of G.Gear Vanguard Service."
   }
 }

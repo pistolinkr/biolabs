@@ -7,6 +7,7 @@ import { CLIENT_MAX_OUTPUT_TOKENS } from "@/lib/ai/clientProviders";
 import type { AiStatusResponse } from "@shared/ai/types";
 import type { AiProviderId } from "@shared/ai/types";
 import type { UiLocalePreference } from "@shared/i18n/locales";
+import type { WorkstationId } from "@/lib/settings/workstationTypes";
 import { useLocale } from "@/contexts/LocaleContext";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +56,7 @@ function Toggle({
 }
 
 export interface AiSettingsSectionProps {
+  workstation?: WorkstationId;
   settings: AiClientSettings;
   aiKeysSettings: AiKeysSettings;
   status: AiStatusResponse | null;
@@ -72,6 +74,7 @@ export interface AiSettingsSectionProps {
 }
 
 export default function AiSettingsSection({
+  workstation = "helix",
   settings,
   aiKeysSettings,
   status,
@@ -227,9 +230,11 @@ export default function AiSettingsSection({
             className="min-w-[140px] border border-border bg-input px-2 py-1 font-mono text-[10px] text-foreground focus:border-accent focus:outline-none"
           >
             <option value="auto">{t("ai.responseLanguageAuto")}</option>
-            <option value="en">English</option>
-            <option value="ko">한국어</option>
-            <option value="ja">日本語</option>
+            {supportedLocales.map((code) => (
+              <option key={code} value={code}>
+                {localeLabels[code]}
+              </option>
+            ))}
           </select>
         </SettingsRow>
 
@@ -263,30 +268,38 @@ export default function AiSettingsSection({
           />
         </SettingsRow>
 
-        <SettingsRow label={t("ai.includeSequences")} hint={t("ai.includeSequencesHint")}>
-          <Toggle
-            checked={settings.includeFullSequences}
-            onChange={(v) => onChange({ includeFullSequences: v })}
-          />
-        </SettingsRow>
-
         <SettingsRow label={t("ai.compactContext")} hint={t("ai.compactContextHint")}>
           <Toggle checked={settings.compactContext} onChange={(v) => onChange({ compactContext: v })} />
         </SettingsRow>
 
-        <SettingsRow label={t("ai.autoOpenChat")} hint={t("ai.autoOpenChatHint")}>
-          <Toggle
-            checked={settings.autoOpenChatOnExplain}
-            onChange={(v) => onChange({ autoOpenChatOnExplain: v })}
-          />
-        </SettingsRow>
+        {workstation === "helix" ? (
+          <>
+            <SettingsRow label={t("ai.includeSequences")} hint={t("ai.includeSequencesHint")}>
+              <Toggle
+                checked={settings.includeFullSequences}
+                onChange={(v) => onChange({ includeFullSequences: v })}
+              />
+            </SettingsRow>
 
-        <SettingsRow label={t("ai.residuePanel")} hint={t("ai.residuePanelHint")}>
-          <Toggle
-            checked={settings.showResidueExplainPopup}
-            onChange={(v) => onChange({ showResidueExplainPopup: v })}
-          />
-        </SettingsRow>
+            <SettingsRow label={t("ai.autoOpenChat")} hint={t("ai.autoOpenChatHint")}>
+              <Toggle
+                checked={settings.autoOpenChatOnExplain}
+                onChange={(v) => onChange({ autoOpenChatOnExplain: v })}
+              />
+            </SettingsRow>
+
+            <SettingsRow label={t("ai.residuePanel")} hint={t("ai.residuePanelHint")}>
+              <Toggle
+                checked={settings.showResidueExplainPopup}
+                onChange={(v) => onChange({ showResidueExplainPopup: v })}
+              />
+            </SettingsRow>
+          </>
+        ) : (
+          <p className="px-1 pt-1 font-mono text-[9px] leading-relaxed text-muted-foreground">
+            {t("ai.phaeleonContextNote")}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 pt-1">

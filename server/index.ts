@@ -5,6 +5,7 @@ import express, { type Request, type Response } from "express";
 import { createServer } from "http";
 import path from "path";
 import { createAiRouter } from "./core/ai/routes.ts";
+import { createPhaeleonRouter } from "./core/phaeleon/routes.ts";
 import { ensureEnvLoaded } from "./core/env/loadEnv.ts";
 import { getWorkflowJobsSnapshot } from "./core/workflow/jobQueue.ts";
 import { fileURLToPath } from "url";
@@ -100,6 +101,7 @@ async function startServer() {
   app.use(express.json({ limit: "512kb" }));
 
   app.use("/api/ai", createAiRouter());
+  app.use("/api/phaeleon", createPhaeleonRouter());
 
   app.get("/api/workflow/status", (_req, res) => {
     try {

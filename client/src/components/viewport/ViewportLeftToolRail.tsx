@@ -38,7 +38,7 @@ export default function ViewportLeftToolRail() {
   const { aiSettings, updateAiSettings } = useAssistant();
 
   return (
-    <div className="flex w-11 shrink-0 flex-col gap-1 bg-background px-1.5 py-1.5">
+    <div className="flex w-11 shrink-0 flex-col gap-1 border-r border-border bg-background px-1.5 py-1.5">
       <RailBtn title={t("rail.screenshot")} onClick={() => runViewerCommand("screenshot")}>
         <Camera className="size-3.5" strokeWidth={1.25} />
       </RailBtn>

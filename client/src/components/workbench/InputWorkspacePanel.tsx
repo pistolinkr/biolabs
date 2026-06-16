@@ -38,7 +38,7 @@ export default function InputWorkspacePanel() {
   );
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto p-2 font-mono text-[10px] text-muted-foreground">
+    <div className="workstation-scroll-region flex min-h-0 flex-1 flex-col gap-2 p-2 font-mono text-[10px] text-muted-foreground">
       <div className="workbench-panel-inset p-2">
         <div className="workbench-kicker mb-1 flex items-center gap-1">
           <Layers className="size-3" />

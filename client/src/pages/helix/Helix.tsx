@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Microscope } from "lucide-react";
 import WorkstationDockLayout from "@/components/WorkstationDockLayout";
 import AIChatSheet from "@/components/assistant/AIChatSheet";
 import ExplainPopover from "@/components/assistant/ExplainPopover";
 import ViewportAnalysisPanel from "@/components/assistant/ViewportAnalysisPanel";
-import AppHeader from "@/components/AppHeader";
+import HelixHeaderActions, { useHelixWorkspaceShortcuts } from "@/components/helix/HelixHeaderActions";
+import ToolShellHeader from "@/components/ToolShellHeader";
 import CommandPalette from "@/components/CommandPalette";
 import SettingsPanel from "@/components/SettingsPanel";
 import StructureViewport from "@/components/StructureViewport";
@@ -15,15 +17,15 @@ import { WorkflowProvider } from "@/contexts/WorkflowContext";
 import { WorkstationLayoutProvider, useWorkstationLayout } from "@/contexts/WorkstationLayoutContext";
 
 /**
- * Biolabs Workspace — computational biology workstation shell.
+ * Helix — protein prediction visualization workstation.
  */
-export default function Workspace() {
+export default function Helix() {
   return (
     <ViewerProvider>
       <WorkflowProvider>
         <AssistantProvider>
           <WorkstationLayoutProvider>
-            <WorkspaceChrome />
+            <HelixChrome />
           </WorkstationLayoutProvider>
         </AssistantProvider>
       </WorkflowProvider>
@@ -31,12 +33,15 @@ export default function Workspace() {
   );
 }
 
-function WorkspaceChrome() {
+function HelixChrome() {
   const { t } = useTranslation("common");
+  const { t: tl } = useTranslation("landing");
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { proteinSelection, setViewportShell } = useViewer();
   const { density } = useWorkstationLayout();
+  const openCommandPalette = () => setCommandPaletteOpen(true);
+  const saveWorkspace = useHelixWorkspaceShortcuts(openCommandPalette);
   const setViewportRef = (el: HTMLDivElement | null) => {
     setViewportShell(el);
   };
@@ -44,11 +49,14 @@ function WorkspaceChrome() {
   return (
     <div
       data-density={density}
-      className="workstation-shell flex h-screen max-h-screen flex-col overflow-hidden bg-background text-foreground"
+      className="workstation-shell flex h-full max-h-full flex-col overflow-hidden overscroll-none bg-background text-foreground"
     >
-      <AppHeader
-        onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
+      <ToolShellHeader
+        toolName={tl("tools.helix.name")}
+        icon={<Microscope size={14} className="text-accent" />}
+        onCommandPaletteOpen={openCommandPalette}
         onSettingsOpen={() => setSettingsOpen(true)}
+        trailingActions={<HelixHeaderActions onSave={saveWorkspace} />}
       />
       {proteinSelection ? (
         <div
@@ -82,8 +90,13 @@ function WorkspaceChrome() {
           }
         />
       </div>
-      <CommandPalette isOpen={commandPaletteOpen} onClose={() => setCommandPaletteOpen(false)} />
-      <SettingsPanel isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <CommandPalette
+        workstation="helix"
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onSettingsOpen={() => setSettingsOpen(true)}
+      />
+      <SettingsPanel workstation="helix" isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       <AIChatSheet />
       <ExplainPopover />
     </div>

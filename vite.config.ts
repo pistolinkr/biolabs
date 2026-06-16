@@ -22,6 +22,9 @@ loadDotenv({ path: path.join(PROJECT_ROOT, ".env.local"), override: true });
 const AI_HANDLERS_URL = pathToFileURL(
   path.join(PROJECT_ROOT, "server/core/ai/handlers.ts"),
 ).href;
+const PHAELEON_ROUTER_URL = pathToFileURL(
+  path.join(PROJECT_ROOT, "server/core/phaeleon/routes.ts"),
+).href;
 const LOG_DIR = path.join(PROJECT_ROOT, ".manus-logs");
 const MAX_LOG_SIZE_BYTES = 1 * 1024 * 1024; // 1MB per log file
 const TRIM_TARGET_BYTES = Math.floor(MAX_LOG_SIZE_BYTES * 0.6); // Trim to 60% to avoid constant re-trimming
@@ -214,6 +217,43 @@ function vitePluginAiAssistantDev(): Plugin {
   };
 }
 
+/** Dev-only: Phaeleon FDA + translation routes (mirrors production Express /api/phaeleon). */
+function vitePluginPhaeleonDev(): Plugin {
+  return {
+    name: "biolabs-phaeleon-dev",
+    configureServer(server: ViteDevServer) {
+      let subAppPromise: Promise<import("express").Express> | null = null;
+
+      const loadSubApp = () => {
+        if (!subAppPromise) {
+          subAppPromise = (async () => {
+            const express = (await import("express")).default;
+            const { createPhaeleonRouter } = await import(PHAELEON_ROUTER_URL);
+            const sub = express();
+            sub.use(express.json({ limit: "512kb" }));
+            sub.use(createPhaeleonRouter());
+            return sub;
+          })();
+        }
+        return subAppPromise;
+      };
+
+      server.middlewares.use("/api/phaeleon", (req, res, next) => {
+        void loadSubApp()
+          .then((sub) => sub(req, res, next))
+          .catch((e) => {
+            res.writeHead(500, { "Content-Type": "application/json" });
+            res.end(
+              JSON.stringify({
+                error: e instanceof Error ? e.message : "Phaeleon dev middleware error",
+              }),
+            );
+          });
+      });
+    },
+  };
+}
+
 /** Dev-only: same shape as production GET /api/workflow/status when queue is empty. */
 function vitePluginWorkflowStatusDev(): Plugin {
   return {
@@ -302,6 +342,7 @@ const plugins = [
   vitePluginManusDebugCollector(),
   vitePluginWorkflowStatusDev(),
   vitePluginAiAssistantDev(),
+  vitePluginPhaeleonDev(),
   vitePluginStorageProxy(),
 ];
 

@@ -4,14 +4,21 @@
     "selection": "Selection",
     "view": "View",
     "analysis": "Analysis",
-    "io": "I/O"
+    "io": "I/O",
+    "phaeleon": "Phaeleon",
+    "nav": "Navigate",
+    "assistant": "Assistant"
   },
   "palette": {
     "cmd": "CMD",
-    "placeholder": "Isolate chain B · surface · electrostatic…",
+    "placeholder": {
+      "helix": "Isolate chain B · surface · layout focus…",
+      "phaeleon": "Analyze warfarin aspirin · swap drugs · open AI…"
+    },
     "noMatch": "No matching commands",
     "navigate": "↑↓ navigate · enter run",
-    "requiresWorkspace": "Command palette: viewer commands require an open workspace session.",
+    "requiresWorkspace": "Command palette: viewer commands require an open Helix session.",
+    "requiresPhaeleon": "Command palette: this action requires the Phaeleon workstation.",
     "askAi": "Ask AI",
     "askAiHint": "Send the text above to the research assistant",
     "askAiDisabledHint": "Type a question and configure AI in settings",
@@ -57,6 +64,23 @@
     "layout.compact": { "title": "Layout: Compact", "description": "Narrow side panels for small screens" },
     "layout.reset": { "title": "Reset layout", "description": "Re-apply the active layout preset" },
     "export.cif": { "title": "Export coordinates", "description": "Download mmCIF / PDB via resolved URL" },
-    "screenshot": { "title": "Screenshot viewport", "description": "PNG from WebGL canvas" }
+    "screenshot": { "title": "Screenshot viewport", "description": "PNG from WebGL canvas" },
+    "nav.home": { "title": "Open landing hub", "description": "Return to Biolabs tool registry" },
+    "nav.helix": { "title": "Open Helix", "description": "Protein structure visualization workstation" },
+    "nav.phaeleon": { "title": "Open Phaeleon", "description": "Drug interaction analysis workstation" },
+    "phaeleon.analyze": { "title": "Analyze drug interaction", "description": "Run rule-based DDI assessment for Drug A + B" },
+    "phaeleon.clear.session": { "title": "Clear Phaeleon session", "description": "Reset drugs, search, and analysis" },
+    "phaeleon.swap.drugs": { "title": "Swap Drug A and B", "description": "Exchange the two assigned drugs" },
+    "phaeleon.slot.drug1": { "title": "Focus Drug A slot", "description": "Assign next search result to Drug A" },
+    "phaeleon.slot.drug2": { "title": "Focus Drug B slot", "description": "Assign next search result to Drug B" },
+    "phaeleon.search.focus": { "title": "Focus drug search", "description": "Jump to FDA / local drug search field" },
+    "phaeleon.fuzzy.toggle": { "title": "Toggle fuzzy FDA search", "description": "Enable or disable typo-tolerant OpenFDA queries" },
+    "phaeleon.layout.binary": { "title": "Binary layout", "description": "Fast judgment. AI on demand." },
+    "phaeleon.layout.consult": { "title": "Consult layout", "description": "Read the report and ask AI side by side." },
+    "phaeleon.layout.classic": { "title": "Classic layout", "description": "3-panel view with AI docked under inspector." },
+    "phaeleon.layout.reset": { "title": "Reset layout preset", "description": "Re-apply the active workstation preset" },
+    "phaeleon.settings.open": { "title": "Open Phaeleon settings", "description": "Workspace, AI, and appearance preferences" },
+    "phaeleon.ai.chat": { "title": "Open AI assistant", "description": "Chat about the current drug pair and report" },
+    "assistant.chat.open": { "title": "Open AI assistant", "description": "Open the research assistant chat panel" }
   }
 }

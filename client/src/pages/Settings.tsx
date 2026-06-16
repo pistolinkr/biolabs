@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useLocation } from 'wouter';
 import WorkspaceManager from '@/components/WorkspaceManager';
+import { HELIX_PATH } from '@/lib/routes';
 
 /**
  * Biolabs Settings Page
@@ -12,12 +13,12 @@ export default function Settings() {
   const [, setLocation] = useLocation();
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto overflow-x-hidden overscroll-y-contain bg-background text-foreground">
       {/* Header */}
       <header className="border-b border-border">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-4">
           <button
-            onClick={() => setLocation('/workspace')}
+            onClick={() => setLocation(HELIX_PATH)}
             className="p-2 hover:bg-secondary transition-colors"
           >
             <ArrowLeft size={16} />

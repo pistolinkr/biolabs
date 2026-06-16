@@ -1,0 +1,168 @@
+{
+  "toolName": "Phaeleon",
+  "tagline": "Analyse des interactions médicamenteuses",
+  "drugA": "Médicament A",
+  "drugB": "Médicament B",
+  "panels": {
+    "input": {
+      "kicker": "Saisie",
+      "title": "Recherche de médicament"
+    },
+    "analysis": {
+      "kicker": "Analyse",
+      "title": "Rapport d'interaction",
+      "empty": "Sélectionnez Médicament A et B puis lancez l'analyse. Les résultats reposent sur une évaluation basée sur des règles et la recherche des labels FDA — pas de KI cloud nécessaire.",
+      "loading": "Analyse de l'interaction…"
+    },
+    "inspector": {
+      "kicker": "Inspecteur",
+      "title": "Session & métadonnées"
+    },
+    "assistant": {
+      "kicker": "Assistant"
+    }
+  },
+  "search": {
+    "label": "Recherche de label FDA",
+    "placeholder": "Nom du médicament (EN/KO)",
+    "action": "Rechercher",
+    "loading": "Recherche OpenFDA…",
+    "noResults": "Aucun médicament correspondant trouvé.",
+    "localOnly": "{{count}} correspondances locales · récupération FDA…",
+    "resultCount": "{{count}} correspondances",
+    "typeToSearch": "Continuez à taper — les alias locaux apparaissent immédiatement ; les résultats FDA suivent.",
+    "recent": "Recherches récentes"
+  },
+  "analyze": {
+    "action": "Analyser l'interaction",
+    "hint": "Assignez les deux emplacements (A et B) pour analyser.",
+    "readyHint": "Les deux emplacements sont remplis — lancez l'analyse basée sur des règles.",
+    "doneHint": "Analyse terminée — relancez après modification des médicaments."
+  },
+  "input": {
+    "drugSelect": "Assigner le slot",
+    "activeSlot": "Actif",
+    "typingInto": "Saisie dans {{slot}}",
+    "confirmAssign": "Assigner « {{drug}} » à {{slot}} ?",
+    "confirmAction": "Confirmer",
+    "cancelAction": "Annuler"
+  },
+  "severity": {
+    "low": "Faible",
+    "moderate": "Prudence",
+    "high": "Risque"
+  },
+  "reportEmpty": {
+    "fallback": "Sélectionnez des médicaments et lancez l'analyse pour remplir cette section.",
+    "noPair": {
+      "emergency": "Les signes d'urgence s'afficheront ici après analyse d'une paire de médicaments.",
+      "summary": "Sélectionnez A et B puis exécutez l'analyse pour obtenir le résumé.",
+      "mechanism": "Les détails du mécanisme apparaîtront après affectation et analyse des deux médicaments.",
+      "expectedEffects": "Les effets attendus seront listés après analyse.",
+      "practicalSteps": "Les étapes pratiques apparaîtront après l'analyse d'interaction."
+    },
+    "awaitAnalysis": {
+      "emergency": "Exécutez l'analyse pour voir quand consulter les urgences pour cette paire.",
+      "summary": "Appuyez sur Analyser l'interaction pour générer le résumé de la paire.",
+      "mechanism": "L'analyse du mécanisme se charge lorsque vous lancez l'analyse d'interaction.",
+      "expectedEffects": "Les effets attendus s'affichent après la fin de l'analyse.",
+      "practicalSteps": "Les étapes pratiques s'afficheront après l'analyse de cette paire."
+    }
+  },
+  "risk": {
+    "low": "Risque faible",
+    "moderate": "Modéré",
+    "high": "Élevé",
+    "very_high": "Très élevé",
+    "unknown": "Inconnu"
+  },
+  "report": {
+    "summary": "Résumé",
+    "mechanism": "Mécanisme",
+    "expectedEffects": "Effets attendus",
+    "practicalSteps": "Étapes pratiques",
+    "emergencySigns": "Consulter en urgence si",
+    "translating": "Traduction du rapport…",
+    "translationFailed": "Traduction indisponible",
+    "translationFailedHint": "Impossible de traduire ce rapport. Vérifiez les clés AI côté serveur dans .env ou ajoutez une clé provider dans Paramètres → AI, puis relancez l'analyse."
+  },
+  "inspector": {
+    "assignedDrugs": "Médicaments affectés",
+    "noDrug": "Non sélectionné",
+    "generic": "Générique",
+    "brand": "Marque",
+    "session": "Session",
+    "noAnalysis": "Exécutez l'analyse pour remplir les métriques de session.",
+    "source": "Source des données",
+    "sourceNote": "Les noms de médicaments proviennent de l'API OpenFDA Label via le proxy serveur Biolabs. L'évaluation d'interaction est basée sur des règles (locale).",
+    "guide": {
+      "title": "Premiers pas",
+      "step1": "Sélectionnez Médicament A ou B dans Saisie, puis recherchez les labels FDA.",
+      "step2": "Confirmez chaque résultat de recherche avant d'assigner au slot.",
+      "step3": "Exécutez l'analyse d'interaction pour remplir le rapport et les métriques de session."
+    },
+    "fields": {
+      "risk": "Risque",
+      "pair": "Paire",
+      "effects": "Effets",
+      "steps": "Étapes"
+    },
+    "drugProfile": {
+      "title": "À propos de ce médicament",
+      "selectHint": "Choisissez un slot dans Saisie, recherchez les labels FDA, ou appuyez sur Médicament A / B ci‑dessous pour inspecter.",
+      "category": "Classe thérapeutique",
+      "route": "Voie d'administration",
+      "overview": "Aperçu",
+      "indications": "Indications & utilisation",
+      "warnings": "Principales mises en garde",
+      "noOverview": "Aucun texte structuré de label disponible. Essayez un nom générique ou vérifiez l'orthographe.",
+      "sourceFda": "Source : label FDA",
+      "sourceLocal": "Source : référence locale Biolabs",
+      "sourceMixed": "Source : label FDA + référence locale",
+      "sourceNone": "Source : données limitées",
+      "fdaLink": "Recherche de label OpenFDA"
+    }
+  },
+  "layout": {
+    "assistantStackResize": "Redimensionner le panneau assistant",
+    "openInspector": "Inspecteur"
+  },
+  "disclaimer": "Usage éducatif uniquement. Pas un avis médical. Consultez toujours un professionnel de santé qualifié avant de modifier des médicaments.",
+  "assistant": {
+    "askButton": "Demander à l'IA",
+    "openTitle": "Ouvrir l'assistant IA",
+    "notConfiguredTitle": "IA non configurée — ajoutez une clé provider dans les Paramètres",
+    "kicker": "Binary",
+    "dockTitle": "Assistant interactions médicamenteuses",
+    "aiName": "Binary",
+    "clearChat": "Effacer le chat",
+    "selectPairHint": "Sélectionnez Médicament A et B — des prompts rapides et le contexte apparaîtront ici.",
+    "runAnalysisHint": "Exécutez l'analyse d'interaction pour charger le contexte basé sur des règles.",
+    "contextReady": "Contexte basé sur des règles chargé",
+    "notConfigured": "Ajoutez un provider IA dans les Paramètres pour utiliser le chat et les prompts rapides.",
+    "placeholder": "Posez une question sur cette paire, la surveillance ou des alternatives…",
+    "emptyNoPair": "Ask Binary",
+    "emptyWithPair": "Utilisez les prompts rapides ci‑dessus ou posez une question de suivi sur cette paire.",
+    "contextBadge": "contexte",
+    "autoReviewIntro": "Examinez cette évaluation Phaeleon des interactions médicamenteuses. Répondez de manière concise et pratique.",
+    "thinking": "Réflexion",
+    "quickPrompts": "Prompts rapides",
+    "promptLabels": {
+      "explainRisk": "Expliquer le risque",
+      "clinicalSummary": "Résumé clinique",
+      "monitoring": "Surveillance",
+      "alternatives": "Alternatives plus sûres"
+    },
+    "prompts": {
+      "unknownRisk": "inconnu",
+      "explainRisk": "Expliquez le niveau de risque d'interaction entre {{drugA}} et {{drugB}}. Évaluation actuelle : {{risk}}.",
+      "clinicalSummary": "Donnez un résumé clinique concis pour la co‑administration de {{drugA}} et {{drugB}}.",
+      "monitoring": "Que faut‑il surveiller lorsque {{drugA}} et {{drugB}} sont administrés ensemble ?",
+      "alternatives": "Quelles alternatives plus sûres ou ajustements de calendrier un clinicien devrait‑il envisager pour {{drugA}} avec {{drugB}} ?"
+    },
+    "sectionLinks": {
+      "emergency": "→ Signes d'urgence",
+      "emergencyPrompt": "Résumez les signes d'alerte d'urgence pour {{drugA}} + {{drugB}}. Référence : {{anchor}}"
+    }
+  }
+}

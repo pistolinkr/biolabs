@@ -46,9 +46,9 @@ export interface ContextBuilderInput {
   extensions?: Partial<
     Pick<
       AiPlatformContext,
-      "domain" | "mutation" | "input_drafts" | "annotations" | "platform_generated_analysis"
+      "domain" | "mutation" | "input_drafts" | "annotations" | "platform_generated_analysis" | "workstation_id"
     >
-  >;
+  > & { ui_locale?: string | null };
   /** Client AI prefs applied at build time. */
   contextOptions?: {
     includeFullSequences?: boolean;
@@ -228,6 +228,7 @@ export function buildAiPlatformContext(input: ContextBuilderInput): AiPlatformCo
     cached_search_hits: buildCachedSearchSummary(),
     input_drafts: input.extensions?.input_drafts ?? null,
     highlighted_region: highlighted,
+    workstation_id: input.extensions?.workstation_id ?? null,
     metadata: {
       pdb_ids: sel?.pdbIds?.join(",") ?? null,
       preferred_structure: sel?.preferredStructure ?? null,
@@ -236,6 +237,7 @@ export function buildAiPlatformContext(input: ContextBuilderInput): AiPlatformCo
       atom_count: input.structureModel?.atomCount ?? null,
       residue_count: input.structureModel?.residueCount ?? null,
       chain_count: input.structureModel?.chains.length ?? null,
+      ui_locale: input.extensions?.ui_locale ?? null,
     },
     assembled_at: new Date().toISOString(),
     context_fingerprint: fingerprintInput(input),

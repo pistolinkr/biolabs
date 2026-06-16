@@ -30,7 +30,13 @@ import {
 } from "@/lib/ai/aiKeysStorage";
 import { buildClientAiStatus, CLIENT_MAX_OUTPUT_TOKENS } from "@/lib/ai/clientProviders";
 import { buildAiPlatformContext } from "@/lib/ai/contextBuilder";
-import { boostAgentPlan, executeAgentPlan, parseAgentPlan } from "@/lib/ai/agentActions";
+import { boostAgentPlan, executeAgentPlan, parseAgentPlan, userFacingAgentReply } from "@/lib/ai/agentActions";
+import {
+  boostPhaeleonAgentPlan,
+  executePhaeleonAgentPlan,
+  parsePhaeleonAgentPlan,
+  type PhaeleonAgentExecutorDeps,
+} from "@/lib/phaeleon/phaeleonAgentActions";
 import { acceptLanguageForSearch } from "@/lib/proteinSearchQuery";
 import { sendAiChat } from "@/lib/ai/assistantApi";
 import { AiRequestError, formatAiUserNotice, noticeFromUnknownError } from "@/lib/ai/userErrors";
@@ -67,6 +73,8 @@ export interface ContextExtensionSlice {
   input_drafts?: string | null;
   annotations?: string | null;
   platform_generated_analysis?: string | null;
+  workstation_id?: string | null;
+  ui_locale?: string | null;
 }
 
 export interface StructureAnalysisActive {
@@ -107,7 +115,10 @@ interface AssistantContextValue {
     globalPopover?: boolean;
   }) => Promise<string | null>;
   clearMessages: () => void;
+  /** Replace the visible chat thread (e.g. restore per drug-pair history). */
+  replaceMessages: (messages: AssistantUiMessage[]) => void;
   registerContextExtension: (slice: ContextExtensionSlice) => () => void;
+  registerPhaeleonAgentDeps: (deps: PhaeleonAgentExecutorDeps | null) => () => void;
   /** Popover state for inline explain UI */
   explainPopover: {
     open: boolean;
@@ -186,6 +197,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     viewerRef.current = viewer;
   }, [viewer]);
 
+  const phaeleonAgentDepsRef = useRef<PhaeleonAgentExecutorDeps | null>(null);
+
   /** Routing trail of the most recent runChat call (for fallback UI hints). */
   const lastRoutingRef = useRef<RoutingMeta | null>(null);
 
@@ -197,6 +210,8 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       if (ext.input_drafts) out.input_drafts = ext.input_drafts;
       if (ext.annotations) out.annotations = ext.annotations;
       if (ext.platform_generated_analysis) out.platform_generated_analysis = ext.platform_generated_analysis;
+      if (ext.workstation_id) out.workstation_id = ext.workstation_id;
+      if (ext.ui_locale) out.ui_locale = ext.ui_locale;
     }
     return out;
   }, [extensions]);
@@ -239,6 +254,15 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
     setExtensions((prev) => [...prev, slice]);
     return () => {
       setExtensions((prev) => prev.filter((s) => s !== slice));
+    };
+  }, []);
+
+  const registerPhaeleonAgentDeps = useCallback((deps: PhaeleonAgentExecutorDeps | null) => {
+    phaeleonAgentDepsRef.current = deps;
+    return () => {
+      if (phaeleonAgentDepsRef.current === deps) {
+        phaeleonAgentDepsRef.current = null;
+      }
     };
   }, []);
 
@@ -522,6 +546,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
 
   const runAgent = useCallback(
     async (userText: string, history: AssistantUiMessage[], pendingId: string) => {
+      const ctx = buildContext();
+      const onPhaeleon = ctx.workstation_id === "phaeleon" || ctx.domain?.startsWith("phaeleon");
+
       const raw = await runChat(userText, "agent", history);
       if (!raw) {
         setMessages((prev) => prev.filter((m) => m.id !== pendingId));
@@ -529,13 +556,16 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       }
       const routing = lastRoutingRef.current;
 
-      const plan = boostAgentPlan(userText, parseAgentPlan(raw));
+      const plan = onPhaeleon
+        ? boostPhaeleonAgentPlan(userText, parsePhaeleonAgentPlan(raw))
+        : boostAgentPlan(userText, parseAgentPlan(raw));
+      const displayReply = userFacingAgentReply(raw, plan);
       setMessages((prev) =>
         prev.map((m) =>
           m.id === pendingId
             ? {
                 ...m,
-                content: plan.reply,
+                content: displayReply,
                 pending: false,
                 agentExecuting: plan.actions.length > 0,
                 agentSteps: plan.actions.length > 0 ? [] : undefined,
@@ -549,6 +579,29 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       );
 
       if (!plan.actions.length) return;
+
+      if (onPhaeleon) {
+        const deps = phaeleonAgentDepsRef.current;
+        if (!deps) return;
+
+        try {
+          await executePhaeleonAgentPlan(plan, {
+            ...deps,
+            onStepUpdate: (steps) => {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === pendingId ? { ...m, agentSteps: steps, agentExecuting: true } : m,
+                ),
+              );
+            },
+          });
+        } finally {
+          setMessages((prev) =>
+            prev.map((m) => (m.id === pendingId ? { ...m, agentExecuting: false } : m)),
+          );
+        }
+        return;
+      }
 
       const uiLocale = i18n.language?.split("-")[0] ?? "en";
       const acceptLanguage = acceptLanguageForSearch(uiLocale);
@@ -589,7 +642,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         if (appendReply) {
           setMessages((prev) =>
             prev.map((m) =>
-              m.id === pendingId ? { ...m, content: `${plan.reply}\n\n${appendReply}` } : m,
+              m.id === pendingId ? { ...m, content: `${displayReply}\n\n${appendReply}` } : m,
             ),
           );
         }
@@ -599,7 +652,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         );
       }
     },
-    [runChat, analyzeStructure],
+    [runChat, analyzeStructure, buildContext],
   );
 
   const runAgentQuery = useCallback(
@@ -611,12 +664,24 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       }
 
       try {
+        const ctx = buildContext();
+        const onPhaeleon = ctx.workstation_id === "phaeleon" || ctx.domain?.startsWith("phaeleon");
         const raw = await runChat(trimmed, "agent", []);
         if (!raw) return { ok: false, error: "no_response" };
 
-        const plan = boostAgentPlan(trimmed, parseAgentPlan(raw));
+        const plan = onPhaeleon
+          ? boostPhaeleonAgentPlan(trimmed, parsePhaeleonAgentPlan(raw))
+          : boostAgentPlan(trimmed, parseAgentPlan(raw));
+        const displayReply = userFacingAgentReply(raw, plan);
         if (!plan.actions.length) {
-          return { ok: true, reply: plan.reply, steps: [] };
+          return { ok: true, reply: displayReply, steps: [] };
+        }
+
+        if (onPhaeleon) {
+          const deps = phaeleonAgentDepsRef.current;
+          if (!deps) return { ok: true, reply: displayReply, steps: [] };
+          const { steps } = await executePhaeleonAgentPlan(plan, deps);
+          return { ok: true, reply: displayReply, steps };
         }
 
         const uiLocale = i18n.language?.split("-")[0] ?? "en";
@@ -646,7 +711,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
           t: (key, opts) => i18n.t(key, { ns: "assistant", ...opts }),
         });
 
-        const reply = appendReply ? `${plan.reply}\n\n${appendReply}` : plan.reply;
+        const reply = appendReply ? `${displayReply}\n\n${appendReply}` : displayReply;
         return { ok: true, reply, steps };
       } catch (e) {
         const notice = e instanceof AiRequestError
@@ -655,7 +720,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
         return { ok: false, error: notice };
       }
     },
-    [runChat, status, aiKeysSettings, analyzeStructure],
+    [runChat, status, aiKeysSettings, analyzeStructure, buildContext],
   );
 
   const sendMessage = useCallback(
@@ -669,7 +734,7 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       setIsSending(true);
 
       try {
-        if (intent === "agent" || intent === "general") {
+        if (intent === "agent") {
           await runAgent(trimmed, messages, pendingId);
           return;
         }
@@ -718,6 +783,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
 
   const closeExplainPopover = useCallback(() => setExplainPopover(null), []);
   const clearMessages = useCallback(() => setMessages([]), []);
+  const replaceMessages = useCallback((next: AssistantUiMessage[]) => {
+    setMessages(next);
+  }, []);
 
   const value = useMemo<AssistantContextValue>(
     () => ({
@@ -733,7 +801,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       runAgentQuery,
       explain,
       clearMessages,
+      replaceMessages,
       registerContextExtension,
+      registerPhaeleonAgentDeps,
       explainPopover,
       closeExplainPopover,
       aiSettings,
@@ -762,7 +832,9 @@ export function AssistantProvider({ children }: { children: ReactNode }) {
       runAgentQuery,
       explain,
       clearMessages,
+      replaceMessages,
       registerContextExtension,
+      registerPhaeleonAgentDeps,
       explainPopover,
       closeExplainPopover,
       aiSettings,

@@ -1,0 +1,226 @@
+{
+  "toolName": "Phaeleon",
+  "tagline": "약물 상호작용 분석",
+  "drugA": "약물 A",
+  "drugB": "약물 B",
+  "panels": {
+    "input": {
+      "kicker": "입력",
+      "title": "약물 검색"
+    },
+    "analysis": {
+      "kicker": "분석",
+      "title": "상호작용 리포트",
+      "empty": "약물 A와 B를 선택한 뒤 분석을 실행하세요. FDA 라벨 검색과 규칙 기반 평가를 사용합니다 — 클라우드 AI 불필요.",
+      "loading": "상호작용 분석 중…",
+      "aiLoading": "AI가 이 약물 쌍을 평가하는 중…"
+    },
+    "inspector": {
+      "kicker": "인스펙터",
+      "title": "세션 및 메타데이터"
+    },
+    "assistant": {
+      "kicker": "어시스턴트"
+    },
+    "fused": {
+      "kicker": "상호작용",
+      "title": "상호작용 & 대화"
+    }
+  },
+  "search": {
+    "label": "FDA 라벨 검색",
+    "placeholder": "약물명 (한/영)",
+    "action": "검색",
+    "loading": "OpenFDA 검색 중…",
+    "noResults": "일치하는 약물이 없습니다.",
+    "localOnly": "로컬 매핑 {{count}}건 · FDA 조회 중…",
+    "resultCount": "{{count}}건 일치",
+    "typeToSearch": "입력하면 로컬 별칭이 즉시 표시되고 FDA 결과가 이어집니다.",
+    "recent": "최근 검색"
+  },
+  "analyze": {
+    "action": "상호작용 분석",
+    "aiAction": "AI 리포트 생성",
+    "hint": "약물 A와 B를 모두 지정해야 분석할 수 있습니다.",
+    "readyHint": "두 슬롯이 채워졌습니다 — 규칙 기반 상호작용 분석을 실행하세요.",
+    "aiReadyHint": "두 슬롯이 채워졌습니다 — FDA 규칙 조회 없이 AI가 직접 평가합니다.",
+    "doneHint": "분석이 완료되었습니다 — 약물을 변경한 뒤 다시 실행할 수 있습니다.",
+    "aiDoneHint": "어시스턴트가 응답했습니다 — 후속 질문을 하거나 다시 실행해 갱신하세요."
+  },
+  "input": {
+    "drugSelect": "슬롯 지정",
+    "activeSlot": "입력 중",
+    "typingInto": "{{slot}}에 입력 중",
+    "confirmAssign": "\"{{drug}}\"을(를) {{slot}}에 지정할까요?",
+    "confirmAction": "확인",
+    "cancelAction": "취소"
+  },
+  "inputRail": {
+    "drugExplainTitle": "{{drug}} 설명",
+    "drugExplainLoading": "약물 설명 생성 중…",
+    "drugExplainEmpty": "먼저 이 슬롯에 약물을 지정하세요.",
+    "drugExplainFailed": "약물 설명을 생성하지 못했습니다.",
+    "interactionRisk": "상호작용 위험: {{risk}}"
+  },
+  "severity": {
+    "low": "낮음",
+    "moderate": "주의",
+    "high": "위험"
+  },
+  "reportEmpty": {
+    "fallback": "약물을 선택하고 분석을 실행하면 이 섹션이 채워집니다.",
+    "noPair": {
+      "emergency": "약물쌍 분석 후 응급 징후가 여기에 표시됩니다.",
+      "summary": "약물 A와 B를 선택한 뒤 분석을 실행하면 요약이 표시됩니다.",
+      "mechanism": "두 약물을 지정하고 분석하면 기전 분석이 여기에 표시됩니다.",
+      "expectedEffects": "분석 실행 후 예상 영향이 여기에 나열됩니다.",
+      "practicalSteps": "상호작용 분석 후 실용적 조치가 표시됩니다."
+    },
+    "awaitAnalysis": {
+      "emergency": "분석을 실행하면 이 조합의 응급 징후를 확인할 수 있습니다.",
+      "summary": "상호작용 분석 버튼을 눌러 약물쌍 요약을 생성하세요.",
+      "mechanism": "상호작용 분석을 실행하면 기전 분석이 로드됩니다.",
+      "expectedEffects": "분석 완료 후 예상 영향이 표시됩니다.",
+      "practicalSteps": "이 약물쌍을 분석하면 실용적 조치가 표시됩니다."
+    }
+  },
+  "risk": {
+    "low": "낮음",
+    "moderate": "주의",
+    "high": "높음",
+    "very_high": "매우 높음",
+    "unknown": "불명"
+  },
+  "report": {
+    "summary": "요약",
+    "mechanism": "기전",
+    "expectedEffects": "예상 영향",
+    "practicalSteps": "실용적 조치",
+    "emergencySigns": "응급 징후",
+    "translating": "리포트 번역 중…",
+    "translationFailed": "번역을 사용할 수 없습니다",
+    "translationFailedHint": "리포트를 번역하지 못했습니다. 서버 .env의 AI 키 또는 설정 → AI의 프로바이더 키를 확인한 뒤 분석을 다시 실행하세요.",
+    "aiFailed": "AI 분석 실패",
+    "aiFailedHint": "AI 상호작용 리포트를 생성하지 못했습니다. 설정 → AI의 프로바이더 키 또는 서버 AI 키를 확인한 뒤 다시 시도하세요.",
+    "aiNotConfigured": "AI가 설정되지 않음",
+    "aiNotConfiguredHint": "Assistant-first 모드에는 AI 프로바이더가 필요합니다. 설정 → AI에서 키를 추가하거나 서버 AI 키를 구성한 뒤 분석을 다시 실행하세요."
+  },
+  "inspector": {
+    "assignedDrugs": "지정된 약물",
+    "noDrug": "미선택",
+    "generic": "일반명",
+    "brand": "상품명",
+    "session": "세션",
+    "noAnalysis": "분석 실행 후 세션 지표가 표시됩니다.",
+    "source": "데이터 출처",
+    "sourceNote": "약물명은 Biolabs 서버 프록시를 통한 FDA OpenFDA 라벨 API. 상호작용 평가는 규칙 기반(로컬).",
+    "guide": {
+      "title": "시작하기",
+      "step1": "Input에서 약물 A 또는 B를 선택한 뒤 FDA 라벨을 검색하세요.",
+      "step2": "검색 결과를 슬롯에 지정하기 전 확인 단계를 거칩니다.",
+      "step3": "상호작용 분석을 실행하면 리포트와 세션 지표가 채워집니다."
+    },
+    "fields": {
+      "risk": "위험도",
+      "pair": "조합",
+      "effects": "영향",
+      "steps": "조치"
+    },
+    "drugProfile": {
+      "title": "약물 정보",
+      "selectHint": "Input에서 슬롯을 고른 뒤 FDA 검색하거나, 아래 Drug A / B를 눌러 상세를 보세요.",
+      "category": "약물 분류",
+      "route": "투여 경로",
+      "overview": "개요",
+      "indications": "적응증 및 용도",
+      "warnings": "주요 경고",
+      "noOverview": "구조화된 라벨 정보가 아직 없습니다. 일반명으로 검색하거나 철자를 확인해 보세요.",
+      "sourceFda": "출처: FDA 약물 라벨",
+      "sourceLocal": "출처: Biolabs 로컬 약물 참조",
+      "sourceMixed": "출처: FDA 라벨 + 로컬 참조",
+      "sourceNone": "출처: 제한된 데이터",
+      "fdaLink": "OpenFDA 라벨 검색"
+    }
+  },
+  "layout": {
+    "assistantStackResize": "어시스턴트 패널 높이 조절",
+    "openInspector": "인스펙터",
+    "binaryEmpty": "두 약물을 선택하고 분석을 실행하세요.",
+    "askAboutResult": "이 결과에 대해 질문",
+    "binaryQuestion": "Q.",
+    "binaryAnswer": "A.",
+    "asking": "질문 중",
+    "answering": "답변 중…",
+    "askAiTrigger": "Ask AI about this",
+    "commandClinical": "Clinical actions",
+    "commandAwaitAnalysis": "분석을 실행하면 패널이 채워집니다.",
+    "compactAiChip": "Ask AI"
+  },
+  "assistantFirst": {
+    "welcome": {
+      "title": "Binary",
+      "body": "약물 상호작용을 분석해 드립니다. 왼쪽에서 두 약물을 검색한 뒤 분석을 요청하거나, 아래 프롬프트에 필요한 내용을 입력하세요.",
+      "suggestion1": "Drug A·B를 검색한 뒤 분석 실행",
+      "suggestion2": "예: \"와파린과 아스피린 찾아서 상호작용 분석해줘\"",
+      "suggestion3": "교육용 정보이며 의료 조언이 아닙니다"
+    },
+    "analyzing": "상호작용 분석 중…",
+    "history": "검색 기록",
+    "historyEmpty": "약물 할당 후 최근 FDA 검색이 여기에 표시됩니다.",
+    "metadata": "약물 메타데이터",
+    "expandInput": "입력 패널 펼치기",
+    "collapseInput": "입력 패널 접기",
+    "openSearch": "약물 검색",
+    "inlineDisclaimer": "교육용 종합 평가 — 인용하지 않은 FDA 라벨 검증 텍스트는 아닙니다.",
+    "dataSource": "데이터: Biolabs FDA OpenFDA 프록시 · AI 생성 평가"
+  },
+  "disclaimer": "교육 목적 전용입니다. 의료 조언이 아닙니다. 약물 변경 전 반드시 의료 전문가와 상담하세요.",
+  "assistant": {
+    "askButton": "AI 질문",
+    "openTitle": "AI 어시스턴트 열기",
+    "notConfiguredTitle": "AI 미설정 — 설정에서 프로바이더 키를 추가하세요",
+    "kicker": "Binary",
+    "dockTitle": "약물 상호작용 어시스턴트",
+    "primaryTitle": "약물 상호작용 분석",
+    "primaryEmpty": "Drug A와 B를 지정한 뒤 분석을 실행하세요 — 어시스턴트가 채팅에서 직접 평가합니다.",
+    "primaryFollowUp": "이 약물 쌍에 대해 후속 질문을 하거나, 분석을 다시 실행해 평가를 갱신하세요.",
+    "analyzePairPrompt": "{{drugA}}와 {{drugB}}의 약물 상호작용을 분석해 주세요. 위험도, 기전, 예상 효과, 모니터링 항목, 실용적 조치, 응급 경고 징후를 포함해 간결하지만 완전하게 설명해 주세요. 교육 목적임을 명시하세요.",
+    "aiName": "Binary",
+    "clearChat": "채팅 지우기",
+    "selectPairHint": "약물 A와 B를 선택하면 빠른 프롬프트와 맥락이 표시됩니다.",
+    "runAnalysisHint": "상호작용 분석을 실행하면 규칙 기반 맥락이 로드됩니다.",
+    "aiRunAnalysisHint": "이 약물 쌍에 대해 질문하세요 — 분석이 완료되면 AI 리포트 패널이 채워집니다.",
+    "contextReady": "규칙 기반 맥락 로드됨",
+    "aiContextReady": "AI 상호작용 리포트 로드됨",
+    "fusedConversation": "후속 질문",
+    "fusedFollowUp": "위 리포트에 대해 질문하거나 빠른 프롬프트를 사용하세요.",
+    "notConfigured": "설정에서 AI 프로바이더를 추가하면 채팅과 빠른 프롬프트를 사용할 수 있습니다.",
+    "askBinaryPlaceholder": "Ask Binary",
+    "placeholder": "이 약물쌍, 모니터링, 대안에 대해 질문하세요…",
+    "emptyNoPair": "Ask Binary",
+    "emptyWithPair": "위 빠른 프롬프트를 사용하거나 이 쌍에 대해 후속 질문을 하세요.",
+    "contextBadge": "컨텍스트로 질문 중",
+    "dismissPairContext": "이 대화에서 약물쌍 컨텍스트 제거",
+    "autoReviewIntro": "이 Phaeleon 약물 상호작용 평가를 검토해 주세요. 간결하고 실용적으로 답변해 주세요.",
+    "thinking": "생각 중",
+    "quickPrompts": "빠른 프롬프트",
+    "promptLabels": {
+      "explainRisk": "위험도 설명",
+      "clinicalSummary": "임상 요약",
+      "monitoring": "모니터링 항목",
+      "alternatives": "대안·조정 논의"
+    },
+    "prompts": {
+      "unknownRisk": "불명",
+      "explainRisk": "{{drugA}}와 {{drugB}}의 상호작용 위험도를 설명해 주세요. 현재 평가: {{risk}}.",
+      "clinicalSummary": "{{drugA}}와 {{drugB}} 병용에 대한 간결한 임상 요약을 작성해 주세요.",
+      "monitoring": "{{drugA}}와 {{drugB}}를 함께 복용할 때 무엇을 모니터링해야 하나요?",
+      "alternatives": "{{drugA}}와 {{drugB}} 조합에서 논의할 더 안전한 대안이나 복용 시간 조정을 제안해 주세요.",
+      "emergencySigns": "{{drugA}}와 {{drugB}}를 함께 복용할 때 주의해야 할 응급 경고 징후는?"
+    },
+    "sectionLinks": {
+      "emergency": "→ 응급 징후 섹션",
+      "emergencyPrompt": "{{drugA}} + {{drugB}}의 응급 경고 징후를 요약해 주세요. 참조: {{anchor}}"
+    }
+  }
+}

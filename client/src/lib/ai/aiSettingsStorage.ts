@@ -2,7 +2,7 @@ import type { AiProviderId } from "@shared/ai/types";
 
 export const AI_SETTINGS_STORAGE_KEY = "biolabs.workspace.aiSettings.v1";
 
-export type AiResponseLanguage = "auto" | "en" | "ko" | "ja";
+export type AiResponseLanguage = "auto" | "en" | "ko" | "ja" | "zh" | "de" | "fr" | "es";
 
 export interface AiClientSettings {
   preferredProvider: AiProviderId;
@@ -61,7 +61,16 @@ function isProvider(v: unknown): v is AiProviderId {
 }
 
 function isLang(v: unknown): v is AiResponseLanguage {
-  return v === "auto" || v === "en" || v === "ko" || v === "ja";
+  return (
+    v === "auto" ||
+    v === "en" ||
+    v === "ko" ||
+    v === "ja" ||
+    v === "zh" ||
+    v === "de" ||
+    v === "fr" ||
+    v === "es"
+  );
 }
 
 function clampNum(v: unknown, min: number, max: number, fallback: number): number {
