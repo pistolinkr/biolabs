@@ -1,20 +1,7 @@
-import type { AiProviderId } from "@shared/ai/types";
 import type { SupportedUiLocale } from "@shared/i18n/locales";
-import { completeWithClientKeys } from "@/lib/ai/clientProviders";
-import { hasAnyClientKey, type AiClientApiKeys } from "@/lib/ai/aiKeysStorage";
 import type { InteractionAnalysis } from "./types";
 
 const STORAGE_KEY = "biolabs.phaeleon.analysisTranslation.v2";
-
-const LOCALE_LABELS: Record<SupportedUiLocale, string> = {
-  en: "English",
-  ko: "Korean",
-  ja: "Japanese",
-  zh: "Simplified Chinese",
-  de: "German",
-  fr: "French",
-  es: "Spanish",
-};
 
 export type TranslatedAnalysisFields = Pick<
   InteractionAnalysis,
@@ -112,30 +99,6 @@ function writeCachedAnalysisTranslation(
   saveCache(cache);
 }
 
-function stripJsonFence(raw: string): string {
-  const trimmed = raw.trim();
-  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)```$/i);
-  return (fenced?.[1] ?? trimmed).trim();
-}
-
-function parseTranslatedFields(raw: string): TranslatedAnalysisFields {
-  const parsed = JSON.parse(stripJsonFence(raw)) as Partial<TranslatedAnalysisFields>;
-  const pickStrings = (v: unknown): string[] =>
-    Array.isArray(v) ? v.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : [];
-
-  if (typeof parsed.summary !== "string" || typeof parsed.mechanism !== "string") {
-    throw new Error("Invalid translation payload");
-  }
-
-  return {
-    summary: parsed.summary.trim(),
-    mechanism: parsed.mechanism.trim(),
-    expectedEffects: pickStrings(parsed.expectedEffects),
-    practicalSteps: pickStrings(parsed.practicalSteps),
-    emergencySigns: pickStrings(parsed.emergencySigns),
-  };
-}
-
 export function mergeTranslatedAnalysis(
   base: InteractionAnalysis,
   translated: TranslatedAnalysisFields,
@@ -211,43 +174,11 @@ async function translateViaServer(
 export async function translateInteractionAnalysis(
   analysis: InteractionAnalysis,
   targetLocale: SupportedUiLocale,
-  keys: AiClientApiKeys,
-  preferredProvider: AiProviderId = "auto",
 ): Promise<InteractionAnalysis> {
   if (targetLocale === "en") return analysis;
 
   const cached = readCachedAnalysisTranslation(analysis, targetLocale);
   if (cached) return mergeTranslatedAnalysis(analysis, cached);
-
-  const payload = JSON.stringify(analysisFieldsFromReport(analysis));
-  const messages = [
-    {
-      role: "system" as const,
-      content: [
-        `Translate the drug interaction report JSON values into ${LOCALE_LABELS[targetLocale]} (${targetLocale}).`,
-        "Return ONLY valid JSON with the exact same keys.",
-        "Keep international drug names unchanged; you may add local names in parentheses.",
-        "Use clear clinical-education language appropriate for patients and students.",
-      ].join(" "),
-    },
-    { role: "user", content: payload },
-  ];
-
-  if (hasAnyClientKey(keys)) {
-    try {
-      const result = await completeWithClientKeys({
-        messages,
-        keys,
-        preferred: preferredProvider,
-        maxOutputTokens: 2048,
-        temperature: 0.1,
-      });
-      const translated = parseTranslatedFields(result.text);
-      return finalizeTranslatedFields(analysis, targetLocale, translated);
-    } catch {
-      /* fall through to server */
-    }
-  }
 
   return translateViaServer(analysis, targetLocale);
 }

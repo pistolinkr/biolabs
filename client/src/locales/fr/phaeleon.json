@@ -84,7 +84,7 @@
     "emergencySigns": "Consulter en urgence si",
     "translating": "Traduction du rapport…",
     "translationFailed": "Traduction indisponible",
-    "translationFailedHint": "Impossible de traduire ce rapport. Vérifiez les clés AI côté serveur dans .env ou ajoutez une clé provider dans Paramètres → AI, puis relancez l'analyse."
+    "translationFailedHint": "Impossible de traduire ce rapport. Vérifiez votre connexion réseau, puis relancez l'analyse."
   },
   "inspector": {
     "assignedDrugs": "Médicaments affectés",

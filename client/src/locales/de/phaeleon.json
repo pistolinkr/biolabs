@@ -84,7 +84,7 @@
     "emergencySigns": "Suchen Sie im Notfall ärztliche Hilfe bei",
     "translating": "Bericht wird übersetzt…",
     "translationFailed": "Übersetzung nicht verfügbar",
-    "translationFailedHint": "Dieser Bericht konnte nicht übersetzt werden. Prüfen Sie Server‑AI‑Schlüssel in .env oder fügen Sie in Einstellungen → AI einen Provider‑Key hinzu und führen Sie die Analyse erneut aus."
+    "translationFailedHint": "Dieser Bericht konnte nicht übersetzt werden. Prüfen Sie Ihre Netzwerkverbindung und führen Sie die Analyse erneut aus."
   },
   "inspector": {
     "assignedDrugs": "Zugewiesene Arzneimittel",

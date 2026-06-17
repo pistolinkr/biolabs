@@ -84,7 +84,7 @@
     "emergencySigns": "如出现以下情况请就医",
     "translating": "正在翻译报告…",
     "translationFailed": "无法翻译",
-    "translationFailedHint": "无法翻译此报告。请检查服务器 .env 中的 AI 密钥，或在“设置 → AI”中添加提供者密钥，然后重新运行分析。"
+    "translationFailedHint": "无法翻译此报告。请检查网络连接，然后重新运行分析。"
   },
   "inspector": {
     "assignedDrugs": "已分配药物",

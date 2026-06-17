@@ -1,7 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "@/contexts/LocaleContext";
-import { loadAiClientSettings } from "@/lib/ai/aiSettingsStorage";
-import { loadAiKeysSettings } from "@/lib/ai/aiKeysStorage";
 import { analyzeDrugInteraction, normalizeDrugKey } from "@/lib/phaeleon/interactionRules";
 import { notifyPhaeleonAiUnavailable } from "@/lib/phaeleon/phaeleonAiNotices";
 import { fetchDrugProfile, searchFdaDrugs } from "@/lib/phaeleon/fdaDrugApi";
@@ -195,14 +193,7 @@ export function PhaeleonProvider({ children }: { children: React.ReactNode }) {
     setAnalysisTranslationFailed(false);
 
     try {
-      const aiSettings = loadAiClientSettings();
-      const keys = loadAiKeysSettings().keys;
-      const translated = await translateInteractionAnalysis(
-        target,
-        locale,
-        keys,
-        aiSettings.preferredProvider,
-      );
+      const translated = await translateInteractionAnalysis(target, locale);
       if (requestId !== presentAnalysisRequestRef.current) return;
       setDisplayAnalysis(translated);
       setAnalysisTranslationLoading(false);

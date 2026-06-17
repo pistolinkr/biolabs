@@ -99,7 +99,7 @@
     "emergencySigns": "Seek emergency care if",
     "translating": "Translating report…",
     "translationFailed": "Translation unavailable",
-    "translationFailedHint": "Could not translate this report. Check server AI keys in .env or add a provider key in Settings → AI, then run analysis again.",
+    "translationFailedHint": "Could not translate this report. Check your network connection, then run analysis again.",
     "aiFailed": "AI analysis failed",
     "aiFailedHint": "Could not generate an AI interaction report. Check your provider key in Settings → AI or server AI keys in .env, then try again.",
     "aiNotConfigured": "AI not configured",

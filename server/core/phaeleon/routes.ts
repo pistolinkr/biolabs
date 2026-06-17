@@ -193,11 +193,6 @@ export function createPhaeleonRouter(): Router {
       emergencySigns: pickStrings(body.emergencySigns),
     };
 
-    if (!isServerAnalysisTranslationAvailable()) {
-      res.status(503).json({ error: "Server AI not configured" });
-      return;
-    }
-
     try {
       const translated = await translateAnalysisFieldsOnServer(fields, locale);
       res.json({ translated });

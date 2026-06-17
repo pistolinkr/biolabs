@@ -84,7 +84,7 @@
     "emergencySigns": "Buscar atención de emergencia si",
     "translating": "Traduciendo informe…",
     "translationFailed": "Traducción no disponible",
-    "translationFailedHint": "No se pudo traducir este informe. Verifique las claves AI del servidor en .env o agregue una clave de proveedor en Configuración → AI, luego ejecute el análisis nuevamente."
+    "translationFailedHint": "No se pudo traducir este informe. Verifique su conexión de red y ejecute el análisis nuevamente."
   },
   "inspector": {
     "assignedDrugs": "Medicamentos asignados",
