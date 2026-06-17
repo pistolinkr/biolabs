@@ -1,0 +1,226 @@
+{
+  "toolName": "Phaeleon",
+  "tagline": "Drug interaction analysis",
+  "drugA": "Drug A",
+  "drugB": "Drug B",
+  "panels": {
+    "input": {
+      "kicker": "Input",
+      "title": "Drug search"
+    },
+    "analysis": {
+      "kicker": "Analysis",
+      "title": "Interaction report",
+      "empty": "Select Drug A and Drug B, then run analysis. Results use rule-based assessment with FDA label search — no cloud AI required.",
+      "loading": "Analyzing interaction…",
+      "aiLoading": "AI is assessing this drug pair…"
+    },
+    "inspector": {
+      "kicker": "Inspector",
+      "title": "Session & metadata"
+    },
+    "assistant": {
+      "kicker": "Assistant"
+    },
+    "fused": {
+      "kicker": "Interaction",
+      "title": "Interaction & conversation"
+    }
+  },
+  "search": {
+    "label": "FDA label search",
+    "placeholder": "Drug name (EN/KO)",
+    "action": "Search",
+    "loading": "Searching OpenFDA…",
+    "noResults": "No matching drugs found.",
+    "localOnly": "{{count}} local mapping matches · fetching FDA…",
+    "resultCount": "{{count}} matches",
+    "typeToSearch": "Keep typing — local aliases appear instantly; FDA results follow.",
+    "recent": "Recent searches"
+  },
+  "analyze": {
+    "action": "Analyze interaction",
+    "aiAction": "Generate AI report",
+    "hint": "Assign both Drug A and Drug B to analyze.",
+    "readyHint": "Both slots filled — run rule-based interaction analysis.",
+    "aiReadyHint": "Both slots filled — AI will assess this pair directly (no FDA rule lookup).",
+    "doneHint": "Analysis complete — run again after changing drugs.",
+    "aiDoneHint": "Assistant responded — ask a follow-up or run again to refresh."
+  },
+  "input": {
+    "drugSelect": "Assign slot",
+    "activeSlot": "Active",
+    "typingInto": "Typing into {{slot}}",
+    "confirmAssign": "Assign \"{{drug}}\" to {{slot}}?",
+    "confirmAction": "Confirm",
+    "cancelAction": "Cancel"
+  },
+  "inputRail": {
+    "drugExplainTitle": "Explain {{drug}}",
+    "drugExplainLoading": "Generating drug overview…",
+    "drugExplainEmpty": "Assign a drug to this slot first.",
+    "drugExplainFailed": "Could not generate a drug explanation.",
+    "interactionRisk": "Interaction risk: {{risk}}"
+  },
+  "severity": {
+    "low": "Low",
+    "moderate": "Caution",
+    "high": "Risk"
+  },
+  "reportEmpty": {
+    "fallback": "Select drugs and run analysis to populate this section.",
+    "noPair": {
+      "emergency": "Emergency signs appear here after you analyze a drug pair.",
+      "summary": "Select Drug A and B, then run analysis for a pair summary.",
+      "mechanism": "Mechanism details will appear once both drugs are assigned and analyzed.",
+      "expectedEffects": "Expected effects will list here after analysis.",
+      "practicalSteps": "Practical steps will appear after you run interaction analysis."
+    },
+    "awaitAnalysis": {
+      "emergency": "Run analysis to see when to seek emergency care for this pair.",
+      "summary": "Press Analyze interaction to generate the pair summary.",
+      "mechanism": "Mechanism analysis loads when you run interaction analysis.",
+      "expectedEffects": "Expected effects populate after analysis completes.",
+      "practicalSteps": "Practical steps appear after you analyze this pair."
+    }
+  },
+  "risk": {
+    "low": "Low risk",
+    "moderate": "Moderate",
+    "high": "High",
+    "very_high": "Very high",
+    "unknown": "Unknown"
+  },
+  "report": {
+    "summary": "Summary",
+    "mechanism": "Mechanism",
+    "expectedEffects": "Expected effects",
+    "practicalSteps": "Practical steps",
+    "emergencySigns": "Seek emergency care if",
+    "translating": "Translating report…",
+    "translationFailed": "Translation unavailable",
+    "translationFailedHint": "Could not translate this report. Check server AI keys in .env or add a provider key in Settings → AI, then run analysis again.",
+    "aiFailed": "AI analysis failed",
+    "aiFailedHint": "Could not generate an AI interaction report. Check your provider key in Settings → AI or server AI keys in .env, then try again.",
+    "aiNotConfigured": "AI not configured",
+    "aiNotConfiguredHint": "Assistant-first mode needs an AI provider. Add a key in Settings → AI or configure server AI keys, then run analysis again."
+  },
+  "inspector": {
+    "assignedDrugs": "Assigned drugs",
+    "noDrug": "Not selected",
+    "generic": "Generic",
+    "brand": "Brand",
+    "session": "Session",
+    "noAnalysis": "Run analysis to populate session metrics.",
+    "source": "Data source",
+    "sourceNote": "Drug names from FDA OpenFDA label API via Biolabs server proxy. Interaction assessment is rule-based (local).",
+    "guide": {
+      "title": "Getting started",
+      "step1": "Select Drug A or B in Input, then search FDA labels.",
+      "step2": "Confirm each search result before assigning to a slot.",
+      "step3": "Run interaction analysis to populate the report and session metrics."
+    },
+    "fields": {
+      "risk": "Risk",
+      "pair": "Pair",
+      "effects": "Effects",
+      "steps": "Steps"
+    },
+    "drugProfile": {
+      "title": "About this drug",
+      "selectHint": "Pick a slot in Input, search FDA labels, or tap Drug A / B below to inspect.",
+      "category": "Drug class",
+      "route": "Route",
+      "overview": "Overview",
+      "indications": "Indications & usage",
+      "warnings": "Key warnings",
+      "noOverview": "No structured label text is available yet. Try a generic name or check FDA search spelling.",
+      "sourceFda": "Source: FDA drug label",
+      "sourceLocal": "Source: Biolabs local drug reference",
+      "sourceMixed": "Source: FDA label + local reference",
+      "sourceNone": "Source: limited data",
+      "fdaLink": "OpenFDA label search"
+    }
+  },
+  "layout": {
+    "assistantStackResize": "Resize assistant panel",
+    "openInspector": "Inspector",
+    "binaryEmpty": "Select two drugs and run analysis.",
+    "askAboutResult": "Ask about this result",
+    "binaryQuestion": "Q.",
+    "binaryAnswer": "A.",
+    "asking": "Asking",
+    "answering": "Answering…",
+    "askAiTrigger": "Ask AI about this",
+    "commandClinical": "Clinical actions",
+    "commandAwaitAnalysis": "Run analysis to populate these panels.",
+    "compactAiChip": "Ask AI"
+  },
+  "assistantFirst": {
+    "welcome": {
+      "title": "Binary",
+      "body": "I assess drug–drug interactions for you. Search two drugs on the left, then ask me to analyze — or type what you need in the prompt below.",
+      "suggestion1": "Search Drug A and Drug B, then run analysis",
+      "suggestion2": "Ask: \"Find warfarin and aspirin and analyze the interaction\"",
+      "suggestion3": "Educational use only — not medical advice"
+    },
+    "analyzing": "Analyzing interaction…",
+    "history": "Search history",
+    "historyEmpty": "Recent FDA searches appear here after you assign drugs.",
+    "metadata": "Drug metadata",
+    "expandInput": "Expand input panel",
+    "collapseInput": "Collapse input panel",
+    "openSearch": "Search drugs",
+    "inlineDisclaimer": "Educational synthesis — not verified FDA label text unless cited.",
+    "dataSource": "Data: FDA OpenFDA labels via Biolabs proxy · AI-generated assessment"
+  },
+  "disclaimer": "For educational use only. Not medical advice. Always consult a qualified healthcare professional before changing medications.",
+  "assistant": {
+    "askButton": "Ask AI",
+    "openTitle": "Open AI assistant",
+    "notConfiguredTitle": "AI not configured — add a provider key in Settings",
+    "kicker": "Binary",
+    "dockTitle": "Drug interaction assistant",
+    "primaryTitle": "Drug interaction analysis",
+    "primaryEmpty": "Assign Drug A and B, then run Analyze — the assistant will assess this pair directly in chat.",
+    "primaryFollowUp": "Ask a follow-up about this pair, or run Analyze again to refresh the assessment.",
+    "analyzePairPrompt": "Analyze the drug-drug interaction between {{drugA}} and {{drugB}}. Assess risk level, mechanism, expected effects, what to monitor, practical steps, and emergency warning signs. Be concise but complete. Educational use only.",
+    "aiName": "Binary",
+    "clearChat": "Clear chat",
+    "selectPairHint": "Pick Drug A and B — quick prompts and context appear here.",
+    "runAnalysisHint": "Run interaction analysis to load rule-based context.",
+    "aiRunAnalysisHint": "Ask about this pair — the AI report panel fills when analysis completes.",
+    "contextReady": "Rule-based context loaded",
+    "aiContextReady": "AI interaction report loaded",
+    "fusedConversation": "Follow-up",
+    "fusedFollowUp": "Ask a follow-up about the report above, or use quick prompts.",
+    "notConfigured": "Add an AI provider in Settings to use chat and quick prompts.",
+    "askBinaryPlaceholder": "Ask Binary",
+    "placeholder": "Ask about this drug pair, monitoring, or alternatives…",
+    "emptyNoPair": "Ask Binary",
+    "emptyWithPair": "Use quick prompts above or ask a follow-up about this pair.",
+    "contextBadge": "context",
+    "dismissPairContext": "Remove drug pair from this chat",
+    "autoReviewIntro": "Review this Phaeleon drug interaction assessment. Keep the response concise and practical.",
+    "thinking": "Thinking",
+    "quickPrompts": "Quick prompts",
+    "promptLabels": {
+      "explainRisk": "Explain the risk level",
+      "clinicalSummary": "Clinical summary for this pair",
+      "monitoring": "What to monitor",
+      "alternatives": "Safer alternatives to discuss"
+    },
+    "prompts": {
+      "unknownRisk": "unknown",
+      "explainRisk": "Explain the interaction risk between {{drugA}} and {{drugB}}. Current assessment: {{risk}}.",
+      "clinicalSummary": "Give a concise clinical summary for co-administration of {{drugA}} and {{drugB}}.",
+      "monitoring": "What should be monitored when {{drugA}} and {{drugB}} are taken together?",
+      "alternatives": "What safer alternatives or timing adjustments should a clinician discuss for {{drugA}} with {{drugB}}?",
+      "emergencySigns": "What emergency warning signs should someone watch for when taking {{drugA}} with {{drugB}}?"
+    },
+    "sectionLinks": {
+      "emergency": "→ Emergency signs",
+      "emergencyPrompt": "Summarize emergency warning signs for {{drugA}} + {{drugB}}. Reference: {{anchor}}"
+    }
+  }
+}

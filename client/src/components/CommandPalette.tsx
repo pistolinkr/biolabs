@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
+  ArrowLeftRight,
   Eye,
+  Home,
   Layers,
   LayoutGrid,
   Loader2,
@@ -12,24 +14,33 @@ import {
   Download,
   Orbit,
   Palette,
+  Pill,
+  Search,
+  Settings,
   Sparkles,
 } from "lucide-react";
+import { useLocation } from "wouter";
 import { Streamdown } from "streamdown";
 import { useAssistantOptional } from "@/contexts/AssistantContext";
+import { usePhaeleonOptional } from "@/contexts/PhaeleonContext";
 import { useViewerOptional } from "@/contexts/ViewerContext";
 import { LAYOUT_PRESET_EVENT, LAYOUT_RESET_EVENT } from "@/contexts/WorkstationLayoutContext";
-import type { LayoutPresetId } from "@/lib/workstationLayoutStorage";
+import { commandsForWorkstation, type CommandCategory } from "@/lib/commands/registry";
+import type { WorkstationId } from "@/lib/settings/workstationTypes";
+import { HELIX_PATH, PHAELEON_PATH } from "@/lib/routes";
 import { i18n } from "@/i18n";
-import { buildCommandSearchBlob, commandMatchesQuery } from "@/lib/commandSearch";
+import { buildCommandSearchBlob, rankCommandsByQuery } from "@/lib/commandSearch";
+import type { LayoutPresetId } from "@/lib/workstationLayoutStorage";
+import { runPhaeleonCommand } from "@/lib/phaeleon/phaeleonCommands";
 import { cn } from "@/lib/utils";
 
-type CommandCategory = "display" | "selection" | "view" | "analysis" | "io";
-
-interface CommandDef {
-  id: string;
-  cmdId: string;
-  category: CommandCategory;
-  icon: React.ReactNode;
+function focusPhaeleonAssistantDock() {
+  document.getElementById("phaeleon-assistant-dock")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  document
+    .querySelector<HTMLTextAreaElement | HTMLInputElement>(
+      "#phaeleon-assistant-dock textarea, #phaeleon-assistant-dock input[type='text']",
+    )
+    ?.focus();
 }
 
 interface Command {
@@ -52,58 +63,52 @@ interface AiPanelState {
 }
 
 interface CommandPaletteProps {
+  workstation: WorkstationId;
   isOpen: boolean;
   onClose: () => void;
+  onSettingsOpen?: () => void;
 }
-
-const COMMAND_DEFS: CommandDef[] = [
-  { id: "repr-cartoon", cmdId: "repr.cartoon", category: "display", icon: <Layers size={14} /> },
-  { id: "repr-rope", cmdId: "repr.rope", category: "display", icon: <Layers size={14} /> },
-  { id: "repr-surface", cmdId: "repr.surface", category: "display", icon: <Monitor size={14} /> },
-  { id: "repr-bs", cmdId: "repr.ballstick", category: "display", icon: <Microscope size={14} /> },
-  { id: "repr-vdw", cmdId: "repr.spacefill", category: "display", icon: <Monitor size={14} /> },
-  { id: "repr-ribbon-alias", cmdId: "repr.ribbon", category: "display", icon: <Layers size={14} /> },
-  { id: "repr-wire-alias", cmdId: "repr.wireframe", category: "display", icon: <Monitor size={14} /> },
-  { id: "color-chain", cmdId: "color.chainid", category: "display", icon: <Palette size={14} /> },
-  { id: "color-res", cmdId: "color.residueindex", category: "display", icon: <Palette size={14} /> },
-  { id: "color-hp", cmdId: "color.hydrophobicity", category: "display", icon: <Palette size={14} /> },
-  { id: "color-bfac", cmdId: "color.bfactor", category: "display", icon: <Palette size={14} /> },
-  { id: "color-bfac-gray", cmdId: "color.bfactor.gray", category: "display", icon: <Palette size={14} /> },
-  { id: "color-es", cmdId: "color.electrostatic", category: "display", icon: <Palette size={14} /> },
-  { id: "isolate-a", cmdId: "isolate.A", category: "selection", icon: <Eye size={14} /> },
-  { id: "isolate-b", cmdId: "isolate.B", category: "selection", icon: <Eye size={14} /> },
-  { id: "isolate-clear", cmdId: "isolate.clear", category: "selection", icon: <Eye size={14} /> },
-  { id: "fit-selection", cmdId: "view.fit.selection", category: "view", icon: <Maximize2 size={14} /> },
-  { id: "fit-structure", cmdId: "view.fit.structure", category: "view", icon: <Maximize2 size={14} /> },
-  { id: "center", cmdId: "view.center", category: "view", icon: <Maximize2 size={14} /> },
-  { id: "view-readable", cmdId: "view.preset.readable", category: "view", icon: <Sparkles size={14} /> },
-  { id: "quality-toggle", cmdId: "view.quality.toggle", category: "view", icon: <Monitor size={14} /> },
-  { id: "fullscreen", cmdId: "view.fullscreen.toggle", category: "view", icon: <Monitor size={14} /> },
-  { id: "confidence-toggle", cmdId: "overlay.confidence.toggle", category: "display", icon: <Palette size={14} /> },
-  { id: "spin", cmdId: "view.spin.toggle", category: "view", icon: <Orbit size={14} /> },
-  { id: "analysis-ixn", cmdId: "analysis.interactions", category: "analysis", icon: <Microscope size={14} /> },
-  { id: "layout-classic", cmdId: "layout.classic", category: "view", icon: <LayoutGrid size={14} /> },
-  { id: "layout-focus", cmdId: "layout.focus", category: "view", icon: <LayoutGrid size={14} /> },
-  { id: "layout-analysis", cmdId: "layout.analysis", category: "view", icon: <LayoutGrid size={14} /> },
-  { id: "layout-assistant", cmdId: "layout.assistant", category: "view", icon: <LayoutGrid size={14} /> },
-  { id: "layout-compact", cmdId: "layout.compact", category: "view", icon: <LayoutGrid size={14} /> },
-  { id: "layout-reset", cmdId: "layout.reset", category: "view", icon: <LayoutGrid size={14} /> },
-  { id: "export-cif", cmdId: "export.cif", category: "io", icon: <Download size={14} /> },
-  { id: "screenshot", cmdId: "screenshot", category: "io", icon: <Download size={14} /> },
-];
 
 const INITIAL_AI_PANEL: AiPanelState = { phase: "commands", question: "" };
 
-export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
+function iconForCommand(cmdId: string, category: CommandCategory): React.ReactNode {
+  if (cmdId.startsWith("phaeleon.")) {
+    if (cmdId.includes("analyze")) return <Pill size={14} />;
+    if (cmdId.includes("search")) return <Search size={14} />;
+    if (cmdId.includes("settings")) return <Settings size={14} />;
+    if (cmdId.includes("swap")) return <ArrowLeftRight size={14} />;
+    return <Pill size={14} />;
+  }
+  if (cmdId.startsWith("nav.")) return <Home size={14} />;
+  if (cmdId.startsWith("assistant.") || cmdId.includes("ai")) return <Sparkles size={14} />;
+  if (cmdId.startsWith("layout.")) return <LayoutGrid size={14} />;
+  if (cmdId.startsWith("repr.") || cmdId.startsWith("color.")) {
+    return category === "display" && cmdId.startsWith("color.") ? <Palette size={14} /> : <Layers size={14} />;
+  }
+  if (cmdId.startsWith("isolate.")) return <Eye size={14} />;
+  if (cmdId.startsWith("view.")) return cmdId.includes("spin") ? <Orbit size={14} /> : <Maximize2 size={14} />;
+  if (cmdId.startsWith("export.") || cmdId === "screenshot") return <Download size={14} />;
+  if (cmdId.startsWith("analysis.")) return <Microscope size={14} />;
+  return <Monitor size={14} />;
+}
+
+export default function CommandPalette({
+  workstation,
+  isOpen,
+  onClose,
+  onSettingsOpen,
+}: CommandPaletteProps) {
   const { t } = useTranslation("commands");
   const viewer = useViewerOptional();
   const assistant = useAssistantOptional();
+  const phaeleon = usePhaeleonOptional();
+  const [, setLocation] = useLocation();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [aiPanel, setAiPanel] = useState<AiPanelState>(INITIAL_AI_PANEL);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const run = useCallback(
+  const runHelix = useCallback(
     (cmdId: string) => {
       if (cmdId.startsWith("layout.")) {
         if (cmdId === "layout.reset") {
@@ -117,32 +122,81 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       if (viewer) {
         viewer.runViewerCommand(cmdId);
       } else {
-        // eslint-disable-next-line no-console
         console.warn(t("palette.requiresWorkspace"));
       }
     },
     [viewer, t],
   );
 
+  const runPhaeleon = useCallback(
+    (cmdId: string) => {
+      if (!phaeleon) {
+        console.warn(t("palette.requiresPhaeleon"));
+        return;
+      }
+      if (cmdId === "nav.home") {
+        setLocation("/");
+        return;
+      }
+      if (cmdId === "nav.helix") {
+        setLocation(HELIX_PATH);
+        return;
+      }
+      runPhaeleonCommand(cmdId, {
+        runAnalysis: phaeleon.runAnalysis,
+        clearSession: phaeleon.clearSession,
+        swapDrugs: phaeleon.swapDrugs,
+        setActiveSlot: phaeleon.setActiveSlot,
+        updateSettings: phaeleon.updateSettings,
+        settings: phaeleon.settings,
+        setLayoutPreset: phaeleon.setLayoutPreset,
+        resetLayoutToPreset: phaeleon.resetLayoutToPreset,
+        onSettingsOpen,
+        focusAssistantDock: focusPhaeleonAssistantDock,
+      });
+    },
+    [phaeleon, onSettingsOpen, setLocation, t],
+  );
+
+  const run = useCallback(
+    (cmdId: string) => {
+      if (cmdId.startsWith("nav.")) {
+        if (cmdId === "nav.home") setLocation("/");
+        else if (cmdId === "nav.helix") setLocation(HELIX_PATH);
+        else if (cmdId === "nav.phaeleon") setLocation(PHAELEON_PATH);
+        return;
+      }
+      if (cmdId === "assistant.chat.open" && workstation !== "phaeleon") {
+        assistant?.setChatOpen(true);
+        return;
+      }
+      if (cmdId.startsWith("phaeleon.") || (workstation === "phaeleon" && cmdId.startsWith("assistant."))) {
+        runPhaeleon(cmdId);
+        return;
+      }
+      runHelix(cmdId);
+    },
+    [assistant, runHelix, runPhaeleon, setLocation, workstation],
+  );
+
   const commands: Command[] = useMemo(
     () =>
-      COMMAND_DEFS.map((def) => ({
+      commandsForWorkstation(workstation).map((def) => ({
         id: def.id,
         cmdId: def.cmdId,
-        icon: def.icon,
+        icon: iconForCommand(def.cmdId, def.category),
         title: t(`items.${def.cmdId}.title`),
         description: t(`items.${def.cmdId}.description`),
         category: t(`categories.${def.category}`),
         searchBlob: buildCommandSearchBlob(i18n, def.cmdId, def.category),
       })),
-    [t, i18n.language],
+    [t, workstation, i18n.language],
   );
 
-  const filteredCommands = useMemo(() => {
-    const q = query.trim();
-    if (!q) return commands;
-    return commands.filter((cmd) => commandMatchesQuery(cmd.searchBlob, q));
-  }, [commands, query]);
+  const filteredCommands = useMemo(
+    () => rankCommandsByQuery(commands, query),
+    [commands, query],
+  );
 
   const len = filteredCommands.length;
   const showingAi = aiPanel.phase !== "commands";
@@ -156,7 +210,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
     const q = query.trim();
     if (!q || !assistant || assistant.isSending) return;
 
-    if (!assistant.status?.configured) {
+    if (!assistant.aiConfigured) {
       setAiPanel({ phase: "error", question: q, error: t("palette.aiNotConfigured") });
       return;
     }
@@ -182,8 +236,21 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
       inputRef.current?.focus();
       setSelectedIndex(0);
       setAiPanel(INITIAL_AI_PANEL);
+      setQuery("");
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -286,11 +353,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
 
             <div className="flex shrink-0 justify-between border-t border-border px-2 py-1 font-mono text-[9px] uppercase tracking-wider text-muted-foreground">
               <span>{t("palette.aiEscHint")}</span>
-              <button
-                type="button"
-                onClick={onClose}
-                className="text-muted-foreground hover:text-foreground"
-              >
+              <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
                 {t("palette.aiClose")}
               </button>
             </div>
@@ -302,7 +365,7 @@ export default function CommandPalette({ isOpen, onClose }: CommandPaletteProps)
               <input
                 ref={inputRef}
                 type="text"
-                placeholder={t("palette.placeholder")}
+                placeholder={t(`palette.placeholder.${workstation}`)}
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);

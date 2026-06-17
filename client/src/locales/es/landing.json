@@ -1,8 +1,24 @@
 {
   "hero": {
     "title": "Bio-simulación de nueva generación",
-    "subtitle": "Un sistema operativo de biología computacional para análisis estructural, dinámica molecular y visualización interactiva de proteínas.",
-    "enterWorkspace": "Entrar al espacio de trabajo"
+    "subtitle": "Una plataforma de biología computacional — inicia herramientas especializadas para estructura, predicción y análisis.",
+    "enterHelix": "Abrir Helix"
+  },
+  "tools": {
+    "title": "Herramientas",
+    "helix": {
+      "name": "Helix",
+      "tagline": "Protein prediction visualization",
+      "description": "Interactive 3D structure viewer with AlphaFold, RCSB PDB, and UniProt integration.",
+      "action": "Launch Helix"
+    },
+    "phaeleon": {
+      "name": "Phaeleon",
+      "tagline": "Drug interaction analysis",
+      "description": "FDA OpenFDA drug search with rule-based interaction assessment — ported from DDI checker, no cloud AI required.",
+      "action": "Launch Phaeleon",
+      "status": "Beta"
+    }
   },
   "capabilities": "Capacidades principales",
   "features": {
@@ -24,7 +40,7 @@
     }
   },
   "footer": {
-    "version": "biolabs v2.2",
+    "version": "biolabs v2.3",
     "tagline": "Working with the supervision of G.Gear Vanguard Service."
   }
 }

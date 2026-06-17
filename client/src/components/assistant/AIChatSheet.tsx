@@ -10,7 +10,7 @@ export default function AIChatSheet() {
     <Sheet open={chatOpen} onOpenChange={setChatOpen}>
       <SheetContent side="right" className="w-[min(440px,100vw)] gap-0 p-0 sm:max-w-md">
         <SheetHeader className="sr-only">
-          <SheetTitle>Biolabs AI Assistant</SheetTitle>
+          <SheetTitle>Binary</SheetTitle>
         </SheetHeader>
         <AIChatPanel />
       </SheetContent>

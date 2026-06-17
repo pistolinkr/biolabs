@@ -68,7 +68,7 @@ export default function ViewportTopToolbar() {
   } = useViewer();
 
   return (
-    <div className="flex h-10 min-w-0 shrink-0 bg-background">
+    <div className="workbench-panel-nav min-w-0">
       <div
         className="no-scrollbar flex min-h-0 min-w-0 flex-1 items-center overflow-x-auto overflow-y-hidden overscroll-x-contain px-2.5"
         aria-label="Viewport toolbar — scroll horizontally for more controls"

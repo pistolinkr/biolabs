@@ -1,6 +1,9 @@
 {
   "title": "Settings",
-  "subtitle": "Biolabs workstation configuration",
+  "subtitle": {
+    "helix": "Helix protein visualization workstation",
+    "phaeleon": "Phaeleon drug interaction workstation"
+  },
   "tabs": {
     "general": "General",
     "ai": "AI Assistant",
@@ -13,7 +16,8 @@
     "colorThemeHint": "Follows system or manual selection.",
     "scientificHud": "Scientific HUD",
     "scientificHudHint": "Coordinate readout overlay on viewport.",
-    "viewportNote": "Viewport render options (AO, shadows) are controlled from the Display workbench tab."
+    "viewportNote": "Viewport render options (AO, shadows) are controlled from the Display workbench tab.",
+    "phaeleonNote": "Phaeleon uses a fixed three-column layout (Input · Analysis · Inspector). Panel widths and analysis behavior are configured in the Workspace tab."
   },
   "workspace": {
     "layout": "Workstation layout",
@@ -44,11 +48,54 @@
     "persistence": "Persistence",
     "saveNote": "Use the header Save button (⌘S) to write a full workspace snapshot including dock layout and AI preferences. Export JSON via the Download menu."
   },
+  "phaeleonWorkspace": {
+    "layout": "Workstation layout",
+    "layoutHint": "Choose a layout for how you work — switch instantly, no confirmation.",
+    "resetLayout": "Reset to preset",
+    "customLayout": "Custom layout — dimensions differ from every preset.",
+    "presets": {
+      "binary": "Binary",
+      "binaryHint": "Fast judgment. AI on demand.",
+      "consult": "Consult",
+      "consultHint": "Read the report and ask AI side by side.",
+      "classic": "Classic",
+      "classicHint": "3-panel view: input, report, and inspector side by side. AI docked under inspector."
+    },
+    "analysis": "Interaction analysis",
+    "analysisMode": "Analysis mode",
+    "analysisModeHint": "Rules-only runs locally. Rules + AI sends the assessment to your configured assistant for review.",
+    "analysisModes": {
+      "rules": "Rules only",
+      "rules_and_ai": "Rules + AI"
+    },
+    "autoAnalyze": "Auto-analyze on pair",
+    "autoAnalyzeHint": "Run interaction analysis when both Drug A and Drug B are assigned.",
+    "autoOpenChat": "Open chat after analysis",
+    "autoOpenChatHint": "Focus the assistant column when an interaction report is ready.",
+    "search": "FDA search",
+    "fuzzySearch": "Fuzzy matching",
+    "fuzzySearchHint": "Try alternate spellings and typo patterns when OpenFDA returns no exact match.",
+    "session": "Session",
+    "sessionStatus": "Drug A: {{drugA}} · Drug B: {{drugB}} · {{hasAnalysis}}",
+    "sessionHasAnalysis": "analysis ready",
+    "sessionNoAnalysis": "no analysis yet",
+    "clearSession": "Clear session",
+    "sessionId": "Session ID: {{id}}…",
+    "pairHistory": "Recent pairs in this session",
+    "resetDefaults": "Reset Phaeleon defaults"
+  },
   "about": {
-    "kicker": "Biolabs",
-    "version": "{{version}} · Computational biology workstation",
-    "stack": "Structure: NGL · Layout: Dockview · AI: modular cloud providers",
-    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team."
+    "copyright": "© 2026 Biolabs made with pistolinkr named by g.gear service delta team.",
+    "helix": {
+      "kicker": "Helix",
+      "version": "{{version}} · Protein prediction visualization",
+      "stack": "Structure: NGL · Layout: Dockview · AI: modular cloud providers"
+    },
+    "phaeleon": {
+      "kicker": "Phaeleon",
+      "version": "{{version}} · Drug interaction analysis",
+      "stack": "Search: FDA OpenFDA · Assessment: rule-based + optional AI review · Layout: Frame B shell"
+    }
   },
   "ai": {
     "serverStatus": "Server status",
@@ -99,6 +146,7 @@
     "clearKeys": "Clear saved keys",
     "clearChat": "Clear chat history",
     "resetDefaults": "Reset AI defaults",
+    "phaeleonContextNote": "Phaeleon injects the current drug pair and rule-based interaction report into AI context automatically. Configure providers and response language above.",
     "providers": {
       "auto": "Auto (fallback order)",
       "gemini": "Gemini",

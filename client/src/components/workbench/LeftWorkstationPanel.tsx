@@ -18,18 +18,19 @@ export default function LeftWorkstationPanel() {
   ];
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-background text-foreground">
-      <div className="flex shrink-0">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden bg-background text-foreground">
+      <div className="workbench-panel-nav">
         {TABS.map((tabDef) => (
           <button
             key={tabDef.id}
             type="button"
             onClick={() => setTab(tabDef.id)}
-            className={`flex-1 py-2 font-mono text-[9px] uppercase tracking-[0.14em] ${
+            className={cn(
+              "flex h-full flex-1 items-center justify-center font-mono text-[9px] uppercase tracking-[0.14em]",
               tab === tabDef.id
                 ? "text-foreground underline decoration-foreground underline-offset-4"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
+                : "text-muted-foreground hover:text-foreground",
+            )}
           >
             {tabDef.label}
           </button>

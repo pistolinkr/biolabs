@@ -1,0 +1,168 @@
+{
+  "toolName": "Phaeleon",
+  "tagline": "薬物相互作用解析",
+  "drugA": "薬剤 A",
+  "drugB": "薬剤 B",
+  "panels": {
+    "input": {
+      "kicker": "入力",
+      "title": "薬剤検索"
+    },
+    "analysis": {
+      "kicker": "解析",
+      "title": "相互作用レポート",
+      "empty": "薬剤 A と B を選択して解析を実行してください。結果は FDA ラベル検索とルールベース評価を使用します — クラウドAIは不要です。",
+      "loading": "相互作用を解析中…"
+    },
+    "inspector": {
+      "kicker": "インスペクタ",
+      "title": "セッションとメタデータ"
+    },
+    "assistant": {
+      "kicker": "アシスタント"
+    }
+  },
+  "search": {
+    "label": "FDA ラベル検索",
+    "placeholder": "薬剤名 (EN/KO)",
+    "action": "検索",
+    "loading": "OpenFDA を検索中…",
+    "noResults": "該当する薬剤が見つかりません。",
+    "localOnly": "{{count}} 件のローカルマッピング · FDA を取得中…",
+    "resultCount": "{{count}} 件の一致",
+    "typeToSearch": "入力を続けてください — ローカル別名は即時表示、FDA 結果は後続します。",
+    "recent": "最近の検索"
+  },
+  "analyze": {
+    "action": "相互作用を解析",
+    "hint": "解析には薬剤 A と薬剤 B の両方を割り当ててください。",
+    "readyHint": "両スロットが埋まりました — ルールベースの解析を実行してください。",
+    "doneHint": "解析が完了しました — 薬剤を変更した後に再実行できます。"
+  },
+  "input": {
+    "drugSelect": "スロットを割り当てる",
+    "activeSlot": "アクティブ",
+    "typingInto": "{{slot}} に入力中",
+    "confirmAssign": "「{{drug}}」を {{slot}} に割り当てますか？",
+    "confirmAction": "確認",
+    "cancelAction": "キャンセル"
+  },
+  "severity": {
+    "low": "低",
+    "moderate": "注意",
+    "high": "リスク"
+  },
+  "reportEmpty": {
+    "fallback": "薬剤を選択して解析を実行すると、このセクションが表示されます。",
+    "noPair": {
+      "emergency": "薬剤ペア解析後にここに緊急の徴候が表示されます。",
+      "summary": "薬剤 A と B を選択し、解析を実行すると概要が表示されます。",
+      "mechanism": "両薬剤を割り当てて解析すると作用機序の詳細が表示されます。",
+      "expectedEffects": "解析後に期待される影響がここに一覧表示されます。",
+      "practicalSteps": "相互作用解析を実行すると実践的な手順が表示されます。"
+    },
+    "awaitAnalysis": {
+      "emergency": "この組み合わせで緊急対応が必要となる状況は解析を実行して確認してください。",
+      "summary": "薬剤ペアの要約を生成するには「相互作用を解析」を押してください。",
+      "mechanism": "作用機序解析は相互作用解析を実行すると読み込まれます。",
+      "expectedEffects": "解析完了後に期待される影響が表示されます。",
+      "practicalSteps": "この薬剤ペアを解析すると実践的な手順が表示されます。"
+    }
+  },
+  "risk": {
+    "low": "低リスク",
+    "moderate": "中等度",
+    "high": "高リスク",
+    "very_high": "非常に高い",
+    "unknown": "不明"
+  },
+  "report": {
+    "summary": "概要",
+    "mechanism": "作用機序",
+    "expectedEffects": "期待される影響",
+    "practicalSteps": "実践的手順",
+    "emergencySigns": "次の場合は救急措置を検討してください",
+    "translating": "レポートを翻訳中…",
+    "translationFailed": "翻訳不可",
+    "translationFailedHint": "このレポートを翻訳できませんでした。サーバーの .env にある AI キー、または 設定 → AI にプロバイダキーがあるか確認し、再度解析を実行してください。"
+  },
+  "inspector": {
+    "assignedDrugs": "割り当てられた薬剤",
+    "noDrug": "未選択",
+    "generic": "一般名",
+    "brand": "製品名",
+    "session": "セッション",
+    "noAnalysis": "解析を実行してセッション指標を表示してください。",
+    "source": "データソース",
+    "sourceNote": "薬剤名は Biolabs サーバープロキシ経由の FDA OpenFDA ラベル API から取得しています。相互作用評価はルールベース（ローカル）です。",
+    "guide": {
+      "title": "開始方法",
+      "step1": "入力で薬剤 A または B を選択し、FDA ラベルを検索します。",
+      "step2": "スロットに割り当てる前に各検索結果を確認してください。",
+      "step3": "相互作用解析を実行するとレポートとセッション指標が表示されます。"
+    },
+    "fields": {
+      "risk": "リスク",
+      "pair": "組み合わせ",
+      "effects": "影響",
+      "steps": "手順"
+    },
+    "drugProfile": {
+      "title": "この薬剤について",
+      "selectHint": "入力でスロットを選択して FDA 検索するか、下の薬剤 A / B をタップして詳細を確認してください。",
+      "category": "薬剤クラス",
+      "route": "投与経路",
+      "overview": "概要",
+      "indications": "適応症と使用法",
+      "warnings": "主な警告",
+      "noOverview": "構造化されたラベルテキストはまだありません。一般名で検索するか、スペルを確認してください。",
+      "sourceFda": "出典: FDA 薬剤ラベル",
+      "sourceLocal": "出典: Biolabs ローカル参照",
+      "sourceMixed": "出典: FDA ラベル + ローカル参照",
+      "sourceNone": "出典: データが限られています",
+      "fdaLink": "OpenFDA ラベル検索"
+    }
+  },
+  "layout": {
+    "assistantStackResize": "アシスタントパネルのサイズを変更",
+    "openInspector": "インスペクタ"
+  },
+  "disclaimer": "教育目的のみに使用してください。医療アドバイスではありません。薬剤を変更する前に必ず有資格の医療専門家に相談してください。",
+  "assistant": {
+    "askButton": "AI に質問",
+    "openTitle": "AI アシスタントを開く",
+    "notConfiguredTitle": "AI 未設定 — 設定でプロバイダキーを追加してください",
+    "kicker": "Binary",
+    "dockTitle": "薬剤相互作用アシスタント",
+    "aiName": "Binary",
+    "clearChat": "チャットをクリア",
+    "selectPairHint": "薬剤 A と B を選択すると、クイックプロンプトとコンテキストが表示されます。",
+    "runAnalysisHint": "相互作用解析を実行するとルールベースのコンテキストが読み込まれます。",
+    "contextReady": "ルールベースのコンテキストが読み込まれました",
+    "notConfigured": "設定で AI プロバイダを追加するとチャットとクイックプロンプトが利用できます。",
+    "placeholder": "この薬剤ペア、モニタリング、代替について質問してください…",
+    "emptyNoPair": "Ask Binary",
+    "emptyWithPair": "上のクイックプロンプトを使用するか、このペアについて追加の質問をしてください。",
+    "contextBadge": "コンテキスト",
+    "autoReviewIntro": "この Phaeleon の薬剤相互作用評価をレビューしてください。回答は簡潔かつ実践的にしてください。",
+    "thinking": "思考中",
+    "quickPrompts": "クイックプロンプト",
+    "promptLabels": {
+      "explainRisk": "リスクを説明",
+      "clinicalSummary": "臨床要約",
+      "monitoring": "監視項目",
+      "alternatives": "代替案"
+    },
+    "prompts": {
+      "unknownRisk": "不明",
+      "explainRisk": "{{drugA}} と {{drugB}} の相互作用リスクを説明してください。現在の評価: {{risk}}。",
+      "clinicalSummary": "{{drugA}} と {{drugB}} の併用に関する簡潔な臨床要約を示してください。",
+      "monitoring": "{{drugA}} と {{drugB}} を併用する際に何を監視すべきですか？",
+      "alternatives": "{{drugA}} と {{drugB}} の組み合わせに関して、臨床医が検討すべきより安全な代替や投与時間の調整はありますか？"
+    },
+    "sectionLinks": {
+      "emergency": "→ 緊急徴候",
+      "emergencyPrompt": "{{drugA}} + {{drugB}} の緊急警告徴候を要約してください。参照: {{anchor}}"
+    }
+  }
+}

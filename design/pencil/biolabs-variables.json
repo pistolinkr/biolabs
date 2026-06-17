@@ -1,0 +1,44 @@
+{
+  "background": {
+    "type": "color",
+    "value": [
+      { "value": "#0A0A0A", "theme": { "Mode": "dark" } },
+      { "value": "#F0F0F0", "theme": { "Mode": "light" } }
+    ]
+  },
+  "foreground": {
+    "type": "color",
+    "value": [
+      { "value": "#F2F2F2", "theme": { "Mode": "dark" } },
+      { "value": "#141414", "theme": { "Mode": "light" } }
+    ]
+  },
+  "card": {
+    "type": "color",
+    "value": [
+      { "value": "#111111", "theme": { "Mode": "dark" } },
+      { "value": "#FFFFFF", "theme": { "Mode": "light" } }
+    ]
+  },
+  "border": {
+    "type": "color",
+    "value": [
+      { "value": "#2A2A2A", "theme": { "Mode": "dark" } },
+      { "value": "#C8C8C8", "theme": { "Mode": "light" } }
+    ]
+  },
+  "accent": {
+    "type": "color",
+    "value": [
+      { "value": "#7C8A99", "theme": { "Mode": "dark" } },
+      { "value": "#5A6878", "theme": { "Mode": "light" } }
+    ]
+  },
+  "muted-foreground": {
+    "type": "color",
+    "value": [
+      { "value": "#8A8A8A", "theme": { "Mode": "dark" } },
+      { "value": "#5A6878", "theme": { "Mode": "light" } }
+    ]
+  }
+}

@@ -72,7 +72,7 @@ export default function ViewportBottomInfoStrip() {
   ]);
 
   return (
-    <div className="flex min-h-8 shrink-0 items-center gap-3 bg-background px-2 py-1 font-mono text-[10px] text-muted-foreground">
+    <div className="flex min-h-8 shrink-0 items-center gap-3 border-t border-border bg-background px-2 py-1 font-mono text-[10px] text-muted-foreground">
       <span className="min-w-0 shrink" title={structLine}>
         <span className="mr-1 text-[9px] uppercase tracking-wider text-muted-foreground">{t("bottomStrip.struct")}</span>
         <span className="truncate text-foreground">{structLine}</span>

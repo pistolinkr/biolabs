@@ -1,4 +1,5 @@
 import type {
+  AgentPlanAction,
   AgentStepResult,
   AiAction,
   AiAgentPlan,
@@ -179,6 +180,35 @@ export function parseAgentPlan(text: string): AiAgentPlan {
   } catch {
     return { reply: text.trim(), actions: [] };
   }
+}
+
+/** Never show raw agent JSON in chat bubbles — extract reply prose only. */
+export function userFacingAgentReply(raw: string, plan: AiAgentPlan): string {
+  let reply = plan.reply.trim();
+  if (!reply) return raw.trim();
+
+  const looksLikeJson =
+    (reply.startsWith("{") && reply.includes('"actions"')) || extractJsonObject(reply) !== null;
+  if (looksLikeJson) {
+    const nested = parseAgentPlan(reply);
+    if (nested.reply && nested.reply !== reply && !nested.reply.startsWith("{")) {
+      reply = nested.reply;
+    } else if (extractJsonObject(raw)) {
+      const fromRaw = parseAgentPlan(raw);
+      if (fromRaw.reply && !fromRaw.reply.startsWith("{")) reply = fromRaw.reply;
+    }
+  }
+
+  if (reply.startsWith("{") && reply.includes('"reply"')) {
+    try {
+      const o = JSON.parse(extractJsonObject(reply) ?? reply) as { reply?: string };
+      if (typeof o.reply === "string" && o.reply.trim()) reply = o.reply.trim();
+    } catch {
+      /* keep best effort */
+    }
+  }
+
+  return reply;
 }
 
 const SEARCH_INTENT =
@@ -468,30 +498,51 @@ async function executeAction(
   }
 }
 
+function isHelixAiAction(action: AgentPlanAction): action is AiAction {
+  switch (action.type) {
+    case "search_drug":
+    case "assign_drug":
+    case "search_assign_drug":
+    case "clear_drug":
+    case "swap_drugs":
+    case "set_active_slot":
+    case "run_analysis":
+    case "clear_session":
+    case "focus_inspector":
+    case "scroll_report":
+      return false;
+    case "command":
+      return !action.cmdId.startsWith("phaeleon.");
+    default:
+      return true;
+  }
+}
+
 export async function executeAgentPlan(
   plan: AiAgentPlan,
   deps: AgentExecutorDeps,
 ): Promise<{ steps: AgentStepResult[]; appendReply?: string }> {
-  if (!plan.actions.length) return { steps: [] };
+  const helixActions = plan.actions.filter(isHelixAiAction);
+  if (!helixActions.length) return { steps: [] };
 
-  const steps = buildInitialSteps(plan.actions, deps.t);
+  const steps = buildInitialSteps(helixActions, deps.t);
   emitSteps(steps, deps);
 
   const pendingProteinKey = { current: null as string | null };
   const replyParts: string[] = [];
 
-  for (let i = 0; i < plan.actions.length; i += 1) {
+  for (let i = 0; i < helixActions.length; i += 1) {
     steps[i] = { ...steps[i], status: "running" };
     emitSteps(steps, deps);
 
     try {
-      const result = await executeAction(plan.actions[i], deps, pendingProteinKey);
+      const result = await executeAction(helixActions[i], deps, pendingProteinKey);
       steps[i] = {
         ...steps[i],
         status: result.ok ? "success" : "error",
         detail: result.detail,
       };
-      if (result.ok && plan.actions[i].type === "explain_residue" && result.detail) {
+      if (result.ok && helixActions[i].type === "explain_residue" && result.detail) {
         replyParts.push(result.detail);
       }
     } catch (e) {

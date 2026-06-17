@@ -43,6 +43,8 @@ export interface AiPlatformContext {
   cached_search_hits: string | null;
   input_drafts: string | null;
   highlighted_region: string | null;
+  /** Active workstation: helix (structure) or phaeleon (drug interaction). */
+  workstation_id: string | null;
   metadata: Record<string, string | number | boolean | null>;
   /** ISO timestamp when context was assembled. */
   assembled_at: string;
@@ -50,7 +52,7 @@ export interface AiPlatformContext {
   context_fingerprint: string;
 }
 
-export type AiResponseLanguage = "auto" | "en" | "ko" | "ja";
+export type AiResponseLanguage = "auto" | "en" | "ko" | "ja" | "zh" | "de" | "fr" | "es";
 
 export type AiErrorCode =
   | "AI_NOT_CONFIGURED"
@@ -224,16 +226,96 @@ export type AiAction =
   | AiActionExplainResidue
   | AiActionCommand;
 
+/** Phaeleon DDI workstation agent actions (intent=agent on /phaeleon). */
+export type PhaeleonDrugSlot = "drug1" | "drug2" | "active";
+
+export type PhaeleonReportSectionKey =
+  | "emergency"
+  | "summary"
+  | "mechanism"
+  | "expectedEffects"
+  | "practicalSteps";
+
+export interface PhaeleonAiActionSearchDrug {
+  type: "search_drug";
+  query: string;
+}
+
+export interface PhaeleonAiActionAssignDrug {
+  type: "assign_drug";
+  slot: PhaeleonDrugSlot;
+  name?: string;
+  index?: number;
+}
+
+export interface PhaeleonAiActionSearchAssignDrug {
+  type: "search_assign_drug";
+  query: string;
+  slot: PhaeleonDrugSlot;
+}
+
+export interface PhaeleonAiActionClearDrug {
+  type: "clear_drug";
+  slot: "drug1" | "drug2";
+}
+
+export interface PhaeleonAiActionSwapDrugs {
+  type: "swap_drugs";
+}
+
+export interface PhaeleonAiActionSetActiveSlot {
+  type: "set_active_slot";
+  slot: "drug1" | "drug2";
+}
+
+export interface PhaeleonAiActionRunAnalysis {
+  type: "run_analysis";
+}
+
+export interface PhaeleonAiActionClearSession {
+  type: "clear_session";
+}
+
+export interface PhaeleonAiActionFocusInspector {
+  type: "focus_inspector";
+  slot: "drug1" | "drug2";
+}
+
+export interface PhaeleonAiActionScrollReport {
+  type: "scroll_report";
+  section: PhaeleonReportSectionKey;
+}
+
+export interface PhaeleonAiActionCommand {
+  type: "command";
+  cmdId: string;
+}
+
+export type PhaeleonAiAction =
+  | PhaeleonAiActionSearchDrug
+  | PhaeleonAiActionAssignDrug
+  | PhaeleonAiActionSearchAssignDrug
+  | PhaeleonAiActionClearDrug
+  | PhaeleonAiActionSwapDrugs
+  | PhaeleonAiActionSetActiveSlot
+  | PhaeleonAiActionRunAnalysis
+  | PhaeleonAiActionClearSession
+  | PhaeleonAiActionFocusInspector
+  | PhaeleonAiActionScrollReport
+  | PhaeleonAiActionCommand;
+
+export type AgentPlanAction = AiAction | PhaeleonAiAction;
+
 export interface AiAgentPlan {
   reply: string;
-  actions: AiAction[];
+  actions: AgentPlanAction[];
 }
 
 export type AgentStepStatus = "pending" | "running" | "success" | "error" | "skipped";
 
 export interface AgentStepResult {
   index: number;
-  action: AiAction;
+  action: AgentPlanAction;
   status: AgentStepStatus;
   label: string;
   detail?: string;

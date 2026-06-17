@@ -49,7 +49,8 @@ export type I18nNamespace =
   | "workbench"
   | "commands"
   | "errors"
-  | "workflow";
+  | "workflow"
+  | "phaeleon";
 
 export const I18N_NAMESPACES: readonly I18nNamespace[] = [
   "common",
@@ -62,6 +63,7 @@ export const I18N_NAMESPACES: readonly I18nNamespace[] = [
   "commands",
   "errors",
   "workflow",
+  "phaeleon",
 ] as const;
 
 export interface LocaleStorageValue {

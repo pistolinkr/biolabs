@@ -1,30 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
+import AboutSettingsSection from "@/components/settings/AboutSettingsSection";
 import AiSettingsSection from "@/components/settings/AiSettingsSection";
-import ThemeSelector from "@/components/ThemeSelector";
-import { SettingsRow, Toggle } from "@/components/settings/AiSettingsSection";
-import WorkspaceSettingsSection from "@/components/settings/WorkspaceSettingsSection";
+import GeneralSettingsSection, { syncAiResponseLanguageFromUiLocale } from "@/components/settings/GeneralSettingsSection";
+import GasterWorkspaceSettingsSection from "@/components/settings/WorkspaceSettingsSection";
+import PhaeleonWorkspaceSettingsSection from "@/components/settings/PhaeleonWorkspaceSettingsSection";
 import { useAssistant } from "@/contexts/AssistantContext";
 import { useLocale } from "@/contexts/LocaleContext";
+import type { WorkstationId } from "@/lib/settings/workstationTypes";
 import type { UiLocalePreference } from "@shared/i18n/locales";
-import { resolveUiLocale } from "@shared/i18n/locales";
-import { APP_VERSION_LABEL } from "@shared/version";
 import { cn } from "@/lib/utils";
 
 type SettingsTab = "general" | "ai" | "workspace" | "about";
 
 interface SettingsPanelProps {
+  workstation: WorkstationId;
   isOpen: boolean;
   onClose: () => void;
   initialTab?: SettingsTab;
 }
 
-export default function SettingsPanel({ isOpen, onClose, initialTab = "general" }: SettingsPanelProps) {
+export default function SettingsPanel({
+  workstation,
+  isOpen,
+  onClose,
+  initialTab = "general",
+}: SettingsPanelProps) {
   const { t } = useTranslation("settings");
   const { t: tc } = useTranslation("common");
   const [tab, setTab] = useState<SettingsTab>(initialTab);
-  const { uiLocale, resolvedLocale, setUiLocale, supportedLocales, localeLabels } = useLocale();
+  const { setUiLocale } = useLocale();
   const {
     aiSettings,
     updateAiSettings,
@@ -53,20 +59,9 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
     { id: "about", label: t("tabs.about") },
   ];
 
-  const syncAiResponseLanguage = (preference: UiLocalePreference) => {
-    const resolved = resolveUiLocale(preference);
-    if (preference === "auto") {
-      updateAiSettings({ responseLanguage: "auto" });
-      return;
-    }
-    if (resolved === "en" || resolved === "ko" || resolved === "ja") {
-      updateAiSettings({ responseLanguage: resolved });
-    }
-  };
-
   const handleUiLocaleChange = (next: UiLocalePreference) => {
     void setUiLocale(next);
-    syncAiResponseLanguage(next);
+    syncAiResponseLanguageFromUiLocale(next, updateAiSettings);
   };
 
   if (!isOpen) return null;
@@ -85,7 +80,9 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
             <h2 className="font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-foreground">
               {t("title")}
             </h2>
-            <p className="mt-0.5 font-mono text-[9px] text-muted-foreground">{t("subtitle")}</p>
+            <p className="mt-0.5 font-mono text-[9px] text-muted-foreground">
+              {t(`subtitle.${workstation}`)}
+            </p>
           </div>
           <button
             type="button"
@@ -117,39 +114,12 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
 
           <div className="panel-content min-h-0 flex-1 overflow-y-auto px-4 py-3">
             {tab === "general" && (
-              <div className="space-y-4">
-                <div className="workbench-kicker">{t("general.appearance")}</div>
-                <SettingsRow label={tc("locale.label")} hint={tc("locale.hint")}>
-                  <select
-                    value={uiLocale}
-                    onChange={(e) => handleUiLocaleChange(e.target.value as UiLocalePreference)}
-                    className="min-w-[160px] border border-border bg-input px-2 py-1 font-mono text-[10px] text-foreground focus:border-accent focus:outline-none"
-                  >
-                    <option value="auto">{tc("locale.auto")}</option>
-                    {supportedLocales.map((code) => (
-                      <option key={code} value={code}>
-                        {localeLabels[code]}
-                      </option>
-                    ))}
-                  </select>
-                </SettingsRow>
-                {uiLocale === "auto" ? (
-                  <p className="px-1 font-mono text-[9px] text-muted-foreground">
-                    {tc("locale.autoResolved", { locale: localeLabels[resolvedLocale] })}
-                  </p>
-                ) : null}
-                <SettingsRow label={t("general.colorTheme")} hint={t("general.colorThemeHint")}>
-                  <ThemeSelector className="min-w-[140px]" />
-                </SettingsRow>
-                <SettingsRow label={t("general.scientificHud")} hint={t("general.scientificHudHint")}>
-                  <Toggle checked={true} onChange={() => {}} disabled />
-                </SettingsRow>
-                <p className="font-mono text-[9px] text-muted-foreground">{t("general.viewportNote")}</p>
-              </div>
+              <GeneralSettingsSection workstation={workstation} onUiLocaleChange={handleUiLocaleChange} />
             )}
 
             {tab === "ai" && (
               <AiSettingsSection
+                workstation={workstation}
                 settings={aiSettings}
                 aiKeysSettings={aiKeysSettings}
                 status={status}
@@ -167,16 +137,14 @@ export default function SettingsPanel({ isOpen, onClose, initialTab = "general" 
               />
             )}
 
-            {tab === "workspace" && <WorkspaceSettingsSection />}
+            {tab === "workspace" &&
+              (workstation === "phaeleon" ? (
+                <PhaeleonWorkspaceSettingsSection />
+              ) : (
+                <GasterWorkspaceSettingsSection />
+              ))}
 
-            {tab === "about" && (
-              <div className="space-y-3 font-mono text-[10px] text-muted-foreground">
-                <div className="workbench-kicker text-foreground">{t("about.kicker")}</div>
-                <div>{t("about.version", { version: APP_VERSION_LABEL })}</div>
-                <div>{t("about.stack")}</div>
-                <div className="pt-2 text-[9px]">{t("about.copyright")}</div>
-              </div>
-            )}
+            {tab === "about" && <AboutSettingsSection workstation={workstation} />}
           </div>
         </div>
 

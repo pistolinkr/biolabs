@@ -1,13 +1,20 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Redirect, Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import LocaleSuggestionBanner from "./components/LocaleSuggestionBanner";
 import { LocaleProvider, useLocale } from "./contexts/LocaleContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import {
+  HELIX_PATH,
+  LEGACY_GASTER_PATH,
+  LEGACY_WORKSPACE_PATH,
+  PHAELEON_PATH,
+} from "./lib/routes";
 import Landing from "./pages/Landing";
-import Workspace from "./pages/Workspace";
+import Helix from "./pages/helix/Helix";
+import Phaeleon from "./pages/phaeleon/Phaeleon";
 import Settings from "./pages/Settings";
 
 
@@ -15,7 +22,14 @@ function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Landing} />
-      <Route path={"/workspace"} component={Workspace} />
+      <Route path={HELIX_PATH} component={Helix} />
+      <Route path={PHAELEON_PATH} component={Phaeleon} />
+      <Route path={LEGACY_GASTER_PATH}>
+        <Redirect to={HELIX_PATH} />
+      </Route>
+      <Route path={LEGACY_WORKSPACE_PATH}>
+        <Redirect to={HELIX_PATH} />
+      </Route>
       <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
@@ -41,9 +55,11 @@ function AppShell() {
   return (
     <ThemeProvider key={resolvedLocale}>
       <TooltipProvider>
-        <Toaster />
-        <LocaleSuggestionBanner />
-        <Router />
+        <div className="h-full overflow-hidden">
+          <Toaster />
+          <LocaleSuggestionBanner />
+          <Router />
+        </div>
       </TooltipProvider>
     </ThemeProvider>
   );
