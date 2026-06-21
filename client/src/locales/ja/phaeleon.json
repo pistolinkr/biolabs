@@ -84,7 +84,7 @@
     "emergencySigns": "次の場合は救急措置を検討してください",
     "translating": "レポートを翻訳中…",
     "translationFailed": "翻訳不可",
-    "translationFailedHint": "このレポートを翻訳できませんでした。ネットワーク接続を確認し、再度解析を実行してください。"
+    "translationFailedHint": "このレポートを翻訳できませんでした。サーバーの .env にある AI キー、または 設定 → AI にプロバイダキーがあるか確認し、再度解析を実行してください。"
   },
   "inspector": {
     "assignedDrugs": "割り当てられた薬剤",
